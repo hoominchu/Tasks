@@ -1,0 +1,19 @@
+html {
+  width:300px;
+}
+
+li.task{
+  color:blue;
+}
+
+li.task:hover{
+  color:black;
+}
+
+p{
+  color:blue;
+}
+
+p:hover{
+  color:red;
+}
