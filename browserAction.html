@@ -2,27 +2,29 @@
 <html>
 <head>
     <title>Sail Boat</title>
+    <script src="js/jquery/jquery-3.2.1.min.js"></script>
     <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/custom.css">
-    <script src="browserAction.js"></script>
-    <script src="getTabs.js"></script>
+    <link rel="stylesheet" href="css/font-awesome-4.7.0/css/font-awesome.min.css">
+
 </head>
 <body>
-<div class="container" style="width: 2000px">
+<div class="container" style="min-width: 400px">
     <h2>Sail Boat</h2>
     <hr>
     <h5>Switch Task</h5>
-    <div id="tasks">
-    </div>
+    <ol id="tasks">
+    </ol>
     <hr>
     <h4>Create Task</h4>
     <div class="form-group round-corner">
         <label for="taskName">Task Name:</label>
         <input type="text" class="form-control round-corner" id="taskName">
     </div>
-    <button id="createTask" type="button" class="btn btn-primary round-corner">Create Task</button>
+    <button id="createTask" type="submit" class="btn btn-primary round-corner">Create Task</button>
     <hr>
 </div>
-
+<script src="browserAction.js"></script>
+<script src="getTabs.js"></script>
 </body>
 </html>

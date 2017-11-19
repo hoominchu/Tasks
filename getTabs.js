@@ -95,6 +95,10 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
         }
     }
 
+    if (request.type == "rename-task") {
+
+    }
+
     if (request.type == "switch-task" && request.nextTaskId != "") {
         deactivateTask(CTASKID);
         activateTask(request.nextTaskId);
@@ -119,6 +123,9 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
     }
 });
 
+chrome.commands.onCommand.addListener(function (command) {
+    console.log('Command:', command);
+});
 
 // chrome.runtime.onMessage.addListener(function(request, sender){
 //

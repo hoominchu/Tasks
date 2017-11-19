@@ -1,3 +1,26 @@
 .round-corner {
     border-radius: 0.6em;
 }
+
+.round-corner-left {
+    border-bottom-left-radius: 0.6em;
+    border-top-left-radius: 0.6em;
+}
+
+.round-corner-right {
+    border-bottom-right-radius: 0.6em;
+    border-top-right-radius: 0.6em;
+}
+
+.outline {
+    border: 1px solid darkgray;
+    margin: 0.8em;
+}
+
+.margin {
+    margin: 1.5em;
+}
+
+.bold-text {
+    font-weight: bold;
+}
