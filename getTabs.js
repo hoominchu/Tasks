@@ -81,6 +81,13 @@ function deleteTask(task_id) {
     }
 }
 
+function renameTask(task_id, newName) {
+  if(TASKS[task_id]) {
+    TASKS[task_id].name = newName;
+    chrome.storage.local.set({"TASKS": TASKS})
+  }
+}
+
 //Saving Events
 chrome.runtime.onMessage.addListener(function (request, sender) {
     console.log(request);
@@ -102,6 +109,10 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
     if (request.type == "switch-task" && request.nextTaskId != "") {
         deactivateTask(CTASKID);
         activateTask(request.nextTaskId);
+    }
+
+    if(request.type == "rename-task"){
+      renameTask(request.newTaskName);
     }
 
     if (request.type == "delete-task") {
