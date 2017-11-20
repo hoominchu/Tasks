@@ -51,7 +51,7 @@ function showTasks() {
                     // openButton.id = TASKS[task_id].id;
                     var renameButton = document.createElement("button");
                     renameButton.innerText = "Rename";
-                    renameButton.className = "btn btn-outline-primary";
+                    renameButton.className = "btn btn-outline-primary rename";
                     renameButton.type = "button";
                     renameButton.id = TASKS[task_id].id;
                     var cancelButton = document.createElement("button");
@@ -78,18 +78,22 @@ function showTasks() {
                         );
                     }(task);
                 });
-                document.getElementsByClassName("task")[i].addEventListener("click", function (task) {
+                document.getElementsByClassName("rename")[i].addEventListener("click", function (task) {
                     return function (task) {
+                        // var foo = prompt("Give me input");
+                        document.getElementById(task.srcElement.id).style.display = "None";
                         chrome.runtime.sendMessage(
                             {
                                 "type": "rename-task",
-                                "taskId": task.srcElement.id
+                                "taskId": task.srcElement.id,
+                                "newTaskName": foo
                             }
                         );
                     }(task);
                 });
                 document.getElementsByClassName("delete")[i].addEventListener("click", function (deleteButton) {
                     return function (deleteButton) {
+                        document.getElementById(deleteButton.srcElement.parentElement.id).style.display = "None";
                         chrome.runtime.sendMessage(
                             {
                                 "type": "delete-task",
@@ -105,7 +109,7 @@ function showTasks() {
 
 window.onload = function () {
     showTasks();
-}
+};
 
 document.getElementById("createTask").addEventListener("click", function () {
     chrome.runtime.sendMessage(

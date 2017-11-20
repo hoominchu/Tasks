@@ -11,7 +11,8 @@
 
   "background": {
     "scripts": [
-      "getTabs.js"
+      "getTabs.js",
+      "browserAction.js"
     ]
   },
   "permissions": [
