@@ -12,7 +12,7 @@
   "background": {
     "scripts": [
       "getTabs.js",
-      "browserAction.js"
+      "controller.js"
     ]
   },
   "permissions": [

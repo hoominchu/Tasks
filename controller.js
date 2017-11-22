@@ -1,7 +1,9 @@
 window.onload = function () {
   chrome.storage.local.get("TASKS", function (taskObject) {
-    showTasks(taskObject);
+    if(taskObject["TASKS"]){
+      showTasks(taskObject["TASKS"]);
 
+    }
 
     for (var i = 0; i < document.getElementsByClassName("task").length; i++) {
         document.getElementsByClassName("task")[i].addEventListener("click", function (task) {
@@ -16,15 +18,16 @@ window.onload = function () {
         });
         document.getElementsByClassName("rename")[i].addEventListener("click", function (task) {
             return function (task) {
-                // var foo = prompt("Give me input");
-                document.getElementById(task.srcElement.id).style.display = "None";
-                chrome.runtime.sendMessage(
-                    {
-                        "type": "rename-task",
-                        "taskId": task.srcElement.id,
-                        "newTaskName": "hjgjhg"
-                    }
-                );
+                $("#tasks").replaceWith('<form id="renameForm"><div class="form-group"><label for="newTaskName">What would you like to name the task?</label><input type="text" class="form-control" id="renameInput" aria-describedby="newNameForTask" placeholder="New Name"></div><button type="submit" class="btn btn-primary">Rename Task</button></form>');
+                $("#renameForm").submit(function(){
+                  chrome.runtime.sendMessage(
+                      {
+                          "type": "rename-task",
+                          "taskId": task.srcElement.id,
+                          "newTaskName":$("#renameInput").val()
+                      }
+                  );
+                });
             }(task);
         });
         document.getElementsByClassName("delete")[i].addEventListener("click", function (deleteButton) {
@@ -51,6 +54,8 @@ window.onload = function () {
             }
         );
     });
+
+
 });}
 
 
