@@ -5,6 +5,24 @@ var TASKS = {
     lastAssignedId: -1
 };
 
+// function CustomTab(index, highlighted, active, pinned, audible, mutedInfo, url){
+//   this.index = index,
+//   this.highlighted = highlighted,
+//   this.active = active,
+//   this.pinned = pinned,
+//   this.audible = audible,
+//   this.mutedInfo = mutedInfo,
+//   this.url = url
+// }
+//
+// function createCustomFromChromeTab(chromeTab){
+//   var customTab = new CustomTab(chromeTab.index, chromeTab.highlighted, chromeTab.active, chromeTab.pinned, chromeTab.audible, chromeTab.mutedInfo, chromeTab.url);
+//   console.log(customTab);
+//   return customTab;
+// }
+
+
+
 var CTASKID = -1;
 
 //Initialising TASKS and CTASKID
@@ -48,7 +66,8 @@ function activateTask(task_id) {
     try {
         if (TASKS[task_id].tabs.length > 0) {
             for (var i = 0; i < TASKS[task_id].tabs.length; i++) {
-                chrome.tabs.create({"url": TASKS[task_id].tabs[i].url});
+
+                chrome.tabs.create({"url":TASKS[task_id].tabs[i].url, "pinned": TASKS[task_id].tabs[i].pinned, "active":TASKS[task_id].tabs[i].active});
             }
         }
         else {
