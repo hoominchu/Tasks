@@ -28,11 +28,20 @@ function Task(task_id, task_name, tabs) {
 
 //Helper Methods
 
-function createTask(taskName, tabs) {
-    var newTask = new Task(TASKS["lastAssignedId"] + 1, taskName, tabs);
-    TASKS[TASKS["lastAssignedId"] + 1] = newTask;
-    TASKS["lastAssignedId"] = TASKS["lastAssignedId"] + 1;
-    chrome.storage.local.set({"TASKS": TASKS});
+function createTask(taskName, tabs, createFromCurrentTabs) {
+    if(createFromCurrentTabs){
+      var newTask = new Task(TASKS["lastAssignedId"] + 1, taskName, tabs);
+      TASKS[TASKS["lastAssignedId"] + 1] = newTask;
+      TASKS["lastAssignedId"] = TASKS["lastAssignedId"] + 1;
+      chrome.storage.local.set({"TASKS": TASKS});
+    }
+    else{
+      var emptyArray = [];
+      var newTask = new Task(TASKS["lastAssignedId"] + 1, taskName, emptyArray);
+      TASKS[TASKS["lastAssignedId"] + 1] = newTask;
+      TASKS["lastAssignedId"] = TASKS["lastAssignedId"] + 1;
+      chrome.storage.local.set({"TASKS": TASKS});
+    }
 }
 
 function activateTask(task_id) {
@@ -94,7 +103,7 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 
     if (request.type == "create-task") {
 
-        createTask(request.taskName, request.tabs);
+        createTask(request.taskName, request.tabs, request.createFromCurrentTabs);
 
         if (request.activated) {
             deactivateTask(CTASKID);
