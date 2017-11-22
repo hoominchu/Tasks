@@ -86,7 +86,7 @@ function showTasks() {
                             {
                                 "type": "rename-task",
                                 "taskId": task.srcElement.id,
-                                "newTaskName": foo
+                                "newTaskName": "hjgjhg"
                             }
                         );
                     }(task);
