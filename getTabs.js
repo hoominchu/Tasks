@@ -82,6 +82,10 @@ function activateTask(task_id) {
     }
 }
 
+function backgroundTask(taskId){
+  chrome.windows.create({})
+}
+
 function saveTask(task_id) {
     if (TASKS[task_id]) {
         chrome.tabs.query({}, function (allTabs) {
@@ -95,7 +99,7 @@ function deactivateTask(currentTaskId) {
 
     saveTask(currentTaskId);
 
-    chrome.tabs.query({}, function (allTabs) {
+    chrome.tabs.query({"windowId":chrome.windows.WINDOW_ID_CURRENT}, function (allTabs) {
         for (var i = 0; i < allTabs.length; i++) {
             chrome.tabs.remove(allTabs[i].id);
         }
