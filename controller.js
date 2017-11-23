@@ -18,7 +18,7 @@ window.onload = function () {
         });
         document.getElementsByClassName("rename")[i].addEventListener("click", function (task) {
             return function (task) {
-                $("#tasks").replaceWith('<form id="renameForm"><div class="form-group"><label for="newTaskName">What would you like to name the task?</label><input type="text" class="form-control" id="renameInput" aria-describedby="newNameForTask" placeholder="New Name"></div><button type="submit" class="btn btn-primary">Rename Task</button></form>');
+                $("#tasks").replaceWith('<form id="renameForm"><div class="form-group rounded"><label for="newTaskName">What would you like to name the task?</label><input type="text" class="form-control rounded" id="renameInput" aria-describedby="newNameForTask" placeholder="New Name"></div><button type="submit" class="btn btn-primary rounded">Rename Task</button></form>');
                 $("#renameForm").submit(function(){
                   chrome.runtime.sendMessage(
                       {
@@ -46,18 +46,22 @@ window.onload = function () {
 
     document.getElementById("createTask").addEventListener("click", function () {
         chrome.tabs.query({}, function(tabs){
-          chrome.runtime.sendMessage(
-              {
-                  "type": "create-task",
-                  "taskName": document.getElementById("taskName").value,
-                  "createFromCurrentTabs": document.getElementById("createFromCurrentTabs").checked,
-                  "tabs": tabs,
-                  "activated": true
-              }
-          );
+          chrome.bookmarks.getTree(function(bookmarks){
+            chrome.runtime.sendMessage(
+                {
+                    "type": "create-task",
+                    "taskName": document.getElementById("taskName").value,
+                    "createFromCurrentTabs": document.getElementById("createFromCurrentTabs").checked,
+                    "tabs": tabs,
+                    "bookmarks": bookmarks,
+                    "activated": true
+                }
+            );
+          });
         });
-});
-});}
+    });
+  });
+}
 
 
 
