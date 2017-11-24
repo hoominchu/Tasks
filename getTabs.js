@@ -113,7 +113,6 @@ function saveTask(task_id) {
         });
         chrome.bookmarks.getTree(function(bookmarks){
           TASKS[task_id].bookmarks = bookmarks;
-          console.log(bookmarks);
           chrome.storage.local.set({"TASKS": TASKS});
         });
     }

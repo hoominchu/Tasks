@@ -18,15 +18,20 @@ window.onload = function () {
         });
         document.getElementsByClassName("rename")[i].addEventListener("click", function (task) {
             return function (task) {
-                $("#tasks").replaceWith('<form id="renameForm"><div class="form-group rounded"><label for="newTaskName">What would you like to name the task?</label><input type="text" class="form-control rounded" id="renameInput" aria-describedby="newNameForTask" placeholder="New Name"></div><button type="submit" class="btn btn-primary rounded">Rename Task</button></form>');
+                $("#tasks").replaceWith('<form id="renameForm"><div class="form-group"><label for="newTaskName">What would you like to name the task?</label><input type="text" class="form-control round-corner" id="renameInput" aria-describedby="newNameForTask" placeholder="New Name"></div><button type="submit" class="btn btn-primary round-corner">Rename Task</button> <button class="btn btn-secondary round-corner" id="cancelButton">Cancel</button></form>');
+                $("#cancelButton").click(function(cancel){
+                  location.reload();
+                });
                 $("#renameForm").submit(function(){
-                  chrome.runtime.sendMessage(
-                      {
-                          "type": "rename-task",
-                          "taskId": task.srcElement.id,
-                          "newTaskName":$("#renameInput").val()
-                      }
-                  );
+                  if($("#renameInput").val() != ""){
+                    chrome.runtime.sendMessage(
+                        {
+                            "type": "rename-task",
+                            "taskId": task.srcElement.id,
+                            "newTaskName":$("#renameInput").val()
+                        }
+                    );
+                  }
                 });
             }(task);
         });
@@ -45,25 +50,33 @@ window.onload = function () {
 
 
     document.getElementById("createTask").addEventListener("click", function () {
-        chrome.tabs.query({}, function(tabs){
-          chrome.bookmarks.getTree(function(bookmarks){
-            chrome.runtime.sendMessage(
-                {
-                    "type": "create-task",
-                    "taskName": document.getElementById("taskName").value,
-                    "createFromCurrentTabs": document.getElementById("createFromCurrentTabs").checked,
-                    "tabs": tabs,
-                    "bookmarks": bookmarks,
-                    "activated": true
-                }
-            );
-          });
-        });
+      sendCreateTaskMessage();
+    });
+
+    $('#taskName').keypress(function(event) {
+      if (event.which == '13' && !event.shiftKey) {
+        sendCreateTaskMessage();
+       }
     });
   });
 }
 
-
+function sendCreateTaskMessage(){
+  chrome.tabs.query({}, function(tabs){
+    chrome.bookmarks.getTree(function(bookmarks){
+      chrome.runtime.sendMessage(
+          {
+              "type": "create-task",
+              "taskName": document.getElementById("taskName").value,
+              "createFromCurrentTabs": document.getElementById("createFromCurrentTabs").checked,
+              "tabs": tabs,
+              "bookmarks": bookmarks,
+              "activated": true
+          }
+      );
+    });
+  });
+}
 
 // chrome.getElementById("work").addEventListener("click", function(){
 //   chrome.runtime.sendMessage("work");
