@@ -63,6 +63,23 @@ function createTask(taskName, tabs, createFromCurrentTabs, bookmarks) {
     }
 }
 
+function createBookmarks(bookmarksNode){
+  for(var i=0; i<bookmarks.length; i++){
+    var bookmark = bookmarks[i];
+    if(bookmark.id>2){
+      if(bookmark.url){
+        chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title, "url":bookmark.url});
+      }
+      else{
+        chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title});
+      }
+    }
+    if(bookmark.children){
+      getAllBookmarks(bookmark.children);
+    }
+  }
+}
+
 function activateTask(task_id) {
     try {
         if (TASKS[task_id].tabs.length > 0) {
@@ -74,24 +91,7 @@ function activateTask(task_id) {
             chrome.tabs.create({"url": "about:blank"});
         }
 
-        function getAllBookmarks(bookmarks){
-          for(var i=0; i<bookmarks.length; i++){
-            var bookmark = bookmarks[i];
-            if(bookmark.id>2){
-              if(bookmark.url){
-                chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title, "url":bookmark.url});
-              }
-              else{
-                chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title});
-              }
-            }
-            if(bookmark.children){
-              getAllBookmarks(bookmark.children);
-            }
-          }
-        }
-
-        getAllBookmarks(TASKS[task_id].bookmarks);
+        createBookmarks(TASKS[task_id].bookmarks);
 
         CTASKID = task_id;
         chrome.storage.local.set({"CTASKID": task_id});
