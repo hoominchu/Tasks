@@ -82,7 +82,7 @@ function activateTask(task_id) {
                 chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title, "url":bookmark.url});
               }
               else{
-                chrome.bookmarks.create({"title":bookmark.title});
+                chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title});
               }
             }
             if(bookmark.children){
