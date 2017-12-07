@@ -64,8 +64,8 @@ function createTask(taskName, tabs, createFromCurrentTabs, bookmarks) {
 }
 
 function createBookmarks(bookmarksNode){
-  for(var i=0; i<bookmarks.length; i++){
-    var bookmark = bookmarks[i];
+  for(var i=0; i<bookmarksNode.length; i++){
+    var bookmark = bookmarksNode[i];
     if(bookmark.id>2){
       if(bookmark.url){
         chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title, "url":bookmark.url});
@@ -75,7 +75,7 @@ function createBookmarks(bookmarksNode){
       }
     }
     if(bookmark.children){
-      getAllBookmarks(bookmark.children);
+      createBookmarks(bookmark.children);
     }
   }
 }
@@ -162,7 +162,18 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 
     if (request.type == "create-task") {
 
+      if(CTASKID == -1){
+        chrome.bookmarks.getTree(function(bookmarks){
+          createTask(request.taskName, request.tabs, request.createFromCurrentTabs, bookmarks);
+          if (request.activated) {
+              deactivateTask(CTASKID);
+              activateTask(TASKS["lastAssignedId"]);
+          }
+        });
+      }
+      else{
         createTask(request.taskName, request.tabs, request.createFromCurrentTabs, request.bookmarks);
+      }
 
         if (request.activated) {
             deactivateTask(CTASKID);
