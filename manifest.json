@@ -11,7 +11,7 @@
 
   "background": {
     "scripts": [
-      "getTabs.js",
+      "background.js",
       "controller.js"
     ]
   },
@@ -19,8 +19,12 @@
     "tabs",
     "storage",
     "bookmarks",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "contextMenus"
   ],
+  "icons": {
+    "16": "SailBoat.png"
+  },
   "commands": {
     "view-all-tasks" : {
       "suggested-key" : {

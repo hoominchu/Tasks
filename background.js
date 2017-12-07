@@ -21,14 +21,12 @@ var TASKS = {
 //   return customTab;
 // }
 
-
-
 var CTASKID = -1;
 
 //Initialising TASKS and CTASKID
 chrome.storage.local.get("TASKS", function (taskObject) {
     if (taskObject["TASKS"]) {
-        TASKS = taskObject["TASKS"];  //On retreiving TASKS from chrome storage, one gets an object {TASKS: balhah}, to retreive the actual array call taskObject["TASKS"]
+        TASKS = taskObject["TASKS"];//On retreiving TASKS from chrome storage, one gets an object {TASKS: balhah}, to retreive the actual array call taskObject["TASKS"]
     }
 });
 
@@ -156,9 +154,35 @@ function renameTask(task_id, newName) {
     }
 }
 
+
+//Context Menu Related Stuff
+
+function refreshContextMenu(){
+  chrome.contextMenus.removeAll(function(){
+    chrome.contextMenus.create({"title": "Add to task", "id":"rootMenu", "contexts": ["link"]});
+    for(var task_id in TASKS){
+      if(task_id != "lastAssignedId" && task_id != CTASKID){
+        chrome.contextMenus.create({"title": TASKS[task_id].name, "parentId": "rootMenu", "id": TASKS[task_id].id.toString(), "contexts": ["link"]});
+      }
+    }
+  })
+}
+
+function addToTask(url, task_id){
+  TASKS[task_id].tabs.push({"url": url});
+}
+
+chrome.contextMenus.onClicked.addListener(function(info, tab){
+  if(info.parentMenuItemId == "rootMenu"){
+    addToTask(info.linkUrl, info.menuItemId);
+  }
+});
+
 //Saving Events
 chrome.runtime.onMessage.addListener(function (request, sender) {
     console.log(request);
+
+    refreshContextMenu();
 
     if (request.type == "create-task") {
 
