@@ -41,6 +41,7 @@ function Task(task_id, task_name, tabs, bookmarks) {
     this.name = task_name;
     this.tabs = tabs;
     this.bookmarks = bookmarks;
+    this.history= [];
 }
 
 //Helper Methods
@@ -217,13 +218,15 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
     if (request.type == "delete-task") {
         deleteTask(request.taskToRemove);
     }
-
-
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (changeInfo.title) {
         saveTask(CTASKID);
+    }
+
+    if(changeInfo.url!= "chrome://newtab/" && changeInfo.url!="about:blank" && changeInfo.url){
+      TASKS[CTASKID].history.push(changeInfo.url);
     }
 });
 

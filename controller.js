@@ -78,6 +78,10 @@ function sendCreateTaskMessage(){
   });
 }
 
+$("#history").click(function(){
+  chrome.tabs.create({"url": "history.html"});
+});
+
 // chrome.getElementById("work").addEventListener("click", function(){
 //   chrome.runtime.sendMessage("work");
 // });

@@ -3,6 +3,15 @@
   "name": "Sail Boat",
   "description": "Browser as it should be.",
   "version": "0.1",
+
+  "content_scripts": [
+    {
+      "matches": ["https://*/*"],
+      "css": ["styles.css"],
+      "js": ["js/jquery/jquery-3.2.1.min.js", "onpage.js"]
+    }
+  ],
+
   "browser_action": {
     "default_icon": "SailBoat.png",
     "default_popup": "browserAction.html",
@@ -15,6 +24,9 @@
       "controller.js"
     ]
   },
+
+
+
   "permissions": [
     "tabs",
     "storage",
