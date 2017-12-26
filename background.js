@@ -94,6 +94,7 @@ function activateTask(task_id) {
 
         CTASKID = task_id;
         chrome.storage.local.set({"CTASKID": task_id});
+        chrome.browserAction.setBadgeText({"text": TASKS[CTASKID].name.slice(0,4)})
     }
     catch (err) {
         console.log(err.message);
