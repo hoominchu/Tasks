@@ -79,8 +79,13 @@ function sendCreateTaskMessage(){
 }
 
 $("#history").click(function(){
-  chrome.tabs.create({"url": "history.html"});
+  chrome.tabs.create({"url": "html/history.html"});
 });
+
+$("#index").click(function(){
+  chrome.tabs.create({"url": "html/index.html"});
+});
+
 
 // chrome.getElementById("work").addEventListener("click", function(){
 //   chrome.runtime.sendMessage("work");

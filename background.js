@@ -5,22 +5,6 @@ var TASKS = {
     lastAssignedId: -1
 };
 
-// function CustomTab(index, highlighted, active, pinned, audible, mutedInfo, url){
-//   this.index = index,
-//   this.highlighted = highlighted,
-//   this.active = active,
-//   this.pinned = pinned,
-//   this.audible = audible,
-//   this.mutedInfo = mutedInfo,
-//   this.url = url
-// }
-//
-// function createCustomFromChromeTab(chromeTab){
-//   var customTab = new CustomTab(chromeTab.index, chromeTab.highlighted, chromeTab.active, chromeTab.pinned, chromeTab.audible, chromeTab.mutedInfo, chromeTab.url);
-//   console.log(customTab);
-//   return customTab;
-// }
-
 var CTASKID = -1;
 
 //Initialising TASKS and CTASKID
@@ -36,15 +20,41 @@ chrome.storage.local.get("CTASKID", function (cTaskIdObject) {
     }
 });
 
-function Task(task_id, task_name, tabs, bookmarks) {
+function Task(task_id, task_name, tabs, bookmarks, isActive) {
     this.id = task_id;
     this.name = task_name;
     this.tabs = tabs;
     this.bookmarks = bookmarks;
     this.history= [];
+    this.active = isActive;
+    this.activationTime = [];
+    this.deactivationTime = [];
 }
 
 //Helper Methods
+
+function returnDuration(startingTime, endingTime){
+  var startingTime = new Date(startingTime);
+  var endingTime = new Date(endingTime);
+  var hours = endingTime.getHours() - startingTime.getHours();
+  var minutes = endingTime.getMinutes() - startingTime.getMinutes();
+  var seconds = endingTime.getSeconds() - startingTime.getSeconds();
+  var duration = {
+    "hours": hours,
+    "minutes": minutes,
+    "seconds": seconds
+  }
+  return duration;
+}
+
+function downloadTasks(){
+  var tasks_JSON = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(TASKS, null, 2));
+  var downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href",     tasks_JSON);
+  downloadAnchorNode.setAttribute("download", "tasks.json");
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+}
 
 function createTask(taskName, tabs, createFromCurrentTabs, bookmarks) {
     if(createFromCurrentTabs){
@@ -92,9 +102,15 @@ function activateTask(task_id) {
 
         createBookmarks(TASKS[task_id].bookmarks);
 
+
         CTASKID = task_id;
         chrome.storage.local.set({"CTASKID": task_id});
         chrome.browserAction.setBadgeText({"text": TASKS[CTASKID].name.slice(0,4)})
+        var now = new Date();
+        TASKS[task_id].activationTime.push(now.toString());
+        TASKS[task_id].isActive = true;
+        chrome.storage.local.set({"TASKS": TASKS});
+
     }
     catch (err) {
         console.log(err.message);
@@ -119,6 +135,8 @@ function saveTask(task_id) {
 }
 
 function deactivateTask(currentTaskId) {
+  if(TASKS[currentTaskId]){
+
 
     saveTask(currentTaskId);
 
@@ -140,6 +158,15 @@ function deactivateTask(currentTaskId) {
       }
     });
 
+    var now = new Date();
+    TASKS[currentTaskId].deactivationTime.push(now.toString());
+    console.log(now);
+    console.log(TASKS[currentTaskId]);
+    TASKS[currentTaskId].isActive = false;
+
+    chrome.storage.local.set({"TASKS": TASKS});
+
+  }
 }
 
 function deleteTask(task_id) {
@@ -218,6 +245,10 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 
     if (request.type == "delete-task") {
         deleteTask(request.taskToRemove);
+    }
+
+    if (request.type == "download-tasks") {
+      downloadTasks();
     }
 });
 
