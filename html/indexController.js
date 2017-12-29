@@ -18,16 +18,12 @@ window.onload = function () {
           });
         }
 
-      document.getElementById("createTask").addEventListener("click", function () {
-        sendCreateTaskMessage();
-      });
-
     }
   });
 
-
-
-
+  document.getElementById("createTask").addEventListener("click", function () {
+    sendCreateTaskMessage();
+  });
 }
 
 function sendCreateTaskMessage(){

@@ -1,6 +1,5 @@
 "use strict";
 
-//Set up TASKS array. Set it to empty if it doesn't exist in chrome storage, otherwise retreive it from chrome storage.
 var TASKS = {
     lastAssignedId: -1
 };
@@ -139,7 +138,6 @@ function saveTask(task_id) {
 function deactivateTask(currentTaskId) {
   if(TASKS[currentTaskId]){
 
-
     saveTask(currentTaskId);
 
     chrome.tabs.query({"windowId":chrome.windows.WINDOW_ID_CURRENT}, function (allTabs) {
@@ -170,6 +168,16 @@ function deactivateTask(currentTaskId) {
 
     chrome.storage.local.set({"TASKS": TASKS});
 
+  }
+
+  else if(currentTaskId == -1){
+    chrome.tabs.query({"windowId":chrome.windows.WINDOW_ID_CURRENT}, function (allTabs) {
+        for (var i = 0; i < allTabs.length; i++) {
+          if(!allTabs[i].pinned){
+            chrome.tabs.remove(allTabs[i].id);
+          }
+        }
+    });
   }
 }
 
