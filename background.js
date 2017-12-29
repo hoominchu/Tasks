@@ -93,7 +93,9 @@ function activateTask(task_id) {
     try {
         if (TASKS[task_id].tabs.length > 0) {
             for (var i = 0; i < TASKS[task_id].tabs.length; i++) {
-                chrome.tabs.create({"url":TASKS[task_id].tabs[i].url, "pinned": TASKS[task_id].tabs[i].pinned, "active":TASKS[task_id].tabs[i].active});
+                if(!TASKS[task_id].tabs[i].pinned){
+                  chrome.tabs.create({"url":TASKS[task_id].tabs[i].url, "pinned": TASKS[task_id].tabs[i].pinned, "active":TASKS[task_id].tabs[i].active});
+                }
             }
         }
         else {
@@ -142,7 +144,9 @@ function deactivateTask(currentTaskId) {
 
     chrome.tabs.query({"windowId":chrome.windows.WINDOW_ID_CURRENT}, function (allTabs) {
         for (var i = 0; i < allTabs.length; i++) {
+          if(!allTabs[i].pinned){
             chrome.tabs.remove(allTabs[i].id);
+          }
         }
     });
 
@@ -209,7 +213,7 @@ chrome.contextMenus.onClicked.addListener(function(info, tab){
 
 //Saving Events
 chrome.runtime.onMessage.addListener(function (request, sender) {
-    console.log(request);
+    console.log(request.nextTaskId);
 
     refreshContextMenu();
 

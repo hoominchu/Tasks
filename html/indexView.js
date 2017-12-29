@@ -4,12 +4,21 @@ function showTasks(Tasks){
 
           var col = $("<div class='col-lg-4'></div>");
 
+          if(Tasks[task_id].isActive){
+            var card = $("<div>", {
+                        "class": "card text-white bg-success mb-3 task",
+                        "style": "max-width: 20rem; height:16em;",
+                        "id": task_id
+                      });
+          }
+          else{
+            var card = $("<div>", {
+                        "class": "card text-white bg-primary mb-3 task",
+                        "style": "max-width: 20rem; height:16em;",
+                        "id": task_id
+                      });
+          }
 
-          var card = $("<div>", {
-                      "class": "card text-white bg-primary mb-3",
-                      "style": "max-width: 20rem; height:16em;",
-                      "id": task_id
-                    });
           var card_header = $("<div>", {"class": "card-header", "text": Tasks[task_id].name});
           var card_body = $("<div>", {"class": "card-body"});
           var card_thumbnail = $("<h1 class='text-center' style='font-size:500%; font-weight:bold'>"+Tasks[task_id].name.slice(0,4)+"</h1>")
