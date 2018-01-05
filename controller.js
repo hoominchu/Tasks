@@ -85,12 +85,3 @@ $("#history").click(function(){
 $("#index").click(function(){
   chrome.tabs.create({"url": "html/index.html"});
 });
-
-
-// chrome.getElementById("work").addEventListener("click", function(){
-//   chrome.runtime.sendMessage("work");
-// });
-//
-// chrome.getElementById("play").addEventListener("click", function(){
-//   chrome.runtime.sendMessage("play");
-// });

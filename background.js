@@ -1,23 +1,6 @@
 "use strict";
 
-var TASKS = {
-    lastAssignedId: -1
-};
-
-var CTASKID = -1;
-
-//Initialising TASKS and CTASKID
-chrome.storage.local.get("TASKS", function (taskObject) {
-    if (taskObject["TASKS"]) {
-        TASKS = taskObject["TASKS"];//On retreiving TASKS from chrome storage, one gets an object {TASKS: balhah}, to retreive the actual array call taskObject["TASKS"]
-    }
-});
-
-chrome.storage.local.get("CTASKID", function (cTaskIdObject) {
-    if (cTaskIdObject["CTASKID"]) {
-        CTASKID = cTaskIdObject["CTASKID"];
-    }
-});
+//BEGINNING: Object Definitions
 
 function Task(task_id, task_name, tabs, bookmarks, isActive) {
     this.id = task_id;
@@ -30,7 +13,34 @@ function Task(task_id, task_name, tabs, bookmarks, isActive) {
     this.deactivationTime = [];
 }
 
-//Helper Methods
+//ENDING: Object Definitions
+
+
+
+//BEGINNING: Inititalising of variables
+
+var TASKS = { lastAssignedId: -1 };
+var CTASKID = -1;
+
+var currentTaskIsSet = !(CTASKID == -1)
+
+chrome.storage.local.get("TASKS", function (taskObject) {
+    if (taskObject["TASKS"]) {
+        TASKS = taskObject["TASKS"];//On retreiving TASKS from chrome storage, one gets an object {TASKS: balhah}, to retreive the actual array call taskObject["TASKS"]
+    }
+});
+
+chrome.storage.local.get("CTASKID", function (cTaskIdObject) {
+    if (cTaskIdObject["CTASKID"]) {
+        CTASKID = cTaskIdObject["CTASKID"];
+    }
+});
+
+//ENDING: Inititalising of variables
+
+
+
+//BEGINNING: Level 1 Helpers
 
 function returnDuration(startingTime, endingTime){
   var startingTime = new Date(startingTime);
@@ -46,29 +56,63 @@ function returnDuration(startingTime, endingTime){
   return duration;
 }
 
-function downloadTasks(){
-  var tasks_JSON = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(TASKS, null, 2));
-  var downloadAnchorNode = document.createElement('a');
-  downloadAnchorNode.setAttribute("href",     tasks_JSON);
-  downloadAnchorNode.setAttribute("download", "tasks.json");
-  downloadAnchorNode.click();
-  downloadAnchorNode.remove();
+//ENDING: Level 1 Helpers
+
+
+
+//BEGINNING: Level 2 Helpers
+
+function closeAllTabs(shouldPinnedClose, windowID){
+
+  if(windowID != null && !shouldPinnedClose){
+    chrome.tabs.query({"windowId":windowID}, function (allTabs) {
+        for (var i = 0; i < allTabs.length; i++) {
+          if(!allTabs[i].pinned){
+            chrome.tabs.remove(allTabs[i].id);
+          }
+        }
+    });
+  }
+
+  else if (windowID != null && shouldPinnedClose){
+    chrome.tabs.query({"windowId":windowID}, function (allTabs) {
+        for (var i = 0; i < allTabs.length; i++) {
+          chrome.tabs.remove(allTabs[i].id);
+        }
+    });
+  }
+
+  else if (windowID == null && !shouldPinnedClose){
+    chrome.tabs.query({}, function (allTabs) {
+        for (var i = 0; i < allTabs.length; i++) {
+          if(!allTabs[i].pinned){
+            chrome.tabs.remove(allTabs[i].id);
+          }
+        }
+    });
+  }
+
+  else {
+    chrome.tabs.query({}, function (allTabs) {
+        for (var i = 0; i < allTabs.length; i++) {
+            chrome.tabs.remove(allTabs[i].id);
+        }
+    });
+  }
 }
 
-function createTask(taskName, tabs, createFromCurrentTabs, bookmarks) {
-    if(createFromCurrentTabs){
-      var newTask = new Task(TASKS["lastAssignedId"] + 1, taskName, tabs, bookmarks);
-      TASKS[TASKS["lastAssignedId"] + 1] = newTask;
-      TASKS["lastAssignedId"] = TASKS["lastAssignedId"] + 1;
-      chrome.storage.local.set({"TASKS": TASKS});
+function removeBookmarks(){
+  chrome.bookmarks.getChildren("1", function (children){
+    for(var i = 0; i<children.length; i++){
+      chrome.bookmarks.removeTree(children[i].id)
     }
-    else{
-      var emptyArray = [];
-      var newTask = new Task(TASKS["lastAssignedId"] + 1, taskName, emptyArray, bookmarks);
-      TASKS[TASKS["lastAssignedId"] + 1] = newTask;
-      TASKS["lastAssignedId"] = TASKS["lastAssignedId"] + 1;
-      chrome.storage.local.set({"TASKS": TASKS});
+  });
+
+  chrome.bookmarks.getChildren("2", function (children){
+    for(var i = 0; i<children.length; i++){
+      chrome.bookmarks.removeTree(children[i].id)
     }
+  });
 }
 
 function createBookmarks(bookmarksNode){
@@ -86,6 +130,38 @@ function createBookmarks(bookmarksNode){
       createBookmarks(bookmark.children);
     }
   }
+}
+
+function saveTasksToStorage(){
+  chrome.storage.local.set({"TASKS": TASKS});
+}
+
+function addToHistory(url, taskId){
+  if(url!= "chrome://newtab/" && url!="about:blank" && url){
+    TASKS[taskId].history.push(url);
+  }
+}
+
+//ENDING: Level 2 Helpers
+
+
+
+//BEGINNING: Level 3 Helpers
+
+function createTask(taskName, tabs, createFromCurrentTabs, bookmarks) {
+    if(createFromCurrentTabs){
+      var newTask = new Task(TASKS["lastAssignedId"] + 1, taskName, tabs, bookmarks);
+      TASKS[TASKS["lastAssignedId"] + 1] = newTask;
+      TASKS["lastAssignedId"] = TASKS["lastAssignedId"] + 1;
+      saveTasksToStorage();
+    }
+    else{
+      var emptyArray = [];
+      var newTask = new Task(TASKS["lastAssignedId"] + 1, taskName, emptyArray, bookmarks);
+      TASKS[TASKS["lastAssignedId"] + 1] = newTask;
+      TASKS["lastAssignedId"] = TASKS["lastAssignedId"] + 1;
+      saveTasksToStorage();
+    }
 }
 
 function activateTask(task_id) {
@@ -110,7 +186,7 @@ function activateTask(task_id) {
         var now = new Date();
         TASKS[task_id].activationTime.push(now.toString());
         TASKS[task_id].isActive = true;
-        chrome.storage.local.set({"TASKS": TASKS});
+        saveTasksToStorage();
 
     }
     catch (err) {
@@ -118,85 +194,61 @@ function activateTask(task_id) {
     }
 }
 
-function backgroundTask(taskId){
-  chrome.windows.create({})
-}
-
 function saveTask(task_id) {
     if (TASKS[task_id]) {
         chrome.tabs.query({}, function (allTabs) {
             TASKS[task_id].tabs = allTabs;
-            chrome.storage.local.set({"TASKS": TASKS});
+            saveTasksToStorage();
         });
         chrome.bookmarks.getTree(function(bookmarks){
           TASKS[task_id].bookmarks = bookmarks;
-          chrome.storage.local.set({"TASKS": TASKS});
+          saveTasksToStorage();
         });
     }
 }
 
 function deactivateTask(currentTaskId) {
   if(TASKS[currentTaskId]){
-
     saveTask(currentTaskId);
-
-    chrome.tabs.query({"windowId":chrome.windows.WINDOW_ID_CURRENT}, function (allTabs) {
-        for (var i = 0; i < allTabs.length; i++) {
-          if(!allTabs[i].pinned){
-            chrome.tabs.remove(allTabs[i].id);
-          }
-        }
-    });
-
-    chrome.bookmarks.getChildren("1", function (children){
-      for(var i = 0; i<children.length; i++){
-        chrome.bookmarks.removeTree(children[i].id)
-      }
-    });
-
-    chrome.bookmarks.getChildren("2", function (children){
-      for(var i = 0; i<children.length; i++){
-        chrome.bookmarks.removeTree(children[i].id)
-      }
-    });
-
+    closeAllTabs(false, chrome.windows.WINDOW_ID_CURRENT)
+    removeBookmarks();
     var now = new Date();
     TASKS[currentTaskId].deactivationTime.push(now.toString());
-    console.log(now);
-    console.log(TASKS[currentTaskId]);
     TASKS[currentTaskId].isActive = false;
-
-    chrome.storage.local.set({"TASKS": TASKS});
-
+    saveTasksToStorage();
   }
-
   else if(currentTaskId == -1){
-    chrome.tabs.query({"windowId":chrome.windows.WINDOW_ID_CURRENT}, function (allTabs) {
-        for (var i = 0; i < allTabs.length; i++) {
-          if(!allTabs[i].pinned){
-            chrome.tabs.remove(allTabs[i].id);
-          }
-        }
-    });
+    closeAllTabs(false, chrome.windows.WINDOW_ID_CURRENT)
   }
 }
 
 function deleteTask(task_id) {
     if (TASKS[task_id]) {
         delete TASKS[task_id];
-        chrome.storage.local.set({"TASKS": TASKS});
+        saveTasksToStorage();
     }
 }
 
 function renameTask(task_id, newName) {
     if (TASKS[task_id]) {
         TASKS[task_id].name = newName;
-        chrome.storage.local.set({"TASKS": TASKS})
+        saveTasksToStorage();
     }
 }
 
+function downloadTasks(){
+  var tasks_JSON = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(TASKS, null, 2));
+  var downloadAnchorNode = document.createElement('a');
+  downloadAnchorNode.setAttribute("href",     tasks_JSON);
+  downloadAnchorNode.setAttribute("download", "tasks.json");
+  downloadAnchorNode.click();
+  downloadAnchorNode.remove();
+}
 
-//Context Menu Related Stuff
+//ENDING: Level 3 Helpers
+
+
+//BEGINNING: Context Menu Related Stuff
 
 function refreshContextMenu(){
   chrome.contextMenus.removeAll(function(){
@@ -219,15 +271,21 @@ chrome.contextMenus.onClicked.addListener(function(info, tab){
   }
 });
 
-//Saving Events
+//ENDING: Context Menu Related Stuff
+
+
+//BEGINNING: Stuff that calls the appropriate helper when a task is created/switched/deleted etc
+
+//everytime a user creates, switches, deletes etc a task,
+//this part of the code is invoked first in the whole page
+
 chrome.runtime.onMessage.addListener(function (request, sender) {
-    console.log(request.nextTaskId);
 
     refreshContextMenu();
 
     if (request.type == "create-task") {
 
-      if(CTASKID == -1){
+      if(!currentTaskIsSet){
         chrome.bookmarks.getTree(function(bookmarks){
           createTask(request.taskName, request.tabs, request.createFromCurrentTabs, bookmarks);
           if (request.activated) {
@@ -264,22 +322,27 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
     }
 });
 
+//ENDING: Stuff that calls the appropriate helper when a task is created/switched/deleted etc
+
+
+
+//BEGINNING: Stuff that saves tabs of task
+
+//Save a tab when the url is changed.
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+
     if (changeInfo.title) {
         saveTask(CTASKID);
     }
+    addToHistory(changeInfo.url, CTASKID)
 
-    if(changeInfo.url!= "chrome://newtab/" && changeInfo.url!="about:blank" && changeInfo.url){
-      TASKS[CTASKID].history.push(changeInfo.url);
-    }
 });
 
+//Save task when a tab is closed
 chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
     if (!removeInfo.isWindowClosing) {
         saveTask(CTASKID);
     }
 });
 
-chrome.commands.onCommand.addListener(function (command) {
-    console.log('Command:', command);
-});
+//ENDING: Stuff that saves tabs of task
