@@ -1,7 +1,7 @@
 window.onload = function () {
   chrome.storage.local.get("TASKS", function (taskObject) {
     if(taskObject["TASKS"]){
-      console.log(taskObject["TASKS"])
+      console.log(taskObject["TASKS"]);
       showTasks(taskObject["TASKS"]);
       for (var i = 0; i < document.getElementsByClassName("task").length; i++) {
           console.log("hello");
@@ -24,7 +24,7 @@ window.onload = function () {
   document.getElementById("createTask").addEventListener("click", function () {
     sendCreateTaskMessage();
   });
-}
+};
 
 function sendCreateTaskMessage(){
   chrome.tabs.query({}, function(tabs){

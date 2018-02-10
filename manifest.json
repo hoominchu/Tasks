@@ -3,44 +3,60 @@
   "name": "Sail Boat",
   "description": "Browser as it should be.",
   "version": "0.1",
-
   "content_scripts": [
     {
-      "matches": ["https://*/*"],
-      "css": ["styles.css"],
-      "js": ["js/jquery/jquery-3.2.1.min.js", "onpage.js"]
+      "matches": [
+        "https://*/*"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "js": [
+        "js/jquery/jquery-3.2.1.min.js",
+        "onpage.js"
+      ]
     }
   ],
-
   "browser_action": {
     "default_icon": "SailBoat.png",
     "default_popup": "browserAction.html",
     "default_title": "Sail Boat"
   },
-
   "background": {
-    "scripts": [
-      "background.js",
-      "controller.js"
-    ]
+    "page": "background.html"
   },
-
-
-
+  "web_accessible_resources": [
+    "chrome_ex_oauth.html",
+    "chrome_ex_oauth.js",
+    "chrome_ex_oauthsimple.html"
+  ],
   "permissions": [
     "tabs",
+    "identity",
     "storage",
     "bookmarks",
     "unlimitedStorage",
-    "contextMenus"
+    "contextMenus",
+    "https://docs.google.com/feeds/*",
+    "https://www.google.com/accounts/OAuthGetRequestToken",
+    "https://www.google.com/accounts/OAuthAuthorizeToken",
+    "https://www.google.com/accounts/OAuthGetAccessToken",
+    "http://*.google.com/"
   ],
+  "oauth2": {
+    "client_id": "263846417973-s13arqju7bhiaco6rd9lkrcnh5jsffla.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/drive",
+      "profile"
+    ]
+  },
   "icons": {
     "16": "SailBoat.png"
   },
   "commands": {
-    "view-all-tasks" : {
-      "suggested-key" : {
-        "mac" : "Command+Shift+Y"
+    "view-all-tasks": {
+      "suggested-key": {
+        "mac": "Command+Shift+Y"
       },
       "description": "View all tasks"
     }

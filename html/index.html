@@ -41,17 +41,15 @@
 
   <div class="container-fluid content" >
     <div class="row" id="tasks-container">
-      <div class="col-lg-4">
-      <div class="card text-white bg-dark mb-3 col-lg-4" style="max-width: 20rem; height:16em;">
-        <div class="card-header">Create Task</div>
+      <div class="col-lg-3">
+      <div class="card text-white bg-dark mb-3 col-lg-3" style="max-width: 20rem; height:12em; border-radius:0.8em">
         <div class="card-body">
           <div class="form-group round-corner">
-              <label for="taskName">Task Name:</label>
-              <input type="text" class="form-control round-corner" id="taskName">
+              <input type="text" class="form-control round-corner" id="taskName" placeholder="Task name" style="border-radius: 0.6em">
               <label for="createFromTabs">Create from current tabs</label>
               <input type="checkbox" id="createFromCurrentTabs">
           </div>
-          <button id="createTask" type="submit" class="btn btn-primary round-corner">Create Task</button>
+          <button id="createTask" type="submit" class="btn btn-secondary round-corner btn-sm" style="border-radius: 0.6em">Create Task</button>
         </div>
       </div>
     </div>
