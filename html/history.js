@@ -11,7 +11,7 @@ chrome.storage.local.get("TASKS", function (taskObject) {
       var selectedTask = Tasks[$(this).attr('id')];
       console.log(selectedTask);
       for(var i = selectedTask.history.length-1; i>-1; i--){
-        $("#urls-list").append('<li><a href="'+selectedTask.history[i]+'">'+selectedTask.history[i]+'</a></li>');
+        $("#urls-list").append('<li><a href="'+selectedTask.history[i].url+'">'+selectedTask.history[i].url+'</a></li>');
       }
     });
   }

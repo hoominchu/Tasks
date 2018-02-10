@@ -25,6 +25,15 @@
     ]
   },
 
+    "content_scripts": [
+      {
+        "matches": ["https://*/*", "http://*/*"],
+        "css": ["css/font-awesome-4.7.0/css/font-awesome.min.css", "contentscript.css"],
+        "js": ["js/jquery/jquery-3.2.1.min.js", "contentscript.js"],
+        "run_at": "document_end"
+
+      }
+    ],
 
 
   "permissions": [
@@ -32,8 +41,9 @@
     "storage",
     "bookmarks",
     "unlimitedStorage",
-    "contextMenus"
-  ],
+    "contextMenus",
+    "*://apis.google.com/*"
+    ],
   "icons": {
     "16": "SailBoat.png"
   },

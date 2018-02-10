@@ -11,6 +11,16 @@ function Task(task_id, task_name, tabs, bookmarks, isActive) {
     this.active = isActive;
     this.activationTime = [];
     this.deactivationTime = [];
+    this.likedPages = [];
+    this.pages = {};
+}
+
+function Page(url, title, time, isLiked, isBookmarked){
+  this.url = url;
+  this.title = title;
+  this.time = time;
+  this.isLiked = isLiked;
+  this.isBookmarked = isBookmarked;
 }
 
 //ENDING: Object Definitions
@@ -31,8 +41,9 @@ chrome.storage.local.get("TASKS", function (taskObject) {
 });
 
 chrome.storage.local.get("CTASKID", function (cTaskIdObject) {
-    if (cTaskIdObject["CTASKID"]) {
+    if (cTaskIdObject["CTASKID"]>-1) {
         CTASKID = cTaskIdObject["CTASKID"];
+        console.log("HelloL");
     }
 });
 
@@ -55,6 +66,11 @@ function returnDuration(startingTime, endingTime){
   }
   return duration;
 }
+
+function returnPage(page, url){
+  return page.url === url;
+}
+
 
 //ENDING: Level 1 Helpers
 
@@ -115,32 +131,82 @@ function removeBookmarks(){
   });
 }
 
-function createBookmarks(bookmarksNode){
-  for(var i=0; i<bookmarksNode.length; i++){
+// function createBookmarks(bookmarksNode, parentId){
+//   for(var i=0; i<bookmarksNode.length; i++){
+//     var bookmark = bookmarksNode[i];
+//     var isRootFolder = !(bookmark.id>2);
+//     var isFolder = (bookmark.url == null);
+//     var isParentRoot = !(bookmark.parentId>2);
+//
+//     if(!isRootFolder && !isFolder && isParentRoot){
+//       chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title, "url":bookmark.url});
+//     }
+//
+//     else if((!isRootFolder && !isFolder && !isParentRoot)){
+//       chrome.bookmarks.create({"parentId":parentId, "index": bookmark.index, "title": bookmark.title, "url":bookmark.url});
+//     }
+//
+//     else if (!isRootFolder && isFolder){
+//       if(bookmark.children.length>0){
+//         var children = bookmark.children;
+//         chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title}, function(result){createBookmarks(children, result.id)});
+//       }
+//       else{
+//         chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title});
+//       }
+//     }
+//
+//     else if (isRootFolder){
+//       if(bookmark.children.length > 0){
+//         createBookmarks(bookmark.children);
+//       }
+//     }
+//   }
+// }
+
+function createBookmarks(bookmarksNode, parentId){
+  for(var i =0; i<bookmarksNode.length; i++){
     var bookmark = bookmarksNode[i];
-    if(bookmark.id>2){
-      if(bookmark.url){
-        chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title, "url":bookmark.url});
+    var isFolder = (bookmark.url == null);
+    var isRootFolder = !(bookmark.id>2);
+    if(isRootFolder){
+      createBookmarks(bookmark.children, bookmark.id);
+    }
+    else{
+      if(isFolder){
+        var children = bookmark.children;
+        if(children.length>0){
+          chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title}, function(result){createBookmarks(children, result.id)});
+        }
+        else{
+          chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title});
+        }
       }
       else{
-        chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title});
+        chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title, "url": bookmark.url});
       }
-    }
-    if(bookmark.children){
-      createBookmarks(bookmark.children);
     }
   }
 }
+
 
 function saveTasksToStorage(){
   chrome.storage.local.set({"TASKS": TASKS});
 }
 
-function addToHistory(url, taskId){
+function addToHistory(url, task_id){
   if(url!= "chrome://newtab/" && url!="about:blank" && url){
-    TASKS[taskId].history.push(url);
+    var newPage = new Page(url)
+    TASKS[task_id].history.push(newPage);
   }
 }
+
+function likePage(url, task_id){
+  var page = TASKS[task_id].history.find((page) => page.url === url );
+  TASKS[task_id].history.find((page) => page.url === url ).isLiked = !(page.isLiked);
+  saveTasksToStorage();
+}
+
 
 //ENDING: Level 2 Helpers
 
@@ -265,6 +331,8 @@ function addToTask(url, task_id){
   TASKS[task_id].tabs.push({"url": url});
 }
 
+
+
 chrome.contextMenus.onClicked.addListener(function(info, tab){
   if(info.parentMenuItemId == "rootMenu"){
     addToTask(info.linkUrl, info.menuItemId);
@@ -320,6 +388,10 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
     if (request.type == "download-tasks") {
       downloadTasks();
     }
+
+    if(request.type == "like-page"){
+      likePage(request.url, CTASKID);
+    }
 });
 
 //ENDING: Stuff that calls the appropriate helper when a task is created/switched/deleted etc
@@ -334,7 +406,10 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
     if (changeInfo.title) {
         saveTask(CTASKID);
     }
-    addToHistory(changeInfo.url, CTASKID)
+
+    addToHistory(changeInfo.url, CTASKID);
+
+    chrome.tabs.sendMessage(tabId, {data:tab})
 
 });
 
