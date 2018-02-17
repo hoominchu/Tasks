@@ -1,7 +1,10 @@
 "use strict";
 
-
 //BEGINNING: Object Definitions
+
+var tabIdToURL={};
+
+var activeTabId = -1;
 
 function Task(task_id, task_name, tabs, bookmarks, isActive) {
     this.id = task_id;
@@ -12,6 +15,19 @@ function Task(task_id, task_name, tabs, bookmarks, isActive) {
     this.active = isActive;
     this.activationTime = [];
     this.deactivationTime = [];
+    this.likedPages = [];
+    this.pages = {};
+}
+
+function Page(url, title, isLiked, isBookmarked){
+  this.url = url;
+  this.title = title;
+  this.timeSpent = [];
+  this.isLiked = isLiked;
+  this.isBookmarked = isBookmarked;
+  this.timeVisited = [];
+  this.exitTimes = [];
+  this.totalTimeSpent = {};
 }
 
 //ENDING: Object Definitions
@@ -31,7 +47,7 @@ chrome.storage.local.get("TASKS", function (taskObject) {
 });
 
 chrome.storage.local.get("CTASKID", function (cTaskIdObject) {
-    if (cTaskIdObject["CTASKID"]) {
+    if (cTaskIdObject["CTASKID"]>-1) {
         CTASKID = cTaskIdObject["CTASKID"];
     }
 });
@@ -41,18 +57,46 @@ chrome.storage.local.get("CTASKID", function (cTaskIdObject) {
 
 //BEGINNING: Level 1 Helpers
 
+function getTotalTimeSpent(Page){
+  var timeSpent = Page.timeSpent;
+  var hours = 0;
+  var minutes = 0;
+  var seconds = 0;
+  for(var i = 0; i<timeSpent.length; i++){
+    hours = hours + timeSpent[i]["hours"];
+    minutes = minutes + timeSpent[i]["minutes"];
+    seconds = seconds + timeSpent[i]["seconds"];
+  }
+  var t_timeSpent = {"hours": hours, "minutes": minutes, "seconds": seconds};
+  return t_timeSpent;
+}
+
 function returnDuration(startingTime, endingTime) {
     var startingTime = new Date(startingTime);
     var endingTime = new Date(endingTime);
     var hours = endingTime.getHours() - startingTime.getHours();
-    var minutes = endingTime.getMinutes() - startingTime.getMinutes();
-    var seconds = endingTime.getSeconds() - startingTime.getSeconds();
+    var minutes = Math.abs(endingTime.getMinutes() - startingTime.getMinutes());
+    var seconds = Math.abs(endingTime.getSeconds() - startingTime.getSeconds());
     var duration = {
         "hours": hours,
         "minutes": minutes,
         "seconds": seconds
     }
     return duration;
+}
+
+function returnPage(page, url){
+  return page.url === url;
+}
+
+function updateExitTime(url, time){
+  if(TASKS[CTASKID].history.find((page) => page.url === url)){
+    TASKS[CTASKID].history.find((page) => page.url === url).exitTimes.push(time);
+    var page = TASKS[CTASKID].history.find((page) => page.url === url);
+    var duration = returnDuration(page.timeVisited[page.timeVisited.length-1], time);
+    TASKS[CTASKID].history.find((page) => page.url === url).timeSpent.push(duration);
+    TASKS[CTASKID].history.find((page) => page.url === url).totalTimeSpent = getTotalTimeSpent(TASKS[CTASKID].history.find((page) => page.url === url));
+  }
 }
 
 //ENDING: Level 1 Helpers
@@ -113,41 +157,100 @@ function removeBookmarks() {
     });
 }
 
-function createBookmarks(bookmarksNode) {
-    for (var i = 0; i < bookmarksNode.length; i++) {
-        var bookmark = bookmarksNode[i];
-        if (bookmark.id > 2) {
-            if (bookmark.url) {
-                chrome.bookmarks.create({
-                    "parentId": bookmark.parentId,
-                    "index": bookmark.index,
-                    "title": bookmark.title,
-                    "url": bookmark.url
-                });
-            }
-            else {
-                chrome.bookmarks.create({
-                    "parentId": bookmark.parentId,
-                    "index": bookmark.index,
-                    "title": bookmark.title
-                });
-            }
-        }
-        if (bookmark.children) {
-            createBookmarks(bookmark.children);
-        }
+function createBookmarks(bookmarksNode, parentId){
+  for(var i=0; i<bookmarksNode.length; i++){
+    var bookmark = bookmarksNode[i];
+    var isRootFolder = !(bookmark.id>2);
+    var isFolder = (bookmark.url == null);
+    var isParentRoot = !(bookmark.parentId>2);
+
+    if(!isRootFolder && !isFolder && isParentRoot){
+      chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title, "url":bookmark.url});
     }
+
+    else if((!isRootFolder && !isFolder && !isParentRoot)){
+      chrome.bookmarks.create({"parentId":parentId, "index": bookmark.index, "title": bookmark.title, "url":bookmark.url});
+    }
+
+    else if (!isRootFolder && isFolder){
+      if(bookmark.children.length>0){
+        var children = bookmark.children;
+        chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title}, function(result){createBookmarks(children, result.id)});
+      }
+      else{
+        chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title});
+      }
+    }
+
+    else if (isRootFolder){
+      if(bookmark.children.length > 0){
+        createBookmarks(bookmark.children);
+      }
+    }
+  }
 }
 
-function saveTasksToStorage() {
-    chrome.storage.local.set({"TASKS": TASKS});
+function createBookmarks(bookmarksNode, parentId){
+  for(var i =0; i<bookmarksNode.length; i++){
+    var bookmark = bookmarksNode[i];
+    var isFolder = (bookmark.url == null);
+    var isRootFolder = !(bookmark.id>2);
+    if(isRootFolder){
+      createBookmarks(bookmark.children, bookmark.id);
+    }
+    else{
+      if(isFolder){
+        var children = bookmark.children;
+        if(children.length>0){
+          chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title}, function(result){createBookmarks(children, result.id)});
+        }
+        else{
+          chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title});
+        }
+      }
+      else{
+        chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title, "url": bookmark.url});
+      }
+    }
+  }
 }
 
-function addToHistory(url, taskId) {
-    if (url != "chrome://newtab/" && url != "about:blank" && url) {
-        TASKS[taskId].history.push(url);
-    }
+
+function saveTasksToStorage(){
+  chrome.storage.local.set({"TASKS": TASKS});
 }
+
+function addToHistory(url, title, task_id){
+  if(url!= "chrome://newtab/" && url!="about:blank" && url){
+    if(TASKS[task_id].history.find((page) => page.url === url)){
+      var date = new Date();
+      TASKS[task_id].history.find((page) => page.url === url).timeVisited.push(date.toString())
+    }
+    else{
+      var newPage = new Page(url, title)
+      var date = new Date;
+      newPage.timeVisited.push(date.toString());
+      TASKS[task_id].history.push(newPage);
+    }
+  }
+}
+
+function likePage(url, task_id){
+  var page = TASKS[task_id].history.find((page) => page.url === url );
+  TASKS[task_id].history.find((page) => page.url === url ).isLiked = !(page.isLiked);
+  saveTasksToStorage();
+}
+
+function getLikedPages(task_id){
+  var likedPages = [];
+  for(page in TASKS[task_id].history){
+    if(page.isLiked){
+      likedPages.push(page);
+    }
+  }
+  return likedPages;
+}
+
 
 //ENDING: Level 2 Helpers
 
@@ -335,6 +438,10 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
     if (request.type == "download-tasks") {
         downloadTasks();
     }
+
+    if(request.type == "like-page"){
+      likePage(request.url, CTASKID);
+    }
 });
 
 //ENDING: Stuff that calls the appropriate helper when a task is created/switched/deleted etc
@@ -342,22 +449,58 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 
 //BEGINNING: Stuff that saves tabs of task
 
+
 //Save a tab when the url is changed.
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
-    if (changeInfo.title) {
+    if (changeInfo.status== "complete") {
+      if(tabIdToURL!= {}){
+        var date = new Date();
+        updateExitTime(tabIdToURL[tabId], date.toString())
+        console.log(tabIdToURL[tabId]);
+      }
+        tabIdToURL[tabId] = tab.url;
         saveTask(CTASKID);
+        addToHistory(tab.url, tab.title, CTASKID);
     }
-    addToHistory(changeInfo.url, CTASKID)
+    chrome.tabs.sendMessage(tabId, {data:tab})
 
 });
 
+chrome.tabs.onActivated.addListener(function(activeInfo){
+
+  //Set the exit time for previous url
+  if(tabIdToURL!= {} && activeTabId != -1){
+    var date = new Date();
+    updateExitTime(tabIdToURL[activeTabId], date.toString());
+    console.log(tabIdToURL[activeTabId]);
+  }
+
+  activeTabId = activeInfo.tabId;
+
+  chrome.tabs.get(activeTabId, function(tab){
+    if(tab.url){
+      if(TASKS[CTASKID].history.find((page) => page.url === tab.url)){
+        var date = new Date();
+        TASKS[CTASKID].history.find((page) => page.url === tab.url).timeVisited.push(date.toString())
+      }
+    }
+  })
+})
+
 //Save task when a tab is closed
-chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
+chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
+  if(removeInfo.isWindowClosing){
+    var date = new Date();
+    if(tabIdToURL!= {}){
+      updateExitTime(tabIdToURL[tabId], date.toString());
+      console.log(tabIdToURL[tabId]);
+    }
+  }
     if (!removeInfo.isWindowClosing) {
         saveTask(CTASKID);
     }
-});
+  });
 
 //ENDING: Stuff that saves tabs of task
 
@@ -412,9 +555,3 @@ document.getElementById('login').addEventListener("click", function () {
 document.getElementById('logout').addEventListener("click", function () {
     revokeToken();
 });
-
-
-
-
-
-
