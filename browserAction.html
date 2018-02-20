@@ -10,13 +10,36 @@
 </head>
 <body>
 <div class="container" style="min-width: 400px">
-    <h2>Sail Boat</h2>
+    <h3 style="padding: 15px; border-bottom: groove; border-width: 1px; border-color: #3bceff">
+        <small class="text-muted">Sailboat</small>
+    </h3>
+    <p class="text-muted" id="loginstatus"></p>
+    <ul class="nav nav-pills">
+        <li class="nav-item" id="history">
+            <a class="nav-link" href="#">History</a>
+        </li>
+        <li class="nav-item" id="index">
+            <a class="nav-link" href="#">Index</a>
+        </li>
+        <li class="nav-item" id="login">
+            <a class="nav-link" href="#">Login</a>
+        </li>
+        <li class="nav-item" id="logout">
+            <a class="nav-link" href="#">Logout</a>
+        </li>
+        <li class="nav-item" id="createFolder">
+            <a class="nav-link" href="#">Create Folder</a>
+        </li>
+        <li class="nav-item" id="contacts">
+            <a class="nav-link" href="#">Get contacts</a>
+        </li>
+        <li class="nav-item" id="checkIfFolderExists">
+            <a class="nav-link" href="#">Check</a>
+        </li>
+
+    </ul>
     <hr>
     <h4>Tasks</h4>
-    <p class="text-right" id="history"><a href="#">History</a></p>
-    <p class="text-right" id="index"><a href="#">Index</a></p>
-    <p class="text-right" id="login">Login</a></p>
-    <p class="text-right" id="logout">Logout</a></p>
     <ol id="tasks" style="list-style-type: none; padding: 0; margin: 0">
     </ol>
     <hr>
@@ -33,6 +56,7 @@
 <script src="view.js"></script>
 <script src="controller.js"></script>
 <script src="background.js"></script>
-
+<script src="upload.js"></script>
+<script src="author.js"></script>
 </body>
 </html>
