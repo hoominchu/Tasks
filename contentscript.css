@@ -1,0 +1,26 @@
+.float{
+	position:fixed;
+	width:60px;
+	height:60px;
+	bottom:40px;
+	right:40px;
+	color:#FFF;
+	border-radius:50px;
+	border-color: black;
+	background-color: #eee;
+	border: 4px;
+	text-align:center; */
+	z-index: 10000;
+}
+
+.clicked {
+	color: #3c9a5f;
+	text-shadow: 0px 0px 0px #000;
+
+}
+
+.likeButton{
+	text-shadow: 0px 0px 3px #353535;
+	vertical-align: middle;
+
+}
