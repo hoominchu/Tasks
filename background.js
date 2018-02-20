@@ -800,7 +800,7 @@ returnUrlsList("Steve", engines, function () {
     chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
         chrome.storage.local.get(preferredAuthorsFieldName, function (preferredAuthorsObject))
         {
-            getSailboatResults(urlsList, preferredDomainsObject, preferredAuthorsObject);
+            console.log(getSailboatResults(urlsList, preferredDomainsObject, preferredAuthorsObject));
         }
     })
 })

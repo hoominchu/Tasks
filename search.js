@@ -6,10 +6,11 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
 
     for (var i = 0; i < results.length; i++) {
         var resObjTemp = results[i];
-
+        var link = resObjTemp["url"];
+        var engine = resObjTemp["engine"];
         var domain = getDomainFromURL(link);
-        var authorName = getAuthors(link);
-        var authorUniqueID = authorName + ", " + domain;
+        // var authorName = getAuthors(link);
+        // var authorUniqueID = authorName + ", " + domain;
         var finalWeight = 0;
 
         var domainWeight = 0;
@@ -19,12 +20,12 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
             domainWeight = getDomainWeight(domain);
         }
 
-        if (preferredAuthors[authorUniqueID]) {
-            authorWeight = getAuthorWeight(authorName, domain, preferredAuthors);
-        }
+        // if (preferredAuthors[authorUniqueID]) {
+        //     authorWeight = getAuthorWeight(authorName, domain, preferredAuthors);
+        // }
 
         // Computing final weight for a result. computeFinalWeight can be edited
-        finalWeight = computeFinalWeight(domainWeight, authorWeight);
+        finalWeight = domainWeight;//computeFinalWeight(domainWeight, authorWeight);
         resultObj["URL"] = link;
         resultObj["Engine"] = engine;
         resultObj["Weight"] = finalWeight;
