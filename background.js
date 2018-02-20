@@ -92,12 +92,14 @@ chrome.storage.local.get("CTASKID", function (cTaskIdObject) {
 });
 
 chrome.storage.local.get(preferredAuthorsFieldName, function (prefAuthObj) {
-    if (prefAuthObj[preferredAuthorsFieldName]) {
+    if (JSON.stringify(prefAuthObj) == "{}") {
         // Adding to the local storage if the field doesn't exist already.
         var o = {};
         o[preferredAuthorsFieldName] = {};
-        o["metadata"][totalFrequencyFieldName] = 0;
-        chrome.storage.local.set(o);
+        o[preferredAuthorsFieldName]["metadata"] = {};
+        o[preferredAuthorsFieldName]["metadata"][totalFrequencyFieldName] = 0;
+        console.log(o)
+        chrome.storage.local.set(o, function(){"init"});
     }
 });
 
@@ -723,5 +725,6 @@ function returnUrlsList(query, engines, callback){
 //ENDING: SCRAPER STUFF
 
 //BEGINNING: REORDERING OF SEARCH RESULTS
+
 
 // console.log(getLikedPages(CTASKID))
