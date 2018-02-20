@@ -14,7 +14,6 @@ function loadLikeButton(currentURL){
               if (cTaskIdObject["CTASKID"]>-1) {
                   var CTASKID = cTaskIdObject["CTASKID"];
                   var pageLiked = TASKS[CTASKID].history.find((page) => page.url === currentURL ).isLiked;
-                  console.log(pageLiked)
                   if(pageLiked){
                     var likeButton = $('<div class="float" style="font-size:35px;"><i class="fa fa-thumbs-up likeButton clicked"></i></div>')
                   }

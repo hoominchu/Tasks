@@ -31,3 +31,21 @@ function showTasks(Tasks) {
         }
     }
 }
+
+function changeLoginStatusMessage() {
+    var email_var = "";
+    var isSignedIn_var;
+    chrome.storage.local.get("email", function(e){
+        email_var = e["email"];
+        console.log("Email is " + email_var);
+    });
+    chrome.storage.local.get("isSignedIn", function (loginStatus) {
+        isSignedIn_var = loginStatus["isSignedIn"];
+        if (isSignedIn_var) {
+            document.getElementById("loginstatus").innerText = "Hello, " + email_var + "!";
+        }
+        else {
+            document.getElementById("loginstatus").innerText = "You are not logged in.";
+        }
+    });
+}
