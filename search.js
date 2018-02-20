@@ -5,6 +5,8 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
     var sailboatResults = [];
 
     for (var i = 0; i < results.length; i++) {
+        var resObjTemp = results[i];
+
         var domain = getDomainFromURL(link);
         var authorName = getAuthor(link);
         var authorUniqueID = authorName + ", " + domain;
