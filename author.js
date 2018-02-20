@@ -120,7 +120,20 @@ function updateStorage(key, obj) {
     chrome.storage.local.set(tempObj);
 }
 
-var updateAuthor = function (htmlString, domain) {
+function updateAuthor(htmlString,domain) {
+    var authors = getAuthors(htmlString,domain);
+
+    // Checking if "Preferred authors" field exists in the local storage. Adding if it doesn't exist.
+    chrome.storage.local.get(preferredAuthorsFieldName, function (preferredAuthorsObject) {
+        preferredAuthorsObject = preferredAuthorsObject[preferredAuthorsFieldName];
+        var updatedAuthorsObject = getUpdatedAuthorsObject(authors, domain, preferredAuthorsObject);
+        updateStorage(preferredAuthorsFieldName, updatedAuthorsObject);
+        console.log("Updated database!");
+    });
+
+}
+
+var getAuthors = function (htmlString, domain) {
     var authors = [];
     var dictval = domainToAuthorClassDict[domain];
     var parser = new DOMParser();
@@ -208,14 +221,7 @@ var updateAuthor = function (htmlString, domain) {
             }
         }
     }
-
-    // Checking if "Preferred authors" field exists in the local storage. Adding if it doesn't exist.
-    chrome.storage.local.get(preferredAuthorsFieldName, function (preferredAuthorsObject) {
-        preferredAuthorsObject = preferredAuthorsObject[preferredAuthorsFieldName];
-        var updatedAuthorsObject = getUpdatedAuthorsObject(authors, domain, preferredAuthorsObject);
-        updateStorage(preferredAuthorsFieldName, updatedAuthorsObject);
-        console.log("Updated database!");
-    });
+    return authors;
 };
 
 var resp = httpGetAsync('http://www.thehindu.com/news/national/ed-searches-45-locations-seizes-20-cr-assets/article22791357.ece?homepage=true', updateAuthor);
