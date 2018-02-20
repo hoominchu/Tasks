@@ -4,14 +4,14 @@ var totalFrequencyFieldName = "Total frequency";
 var authorsMetadataFieldName = "metadata";
 
 // Setting fields of author object
-var authorFrequency = "frequency";
+var authorFrequencyFieldName = "frequency";
 var authorURL = "URL"; // Not being used yet
 
 // Stopwords array
 var stopwords = ["by"];
 var organisationNames_stopwords = ["cnn"];
 
-
+// Takes a URL and gets its
 function httpGetAsync(theUrl, callback) {
     var domain = getDomainFromURL(theUrl);
     var xmlHttp = new XMLHttpRequest();
@@ -23,6 +23,15 @@ function httpGetAsync(theUrl, callback) {
     xmlHttp.send(null);
 }
 
+// Weight is calculated as-- authorFrequency/totalFrequency. Another way weight can be computed is-- authorFrequency/numberOfAuthors.
+function getAuthorWeight(author, domain, preferredAuthorsObject) {
+    var totalFrequency = preferredAuthorsObject[authorsMetadataFieldName][totalFrequencyFieldName];
+    var authorUniqueID = author + ", " + domain;
+    var authorFrequency = preferredAuthorsObject[authorUniqueID][authorFrequencyFieldName];
+    var numberOfAuthors = preferredAuthorsObject.length - 1;
+    var weight = authorFrequency/totalFrequency;
+    return weight;
+}
 
 // This dictionary contains domain name to object mapping where the object is an array of selectors to reach the author's name.
 var domainToAuthorClassDict = {
@@ -77,18 +86,18 @@ function getUpdatedAuthorsObject(authors, domain, preferredAuthorsObject) {
 
             // Fields of author objects are set at the top of the file.
             var authorObject = preferredAuthorsObject[authorUniqueID];
-            var frequency = authorObject[authorFrequency];
+            var frequency = authorObject[authorFrequencyFieldName];
 
             // Increasing frequency of the author.
             // frequency++;
-            preferredAuthorsObject[authorUniqueID][authorFrequency]++;
+            preferredAuthorsObject[authorUniqueID][authorFrequencyFieldName]++;
 
         }
 
         // If author doesn't exist in storage-- adding author to storage.
         else {
             var newAuthorObject = {};
-            newAuthorObject[authorFrequency] = 1;
+            newAuthorObject[authorFrequencyFieldName] = 1;
             preferredAuthorsObject[authorUniqueID] = newAuthorObject;
         }
 
