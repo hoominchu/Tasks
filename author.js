@@ -6,10 +6,18 @@ var authorsMetadataFieldName = "metadata";
 // Setting fields of author object
 var authorFrequencyFieldName = "frequency";
 var authorURL = "URL"; // Not being used yet
+var activeTasksFieldName = "Active tasks";
+var archivedTasksFieldName = "Archived tasks";
 
 // Stopwords array
 var stopwords = ["by"];
 var organisationNames_stopwords = ["cnn"];
+
+// Getting current task id
+var CTASKID = -1;
+chrome.storage.local.get("CTASKID", function (response) {
+    CTASKID = response["CTASKID"];
+});
 
 // Takes a URL and gets its
 function httpGetAsync(theUrl, callback) {
@@ -29,7 +37,7 @@ function getAuthorWeight(author, domain, preferredAuthorsObject) {
     var authorUniqueID = author + ", " + domain;
     var authorFrequency = preferredAuthorsObject[authorUniqueID][authorFrequencyFieldName];
     var numberOfAuthors = preferredAuthorsObject.length - 1;
-    var weight = authorFrequency/totalFrequency;
+    var weight = authorFrequency / totalFrequency;
     return weight;
 }
 
@@ -85,19 +93,17 @@ function getUpdatedAuthorsObject(authors, domain, preferredAuthorsObject) {
         if (preferredAuthorsObject.hasOwnProperty(authorUniqueID)) {
 
             // Fields of author objects are set at the top of the file.
-            var authorObject = preferredAuthorsObject[authorUniqueID];
-            var frequency = authorObject[authorFrequencyFieldName];
-
             // Increasing frequency of the author.
-            // frequency++;
             preferredAuthorsObject[authorUniqueID][authorFrequencyFieldName]++;
-
+            preferredAuthorsObject[authorUniqueID][activeTasksFieldName].push(CTASKID);
         }
 
         // If author doesn't exist in storage-- adding author to storage.
         else {
             var newAuthorObject = {};
             newAuthorObject[authorFrequencyFieldName] = 1;
+            newAuthorObject[activeTasksFieldName] = [CTASKID];
+            newAuthorObject[archivedTasksFieldName] = [];
             preferredAuthorsObject[authorUniqueID] = newAuthorObject;
         }
 
@@ -173,8 +179,6 @@ var updateAuthor = function (htmlString, domain) {
         }
     }
 
-    // Print query for debugging
-    // console.log(query);
 
     var authorElem = htmlDoc.querySelector(query);
     var author = authorElem.innerText;
@@ -204,8 +208,6 @@ var updateAuthor = function (htmlString, domain) {
             }
         }
     }
-
-    // console.log(authors);
 
     // Checking if "Preferred authors" field exists in the local storage. Adding if it doesn't exist.
     chrome.storage.local.get(preferredAuthorsFieldName, function (preferredAuthorsObject) {
