@@ -8,7 +8,7 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
         var resObjTemp = results[i];
 
         var domain = getDomainFromURL(link);
-        var authorName = getAuthor(link);
+        var authorName = getAuthors(link);
         var authorUniqueID = authorName + ", " + domain;
         var finalWeight = 0;
 
