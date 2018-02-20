@@ -724,16 +724,29 @@ function returnUrlsList(query, engines, callback){
       setInterval(httpGetAsync(engines[i].mainUrl+query+engines[i].pageUrl+engines[i].indexMarker(j), function(response, engine){
         var engineName = engine["engine"];
         var urls = extractUrls(engine, response);
-        var temp = {};
-        temp[engineName] = urls;
-        urlsList.push(temp);
-        if(urlsList.length>2){
+        for(var k = 0; k<urls.length; k++){
+          var temp = {};
+          temp["url"] = urls[k]
+          temp["engine"] = engineName;
+          urlsList.push(temp);
+        }
+        if(urlsList.length>290)
+        {
+          // console.log(urlsList);
           callback();
         }
       }, engines[i]), getRandomInt(30000, 60000));
     }
   }
 }
+
+returnUrlsList("Steve", engines, function(){
+  chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
+    chrome.storage.local.get(preferredAuthorsFieldName, function(preferredAuthorsObject)){
+      getSailboatResults(urlsList, preferredDomainsObject, preferredAuthorsObject);
+    }
+  }
+
 
 //ENDING: SCRAPER STUFF
 
