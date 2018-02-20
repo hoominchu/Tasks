@@ -742,10 +742,10 @@ function returnUrlsList(query, engines, callback){
 
 returnUrlsList("Steve", engines, function(){
   chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
-    chrome.storage.local.get(preferredAuthorsFieldName, function(preferredAuthorsObject)){
+    chrome.storage.local.get(preferredAuthorsFieldName, function(preferredAuthorsObject){
       getSailboatResults(urlsList, preferredDomainsObject, preferredAuthorsObject);
-    }
-  }
+    })
+  })});
 
 
 //ENDING: SCRAPER STUFF
