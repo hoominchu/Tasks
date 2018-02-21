@@ -79,6 +79,7 @@
   "commands": {
     "like-page": {
       "suggested-key": {
+        "default": "Ctrl+L",
         "mac": "Command+L"
       },
       "description": "Like page"
