@@ -42,11 +42,6 @@ function getUpdatedPreferredDomainsObject(domain, preferredDomainsObject) {
     return preferredDomainsObject;
 }
 
-function updateStorage(key, obj) {
-    var tempObj = {};
-    tempObj[key] = obj;
-    chrome.storage.local.set(tempObj);
-}
 
 var updateDomain = function (domain) {
 

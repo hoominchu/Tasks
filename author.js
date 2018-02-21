@@ -1,5 +1,3 @@
-
-
 // Stopwords array
 var stopwords = ["by"];
 var organisationNames_stopwords = ["cnn"];
@@ -11,12 +9,28 @@ chrome.storage.local.get("CTASKID", function (response) {
 });
 
 // Takes a URL and gets its
-function httpGetAsync(theUrl, callback) {
+function httpGetAsyncForUpdateAuthor(theUrl, callback) {
     var domain = getDomainFromURL(theUrl);
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
             callback(xmlHttp.responseText, domain);
+    };
+    xmlHttp.open("GET", theUrl, true); // true for asynchronous
+    xmlHttp.send(null);
+}
+
+//httpGetAsync for getAuthor. Sends message once the authors array is received.
+function httpGetAsyncForGetAuthor(theUrl) {
+    var domain = getDomainFromURL(theUrl);
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function () {
+        if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+            var authors = getAuthors(xmlHttp.responseText, domain);
+            chrome.runtime.sendMessage({
+                "authors retrieved": authors
+            });
+        }
     };
     xmlHttp.open("GET", theUrl, true); // true for asynchronous
     xmlHttp.send(null);
@@ -105,14 +119,8 @@ function getUpdatedAuthorsObject(authors, domain, preferredAuthorsObject) {
     return preferredAuthorsObject;
 }
 
-function updateStorage(key, obj) {
-    var tempObj = {};
-    tempObj[key] = obj;
-    chrome.storage.local.set(tempObj);
-}
-
-function updateAuthor(htmlString,domain) {
-    var authors = getAuthors(htmlString,domain);
+function updateAuthor(htmlString, domain) {
+    var authors = getAuthors(htmlString, domain);
 
     // Checking if "Preferred authors" field exists in the local storage. Adding if it doesn't exist.
     chrome.storage.local.get(preferredAuthorsFieldName, function (preferredAuthorsObject) {
@@ -215,4 +223,4 @@ var getAuthors = function (htmlString, domain) {
     return authors;
 };
 
-// var resp = httpGetAsync('http://www.thehindu.com/news/national/ed-searches-45-locations-seizes-20-cr-assets/article22791357.ece?homepage=true', updateAuthor);
+var resp = httpGetAsyncForUpdateAuthor('http://www.thehindu.com/news/national/ed-searches-45-locations-seizes-20-cr-assets/article22791357.ece?homepage=true', updateAuthor);
