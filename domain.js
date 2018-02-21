@@ -1,3 +1,4 @@
+
 // Local storage fields
 var preferredDomainsFieldName = "Preferred domains";
 var totalFrequencyFieldName = "Total frequency";
@@ -21,12 +22,11 @@ function updatePreferredDomain(theUrl) {
 }
 
 // Weight is calculated as-- authorFrequency/totalFrequency. Another way weight can be computed is-- authorFrequency/numberOfAuthors.
-function getDomainWeight(author, domain, preferredAuthorsObject) {
-    var totalFrequency = preferredAuthorsObject[domainsMetadataFieldName][totalFrequencyFieldName];
-    var authorUniqueID = author + ", " + domain;
-    var authorFrequency = preferredAuthorsObject[authorUniqueID][domainFrequencyFieldName];
-    var numberOfAuthors = preferredAuthorsObject.length - 1;
-    var weight = authorFrequency / totalFrequency;
+function getDomainWeight(domain, preferredDomainsObject) {
+    var totalFrequency = preferredDomainsObject[domainsMetadataFieldName][totalFrequencyFieldName];
+    var domainFrequency = preferredDomainsObject[domain][domainFrequencyFieldName];
+    var numberOfAuthors = preferredDomainsObject.length - 1; // -1 because of metadata object
+    var weight = domainFrequency / totalFrequency;
     return weight;
 }
 
@@ -38,29 +38,29 @@ function getDomainFromURL(url) {
 
 function getUpdatedPreferredDomainsObject(domain, preferredDomainsObject) {
 
-        // Checking if author already exists in the database
-        // var authorExists = preferredAuthorsObject.hasOwnProperty(authorUniqueID);
+    // Checking if author already exists in the database
+    // var authorExists = preferredAuthorsObject.hasOwnProperty(authorUniqueID);
 
-        // If author exists in storage
-        if (preferredDomainsObject.hasOwnProperty(domain)) {
+    // If author exists in storage
+    if (preferredDomainsObject.hasOwnProperty(domain)) {
 
-            // Fields of author objects are set at the top of the file.
-            // Increasing frequency of the author.
-            preferredDomainsObject[domain][domainFrequencyFieldName]++;
-            preferredDomainsObject[domain][activeTasksFieldName].push(CTASKID);
-        }
+        // Fields of author objects are set at the top of the file.
+        // Increasing frequency of the author.
+        preferredDomainsObject[domain][domainFrequencyFieldName]++;
+        preferredDomainsObject[domain][activeTasksFieldName].push(CTASKID);
+    }
 
-        // If domain doesn't exist in storage-- adding domain to storage.
-        else {
-            var newDomainObject = {};
-            newDomainObject[domainFrequencyFieldName] = 1;
-            newDomainObject[activeTasksFieldName] = [CTASKID];
-            newDomainObject[archivedTasksFieldName] = [];
-            preferredDomainsObject[domain] = newDomainObject;
-        }
+    // If domain doesn't exist in storage-- adding domain to storage.
+    else {
+        var newDomainObject = {};
+        newDomainObject[domainFrequencyFieldName] = 1;
+        newDomainObject[activeTasksFieldName] = [CTASKID];
+        newDomainObject[archivedTasksFieldName] = [];
+        preferredDomainsObject[domain] = newDomainObject;
+    }
 
-        // Increasing total frequency of all the authors.
-        preferredDomainsObject[domainsMetadataFieldName][totalFrequencyFieldName]++;
+    // Increasing total frequency of all the authors.
+    preferredDomainsObject[domainsMetadataFieldName][totalFrequencyFieldName]++;
 
     return preferredDomainsObject;
 }
@@ -82,4 +82,3 @@ var updateDomain = function (domain) {
     });
 };
 
-var resp = updatePreferredDomain('http://www.thehindu.com/news/national/ed-searches-45-locations-seizes-20-cr-assets/article22791357.ece?homepage=true');

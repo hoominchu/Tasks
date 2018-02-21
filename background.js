@@ -1,142 +1,5 @@
 "use strict";
 
-// Local storage fields
-var preferredDomainsFieldName = "Preferred domains";
-var totalFrequencyFieldName = "Total frequency";
-var domainsMetadataFieldName = "metadata";
-
-// Setting fields of author object
-var domainFrequencyFieldName = "frequency";
-var activeTasksFieldName = "Active tasks";
-var archivedTasksFieldName = "Archived tasks";
-
-// Getting current task id
-var CTASKID = -1;
-chrome.storage.local.get("CTASKID", function (response) {
-    CTASKID = response["CTASKID"];
-});
-
-// Takes a URL and gets its
-function updatePreferredDomain(theUrl) {
-    var domain = getDomainFromURL(theUrl);
-    updateDomain(domain);
-}
-
-// Weight is calculated as-- authorFrequency/totalFrequency. Another way weight can be computed is-- authorFrequency/numberOfAuthors.
-function getDomainWeight(domain, preferredDomainsObject) {
-    var totalFrequency = preferredDomainsObject[preferredDomainsFieldName][domainsMetadataFieldName][totalFrequencyFieldName];
-    var authorFrequency = preferredDomainsObject[preferredDomainsFieldName][domain][domainFrequencyFieldName];
-    var numberOfAuthors = preferredDomainsObject.length - 1;
-    var weight = authorFrequency / totalFrequency;
-    return weight;
-}
-
-function getDomainFromURL(url) {
-    var arr = url.split('/');
-    var domain = arr[2];
-    return domain;
-}
-
-function getUpdatedPreferredDomainsObject(domain, preferredDomainsObject) {
-
-    // Checking if author already exists in the database
-    // var authorExists = preferredAuthorsObject.hasOwnProperty(authorUniqueID);
-
-    // If author exists in storage
-    if (preferredDomainsObject.hasOwnProperty(domain)) {
-
-        // Fields of author objects are set at the top of the file.
-        // Increasing frequency of the author.
-        preferredDomainsObject[domain][domainFrequencyFieldName]++;
-        preferredDomainsObject[domain][activeTasksFieldName].push(CTASKID);
-    }
-
-    // If domain doesn't exist in storage-- adding domain to storage.
-    else {
-        var newDomainObject = {};
-        newDomainObject[domainFrequencyFieldName] = 1;
-        newDomainObject[activeTasksFieldName] = [CTASKID];
-        newDomainObject[archivedTasksFieldName] = [];
-        preferredDomainsObject[domain] = newDomainObject;
-    }
-
-    // Increasing total frequency of all the authors.
-    preferredDomainsObject[domainsMetadataFieldName][totalFrequencyFieldName]++;
-
-    return preferredDomainsObject;
-}
-
-function updateStorage(key, obj) {
-    var tempObj = {};
-    tempObj[key] = obj;
-    chrome.storage.local.set(tempObj);
-}
-
-var updateDomain = function (domain) {
-
-    // Checking if "Preferred domains" field exists in the local storage. Adding if it doesn't exist.
-    chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
-        preferredDomainsObject = preferredDomainsObject[preferredDomainsFieldName];
-        var updatedDomainsObject = getUpdatedPreferredDomainsObject(domain, preferredDomainsObject);
-        updateStorage(preferredDomainsFieldName, updatedDomainsObject);
-        console.log("Updated database!");
-    });
-};
-
-var resp = updatePreferredDomain('http://www.thehindu.com/news/national/ed-searches-45-locations-seizes-20-cr-assets/article22791357.ece?homepage=true');
-
-// This function takes results object which contains results from Google, Bing, Yahoo etc., preferredDomains object and preferredAuthors object.
-// Returns array of re-ordered (in descending order of computed weights) results with result object. Fields of result object are -- URL, Engine and Weight.
-function getSailboatResults(results, preferredDomains, preferredAuthors) {
-
-    var sailboatResults = [];
-
-    for (var i = 0; i < results.length; i++) {
-        var resultObj = {};
-        var resObjTemp = results[i];
-        var link = resObjTemp["url"];
-        var engine = resObjTemp["engine"];
-        var domain = getDomainFromURL(link);
-        // var authorName = getAuthors(link);
-        // var authorUniqueID = authorName + ", " + domain;
-        var finalWeight = 0;
-
-        var domainWeight = 0;
-        var authorWeight = 0;
-
-        if (preferredDomains[preferredDomainsFieldName][domain]) {
-            domainWeight = getDomainWeight(domain,preferredDomains);
-        }
-
-        // if (preferredAuthors[authorUniqueID]) {
-        //     authorWeight = getAuthorWeight(authorName, domain, preferredAuthors);
-        // }
-
-        // Computing final weight for a result. computeFinalWeight can be edited
-        finalWeight = domainWeight;//computeFinalWeight(domainWeight, authorWeight);
-        resultObj["URL"] = link;
-        resultObj["Engine"] = engine;
-        resultObj["Weight"] = finalWeight;
-
-        sailboatResults.push(resultObj);
-    }
-
-    // Sorting sailboatResults in descending order of weight
-    var awesomeResult = sailboatResults.sort(function (a, b) {
-        return a["Weight"] - b["Weight"];
-    });
-
-    return awesomeResult;
-}
-
-
-// This function adds the weights given. But computeFinalWeight function can be done in other ways as well.
-function computeFinalWeight(wt1, wt2) {
-
-    var returnValue = wt1 + wt2;
-    return returnValue;
-}
-
 // Setting up required variables. These should be used as they are across files.
 // Local storage fields
 var preferredAuthorsFieldName = "Preferred authors";
@@ -854,7 +717,7 @@ function returnUrlsList(query, engines, callback){
         var urls = extractUrls(engine, response);
         for(var k = 0; k<urls.length; k++){
           var temp = {};
-          temp["url"] = urls[k]
+          temp["url"] = urls[k];
           temp["engine"] = engineName;
           urlsList.push(temp);
         }
@@ -872,9 +735,9 @@ returnUrlsList("Steve", engines, function(){
   chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
     chrome.storage.local.get(preferredAuthorsFieldName, function(preferredAuthorsObject){
         console.log(urlsList);
-      console.log(getSailboatResults(urlsList, preferredDomainsObject, preferredAuthorsObject));
+      console.log(getSailboatResults(urlsList, preferredDomainsObject[preferredDomainsFieldName], preferredAuthorsObject[preferredAuthorsFieldName]));
     })
-  })})
+  })});
 
 
 //ENDING: SCRAPER STUFF

@@ -1,10 +1,12 @@
+
 // This function takes results object which contains results from Google, Bing, Yahoo etc., preferredDomains object and preferredAuthors object.
 // Returns array of re-ordered (in descending order of computed weights) results with result object. Fields of result object are -- URL, Engine and Weight.
 function getSailboatResults(results, preferredDomains, preferredAuthors) {
-    var resultObj = {};
+
     var sailboatResults = [];
 
     for (var i = 0; i < results.length; i++) {
+        var resultObj = {};
         var resObjTemp = results[i];
         var link = resObjTemp["url"];
         var engine = resObjTemp["engine"];
@@ -17,7 +19,7 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
         var authorWeight = 0;
 
         if (preferredDomains[domain]) {
-            domainWeight = getDomainWeight(domain);
+            domainWeight = getDomainWeight(domain,preferredDomains);
         }
 
         // if (preferredAuthors[authorUniqueID]) {
@@ -34,11 +36,11 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
     }
 
     // Sorting sailboatResults in descending order of weight
-    sailboatResults.sort(function (a, b) {
-        return a["Weight"] - b["Weight"];
+    var awesomeResult = sailboatResults.sort(function (a, b) {
+        return b["Weight"] - a["Weight"];
     });
 
-    return sailboatResults;
+    return awesomeResult;
 }
 
 
