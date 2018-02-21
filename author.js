@@ -215,4 +215,4 @@ var getAuthors = function (htmlString, domain) {
     return authors;
 };
 
-var resp = httpGetAsync('http://www.thehindu.com/news/national/ed-searches-45-locations-seizes-20-cr-assets/article22791357.ece?homepage=true', updateAuthor);
+// var resp = httpGetAsync('http://www.thehindu.com/news/national/ed-searches-45-locations-seizes-20-cr-assets/article22791357.ece?homepage=true', updateAuthor);

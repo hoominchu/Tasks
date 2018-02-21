@@ -58,4 +58,3 @@ var updateDomain = function (domain) {
         console.log("Updated database!");
     });
 };
-
