@@ -98,7 +98,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo){
       }
     }
   })
-})
+});
 
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
   if(removeInfo.isWindowClosing){
