@@ -1,5 +1,142 @@
 "use strict";
 
+// Local storage fields
+var preferredDomainsFieldName = "Preferred domains";
+var totalFrequencyFieldName = "Total frequency";
+var domainsMetadataFieldName = "metadata";
+
+// Setting fields of author object
+var domainFrequencyFieldName = "frequency";
+var activeTasksFieldName = "Active tasks";
+var archivedTasksFieldName = "Archived tasks";
+
+// Getting current task id
+var CTASKID = -1;
+chrome.storage.local.get("CTASKID", function (response) {
+    CTASKID = response["CTASKID"];
+});
+
+// Takes a URL and gets its
+function updatePreferredDomain(theUrl) {
+    var domain = getDomainFromURL(theUrl);
+    updateDomain(domain);
+}
+
+// Weight is calculated as-- authorFrequency/totalFrequency. Another way weight can be computed is-- authorFrequency/numberOfAuthors.
+function getDomainWeight(domain, preferredDomainsObject) {
+    var totalFrequency = preferredDomainsObject[preferredDomainsFieldName][domainsMetadataFieldName][totalFrequencyFieldName];
+    var authorFrequency = preferredDomainsObject[preferredDomainsFieldName][domain][domainFrequencyFieldName];
+    var numberOfAuthors = preferredDomainsObject.length - 1;
+    var weight = authorFrequency / totalFrequency;
+    return weight;
+}
+
+function getDomainFromURL(url) {
+    var arr = url.split('/');
+    var domain = arr[2];
+    return domain;
+}
+
+function getUpdatedPreferredDomainsObject(domain, preferredDomainsObject) {
+
+    // Checking if author already exists in the database
+    // var authorExists = preferredAuthorsObject.hasOwnProperty(authorUniqueID);
+
+    // If author exists in storage
+    if (preferredDomainsObject.hasOwnProperty(domain)) {
+
+        // Fields of author objects are set at the top of the file.
+        // Increasing frequency of the author.
+        preferredDomainsObject[domain][domainFrequencyFieldName]++;
+        preferredDomainsObject[domain][activeTasksFieldName].push(CTASKID);
+    }
+
+    // If domain doesn't exist in storage-- adding domain to storage.
+    else {
+        var newDomainObject = {};
+        newDomainObject[domainFrequencyFieldName] = 1;
+        newDomainObject[activeTasksFieldName] = [CTASKID];
+        newDomainObject[archivedTasksFieldName] = [];
+        preferredDomainsObject[domain] = newDomainObject;
+    }
+
+    // Increasing total frequency of all the authors.
+    preferredDomainsObject[domainsMetadataFieldName][totalFrequencyFieldName]++;
+
+    return preferredDomainsObject;
+}
+
+function updateStorage(key, obj) {
+    var tempObj = {};
+    tempObj[key] = obj;
+    chrome.storage.local.set(tempObj);
+}
+
+var updateDomain = function (domain) {
+
+    // Checking if "Preferred domains" field exists in the local storage. Adding if it doesn't exist.
+    chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
+        preferredDomainsObject = preferredDomainsObject[preferredDomainsFieldName];
+        var updatedDomainsObject = getUpdatedPreferredDomainsObject(domain, preferredDomainsObject);
+        updateStorage(preferredDomainsFieldName, updatedDomainsObject);
+        console.log("Updated database!");
+    });
+};
+
+var resp = updatePreferredDomain('http://www.thehindu.com/news/national/ed-searches-45-locations-seizes-20-cr-assets/article22791357.ece?homepage=true');
+
+// This function takes results object which contains results from Google, Bing, Yahoo etc., preferredDomains object and preferredAuthors object.
+// Returns array of re-ordered (in descending order of computed weights) results with result object. Fields of result object are -- URL, Engine and Weight.
+function getSailboatResults(results, preferredDomains, preferredAuthors) {
+
+    var sailboatResults = [];
+
+    for (var i = 0; i < results.length; i++) {
+        var resultObj = {};
+        var resObjTemp = results[i];
+        var link = resObjTemp["url"];
+        var engine = resObjTemp["engine"];
+        var domain = getDomainFromURL(link);
+        // var authorName = getAuthors(link);
+        // var authorUniqueID = authorName + ", " + domain;
+        var finalWeight = 0;
+
+        var domainWeight = 0;
+        var authorWeight = 0;
+
+        if (preferredDomains[preferredDomainsFieldName][domain]) {
+            domainWeight = getDomainWeight(domain,preferredDomains);
+        }
+
+        // if (preferredAuthors[authorUniqueID]) {
+        //     authorWeight = getAuthorWeight(authorName, domain, preferredAuthors);
+        // }
+
+        // Computing final weight for a result. computeFinalWeight can be edited
+        finalWeight = domainWeight;//computeFinalWeight(domainWeight, authorWeight);
+        resultObj["URL"] = link;
+        resultObj["Engine"] = engine;
+        resultObj["Weight"] = finalWeight;
+
+        sailboatResults.push(resultObj);
+    }
+
+    // Sorting sailboatResults in descending order of weight
+    var awesomeResult = sailboatResults.sort(function (a, b) {
+        return a["Weight"] - b["Weight"];
+    });
+
+    return awesomeResult;
+}
+
+
+// This function adds the weights given. But computeFinalWeight function can be done in other ways as well.
+function computeFinalWeight(wt1, wt2) {
+
+    var returnValue = wt1 + wt2;
+    return returnValue;
+}
+
 // Setting up required variables. These should be used as they are across files.
 // Local storage fields
 var preferredAuthorsFieldName = "Preferred authors";
@@ -8,7 +145,7 @@ var totalFrequencyFieldName = "Total frequency";
 
 //BEGINNING: Object Definitions
 
-var tabIdToURL = {};
+var tabIdToURL={};
 
 var activeTabId = -1;
 
@@ -25,49 +162,40 @@ function Task(task_id, task_name, tabs, bookmarks, isActive) {
     this.pages = {};
 }
 
-function Page(url, title, isLiked, isBookmarked) {
-    this.url = url;
-    this.title = title;
-    this.timeSpent = [];
-    this.isLiked = isLiked;
-    this.isBookmarked = isBookmarked;
-    this.timeVisited = [];
-    this.exitTimes = [];
-    this.totalTimeSpent = {};
+function Page(url, title, isLiked, isBookmarked){
+  this.url = url;
+  this.title = title;
+  this.timeSpent = [];
+  this.isLiked = isLiked;
+  this.isBookmarked = isBookmarked;
+  this.timeVisited = [];
+  this.exitTimes = [];
+  this.totalTimeSpent = {};
 }
 
 var engines = [
-    {
-        "engine": "Google",
-        "mainUrl": "https://www.google.co.in/search?q=",
-        "pageUrl": "&start=",
-        "indexMarker": function (j) {
-            return j * 10;
-        },
-        "selector": [{"class": "_Rm"}],
-        "finalSelector": "innerText"
-    },
-    {
-        "engine": "Yahoo",
-        "mainUrl": "https://in.search.yahoo.com/search?p=",
-        "pageUrl": "&b=",
-        "indexMarker": function (j) {
-            return ((j * 10) + 1)
-        },
-        "selector": [{"class": "fz-ms fw-m fc-12th wr-bw"}],
-        "finalSelector": "innerText"
-    },
 
-    {
-        "engine": "Bing",
-        "mainUrl": "https://www.bing.com/search?q=",
-        "pageUrl": "&first=",
-        "indexMarker": function (j) {
-            return j * 10;
-        },
-        "selector": [{"class": "b_algo"}, {"tag": "h2"}, {"tag": "a"}],
-        "finalSelector": "href"
-    }
+  {
+    "engine": "Yahoo",
+    "mainUrl": "https://in.search.yahoo.com/search?p=",
+    "pageUrl": "&b=",
+    "indexMarker": function(j){
+      return ((j*10)+1)
+    },
+    "selector": [{"class": "fz-ms fw-m fc-12th wr-bw"}],
+      "finalSelector": "innerText"
+  },
+
+  {
+    "engine": "Bing",
+    "mainUrl": "https://www.bing.com/search?q=",
+    "pageUrl": "&first=",
+    "indexMarker": function(j){
+      return j*10;
+    },
+    "selector": [{"class": "b_algo"}, {"tag": "h2"}, {"tag": "a"}],
+    "finalSelector": "href"
+  }
 
 ]
 
@@ -87,7 +215,7 @@ chrome.storage.local.get("TASKS", function (taskObject) {
 });
 
 chrome.storage.local.get("CTASKID", function (cTaskIdObject) {
-    if (cTaskIdObject["CTASKID"] > -1) {
+    if (cTaskIdObject["CTASKID"]>-1) {
         CTASKID = cTaskIdObject["CTASKID"];
     }
 });
@@ -100,9 +228,7 @@ chrome.storage.local.get(preferredAuthorsFieldName, function (prefAuthObj) {
         o[preferredAuthorsFieldName]["metadata"] = {};
         o[preferredAuthorsFieldName]["metadata"][totalFrequencyFieldName] = 0;
         console.log(o);
-        chrome.storage.local.set(o, function () {
-            "init"
-        });
+        chrome.storage.local.set(o, function(){"init"});
     }
 });
 
@@ -114,9 +240,7 @@ chrome.storage.local.get(preferredDomainsFieldName, function (prefDomainsObj) {
         o[preferredDomainsFieldName]["metadata"] = {};
         o[preferredDomainsFieldName]["metadata"][totalFrequencyFieldName] = 0;
         console.log(o);
-        chrome.storage.local.set(o, function () {
-            "init"
-        });
+        chrome.storage.local.set(o, function(){"init"});
     }
 });
 
@@ -125,18 +249,18 @@ chrome.storage.local.get(preferredDomainsFieldName, function (prefDomainsObj) {
 
 //BEGINNING: Level 1 Helpers
 
-function getTotalTimeSpent(Page) {
-    var timeSpent = Page.timeSpent;
-    var hours = 0;
-    var minutes = 0;
-    var seconds = 0;
-    for (var i = 0; i < timeSpent.length; i++) {
-        hours = hours + timeSpent[i]["hours"];
-        minutes = minutes + timeSpent[i]["minutes"];
-        seconds = seconds + timeSpent[i]["seconds"];
-    }
-    var t_timeSpent = {"hours": hours, "minutes": minutes, "seconds": seconds};
-    return t_timeSpent;
+function getTotalTimeSpent(Page){
+  var timeSpent = Page.timeSpent;
+  var hours = 0;
+  var minutes = 0;
+  var seconds = 0;
+  for(var i = 0; i<timeSpent.length; i++){
+    hours = hours + timeSpent[i]["hours"];
+    minutes = minutes + timeSpent[i]["minutes"];
+    seconds = seconds + timeSpent[i]["seconds"];
+  }
+  var t_timeSpent = {"hours": hours, "minutes": minutes, "seconds": seconds};
+  return t_timeSpent;
 }
 
 function returnDuration(startingTime, endingTime) {
@@ -153,29 +277,18 @@ function returnDuration(startingTime, endingTime) {
     return duration;
 }
 
-function returnPage(page, url) {
-    return page.url === url;
+function returnPage(page, url){
+  return page.url === url;
 }
 
-function updateExitTime(url, time) {
-    if (TASKS[CTASKID].history.find((page) = > page.url === url))
-    {
-        TASKS[CTASKID].history.find((page) = > page.url === url
-    ).
-        exitTimes.push(time);
-        var page = TASKS[CTASKID].history.find((page) = > page.url === url
-    )
-        ;
-        var duration = returnDuration(page.timeVisited[page.timeVisited.length - 1], time);
-        TASKS[CTASKID].history.find((page) = > page.url === url
-    ).
-        timeSpent.push(duration);
-        TASKS[CTASKID].history.find((page) = > page.url === url
-    ).
-        totalTimeSpent = getTotalTimeSpent(TASKS[CTASKID].history.find((page) = > page.url === url)
-    )
-        ;
-    }
+function updateExitTime(url, time){
+  if(TASKS[CTASKID].history.find((page) => page.url === url)){
+    TASKS[CTASKID].history.find((page) => page.url === url).exitTimes.push(time);
+    var page = TASKS[CTASKID].history.find((page) => page.url === url);
+    var duration = returnDuration(page.timeVisited[page.timeVisited.length-1], time);
+    TASKS[CTASKID].history.find((page) => page.url === url).timeSpent.push(duration);
+    TASKS[CTASKID].history.find((page) => page.url === url).totalTimeSpent = getTotalTimeSpent(TASKS[CTASKID].history.find((page) => page.url === url));
+  }
 }
 
 //ENDING: Level 1 Helpers
@@ -236,136 +349,97 @@ function removeBookmarks() {
     });
 }
 
-function createBookmarks(bookmarksNode, parentId) {
-    for (var i = 0; i < bookmarksNode.length; i++) {
-        var bookmark = bookmarksNode[i];
-        var isRootFolder = !(bookmark.id > 2);
-        var isFolder = (bookmark.url == null);
-        var isParentRoot = !(bookmark.parentId > 2);
+function createBookmarks(bookmarksNode, parentId){
+  for(var i=0; i<bookmarksNode.length; i++){
+    var bookmark = bookmarksNode[i];
+    var isRootFolder = !(bookmark.id>2);
+    var isFolder = (bookmark.url == null);
+    var isParentRoot = !(bookmark.parentId>2);
 
-        if (!isRootFolder && !isFolder && isParentRoot) {
-            chrome.bookmarks.create({
-                "parentId": bookmark.parentId,
-                "index": bookmark.index,
-                "title": bookmark.title,
-                "url": bookmark.url
-            });
-        }
-
-        else if ((!isRootFolder && !isFolder && !isParentRoot)) {
-            chrome.bookmarks.create({
-                "parentId": parentId,
-                "index": bookmark.index,
-                "title": bookmark.title,
-                "url": bookmark.url
-            });
-        }
-
-        else if (!isRootFolder && isFolder) {
-            if (bookmark.children.length > 0) {
-                var children = bookmark.children;
-                chrome.bookmarks.create({
-                    "parentId": bookmark.parentId,
-                    "index": bookmark.index,
-                    "title": bookmark.title
-                }, function (result) {
-                    createBookmarks(children, result.id)
-                });
-            }
-            else {
-                chrome.bookmarks.create({
-                    "parentId": bookmark.parentId,
-                    "index": bookmark.index,
-                    "title": bookmark.title
-                });
-            }
-        }
-
-        else if (isRootFolder) {
-            if (bookmark.children.length > 0) {
-                createBookmarks(bookmark.children);
-            }
-        }
+    if(!isRootFolder && !isFolder && isParentRoot){
+      chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title, "url":bookmark.url});
     }
-}
 
-function createBookmarks(bookmarksNode, parentId) {
-    for (var i = 0; i < bookmarksNode.length; i++) {
-        var bookmark = bookmarksNode[i];
-        var isFolder = (bookmark.url == null);
-        var isRootFolder = !(bookmark.id > 2);
-        if (isRootFolder) {
-            createBookmarks(bookmark.children, bookmark.id);
-        }
-        else {
-            if (isFolder) {
-                var children = bookmark.children;
-                if (children.length > 0) {
-                    chrome.bookmarks.create({
-                        "parentId": parentId,
-                        "index": bookmark.index,
-                        "title": bookmark.title
-                    }, function (result) {
-                        createBookmarks(children, result.id)
-                    });
-                }
-                else {
-                    chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title});
-                }
-            }
-            else {
-                chrome.bookmarks.create({
-                    "parentId": parentId,
-                    "index": bookmark.index,
-                    "title": bookmark.title,
-                    "url": bookmark.url
-                });
-            }
-        }
+    else if((!isRootFolder && !isFolder && !isParentRoot)){
+      chrome.bookmarks.create({"parentId":parentId, "index": bookmark.index, "title": bookmark.title, "url":bookmark.url});
     }
-}
 
-function saveTasksToStorage() {
-    chrome.storage.local.set({"TASKS": TASKS});
-}
-
-function addToHistory(url, title, task_id) {
-    if (url != "chrome://newtab/" && url != "about:blank" && url) {
-        if (TASKS[task_id].history.find((page) = > page.url === url))
-        {
-            var date = new Date();
-            TASKS[task_id].history.find((page) = > page.url === url
-        ).
-            timeVisited.push(date.toString())
-        }
-    else
-        {
-            var newPage = new Page(url, title)
-            var date = new Date;
-            newPage.timeVisited.push(date.toString());
-            TASKS[task_id].history.push(newPage);
-        }
+    else if (!isRootFolder && isFolder){
+      if(bookmark.children.length>0){
+        var children = bookmark.children;
+        chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title}, function(result){createBookmarks(children, result.id)});
+      }
+      else{
+        chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title});
+      }
     }
-}
 
-function likePage(url, task_id) {
-    var page = TASKS[task_id].history.find((page) = > page.url === url
-)
-    ;
-    TASKS[task_id].history.find((page) = > page.url === url
-).
-    isLiked = !(page.isLiked);
-    saveTasksToStorage();
-}
-
-function getLikedPages(task_id) {
-    var likedPages = [];
-    for (var i = 0; i < TASKS[task_id].history.length; i++) {
-        if (TASKS[task_id].history[i].isLiked) {
-            likedPages.push(TASKS[task_id].history[i]);
-        }
+    else if (isRootFolder){
+      if(bookmark.children.length > 0){
+        createBookmarks(bookmark.children);
+      }
     }
-    return likedPages;
+  }
+}
+
+function createBookmarks(bookmarksNode, parentId){
+  for(var i =0; i<bookmarksNode.length; i++){
+    var bookmark = bookmarksNode[i];
+    var isFolder = (bookmark.url == null);
+    var isRootFolder = !(bookmark.id>2);
+    if(isRootFolder){
+      createBookmarks(bookmark.children, bookmark.id);
+    }
+    else{
+      if(isFolder){
+        var children = bookmark.children;
+        if(children.length>0){
+          chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title}, function(result){createBookmarks(children, result.id)});
+        }
+        else{
+          chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title});
+        }
+      }
+      else{
+        chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title, "url": bookmark.url});
+      }
+    }
+  }
+}
+
+function saveTasksToStorage(){
+  chrome.storage.local.set({"TASKS": TASKS});
+}
+
+function addToHistory(url, title, task_id){
+  if(url!= "chrome://newtab/" && url!="about:blank" && url){
+    if(TASKS[task_id].history.find((page) => page.url === url)){
+      var date = new Date();
+      TASKS[task_id].history.find((page) => page.url === url).timeVisited.push(date.toString())
+    }
+    else{
+      var newPage = new Page(url, title)
+      var date = new Date;
+      newPage.timeVisited.push(date.toString());
+      TASKS[task_id].history.push(newPage);
+    }
+  }
+}
+
+function likePage(url, task_id){
+  var page = TASKS[task_id].history.find((page) => page.url === url );
+  TASKS[task_id].history.find((page) => page.url === url ).isLiked = !(page.isLiked);
+  saveTasksToStorage();
+}
+
+function getLikedPages(task_id){
+  var likedPages = [];
+  for(var i = 0; i<TASKS[task_id].history.length; i++){
+    if(TASKS[task_id].history[i].isLiked){
+      likedPages.push(TASKS[task_id].history[i]);
+    }
+  }
+  return likedPages;
 }
 
 
@@ -558,18 +632,18 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
         downloadTasks();
     }
 
-    if (request.type == "like-page") {
-        likePage(request.url, CTASKID);
+    if(request.type == "like-page"){
+      likePage(request.url, CTASKID);
     }
 
-    if (request.type == "search") {
-        returnUrlsList(request.query, engines, function () {
-            chrome.runtime.sendMessage({
-                "urlsList": urlsList,
-                "type": "search-reply"
-            });
+    if(request.type == "search"){
+      returnUrlsList(request.query, engines, function(){
+        chrome.runtime.sendMessage({
+          "urlsList": urlsList,
+          "type": "search-reply"
         });
-    }
+    });
+  }
 });
 
 //ENDING: Stuff that calls the appropriate helper when a task is created/switched/deleted etc
@@ -580,54 +654,51 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 //Save a tab when the url is changed.
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
-    if (changeInfo.status == "complete") {
-        if (tabIdToURL != {}) {
-            var date = new Date();
-            updateExitTime(tabIdToURL[tabId], date.toString())
-        }
+    if (changeInfo.status== "complete") {
+      if(tabIdToURL!= {}){
+        var date = new Date();
+        updateExitTime(tabIdToURL[tabId], date.toString())
+      }
         tabIdToURL[tabId] = tab.url;
         saveTask(CTASKID);
         addToHistory(tab.url, tab.title, CTASKID);
     }
-    chrome.tabs.sendMessage(tabId, {data: tab})
+    chrome.tabs.sendMessage(tabId, {data:tab})
 
 });
 
-chrome.tabs.onActivated.addListener(function (activeInfo) {
+chrome.tabs.onActivated.addListener(function(activeInfo){
 
-    //Set the exit time for previous url
-    if (tabIdToURL != {} && activeTabId != -1) {
+  //Set the exit time for previous url
+  if(tabIdToURL!= {} && activeTabId != -1){
+    var date = new Date();
+    updateExitTime(tabIdToURL[activeTabId], date.toString());
+  }
+
+  activeTabId = activeInfo.tabId;
+
+  chrome.tabs.get(activeTabId, function(tab){
+    if(tab.url){
+      if(TASKS[CTASKID].history.find((page) => page.url === tab.url)){
         var date = new Date();
-        updateExitTime(tabIdToURL[activeTabId], date.toString());
+        TASKS[CTASKID].history.find((page) => page.url === tab.url).timeVisited.push(date.toString())
+      }
     }
-
-    activeTabId = activeInfo.tabId;
-
-    chrome.tabs.get(activeTabId, function (tab) {
-        if (tab.url) {
-            if (TASKS[CTASKID].history.find((page) = > page.url === tab.url))
-            {
-                var date = new Date();
-                TASKS[CTASKID].history.find((page) = > page.url === tab.url
-            ).
-                timeVisited.push(date.toString())
-            }
-        }
-    })
+  })
 })
 
 //Save task when a tab is closed
-chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
-    if (removeInfo.isWindowClosing) {
-        var date = new Date();
-        if (tabIdToURL != {}) {
-            updateExitTime(tabIdToURL[tabId], date.toString());
-        }
+chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
+  if(removeInfo.isWindowClosing){
+    var date = new Date();
+    if(tabIdToURL!= {}){
+      updateExitTime(tabIdToURL[tabId], date.toString());
     }
+  }
     if (!removeInfo.isWindowClosing) {
         saveTask(CTASKID);
     }
-});
+  });
 
 //ENDING: Stuff that saves tabs of task
 
@@ -689,10 +760,10 @@ chrome.tabs.onRemoved.addListener(function (tabId, removeInfo) {
 
 //Level 1 Helper Methods
 
-function httpGetAsync(theUrl, callback, engine) {
+function httpGetAsync(theUrl, callback, engine){
 
     var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function () {
+    xmlHttp.onreadystatechange = function() {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
             callback(xmlHttp.responseText, engine);
     }
@@ -704,106 +775,106 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function returnQuery(selectorDict) {
-    var query = "";
+function returnQuery(selectorDict){
+  var query = "";
 
-    for (var i = 0; i < selectorDict.length; i++) {
-        var tagName, className, idName, attributeName, attributeValue;
+  for (var i = 0; i < selectorDict.length; i++) {
+     var tagName, className, idName, attributeName, attributeValue;
 
-        if (selectorDict[i]["tag"] != null) {
-            tagName = selectorDict[i]["tag"];
-        } else {
-            tagName = null;
-        }
-        if (selectorDict[i]["class"] != null) {
-            className = selectorDict[i]["class"];
-        } else {
-            className = null;
-        }
-        if (selectorDict[i]["id"] != null) {
-            idName = selectorDict[i]["id"];
-        } else {
-            idName = null;
-        }
-        if (selectorDict[i]["attribute"] != null) {
-            attributeName = selectorDict[i]["attribute"];
-        } else {
-            attributeName = null;
-        }
-        if (selectorDict[i]["value"] != null) {
-            attributeValue = selectorDict[i]["value"];
-        } else {
-            attributeValue = null;
-        }
+    if (selectorDict[i]["tag"] != null) {
+         tagName = selectorDict[i]["tag"];
+     } else {
+         tagName = null;
+     }
+     if (selectorDict[i]["class"] != null) {
+         className = selectorDict[i]["class"];
+     } else {
+         className = null;
+     }
+     if (selectorDict[i]["id"] != null) {
+         idName = selectorDict[i]["id"];
+     } else {
+         idName = null;
+     }
+     if (selectorDict[i]["attribute"] != null) {
+         attributeName = selectorDict[i]["attribute"];
+     } else {
+         attributeName = null;
+     }
+     if (selectorDict[i]["value"] != null) {
+         attributeValue = selectorDict[i]["value"];
+     } else {
+         attributeValue = null;
+     }
 
-        //Creating query for querySelector
-        if (tagName != null) {
-            query = query + tagName;
-        }
+     //Creating query for querySelector
+     if (tagName != null) {
+         query = query + tagName;
+     }
 
-        if (className != null) {
-            var classes = className.replace(/\s/g, ".");
-            query = query + "." + classes;
-        }
+     if (className != null) {
+         var classes = className.replace(/\s/g, ".");
+         query = query + "." + classes;
+     }
 
-        if (idName != null) {
-            query = query + "#" + idName;
-        }
+     if (idName != null) {
+         query = query + "#" + idName;
+     }
 
-        if (attributeName != null) {
-            query = query + "[" + attributeName + "='" + attributeValue + "']";
-        }
+     if (attributeName != null) {
+         query = query + "[" + attributeName + "='" + attributeValue + "']";
+     }
 
-        if ((i + 1) < selectorDict.length) {
-            query = query + " ";
-        }
-    }
-    return query;
+     if ((i + 1) < selectorDict.length) {
+         query = query + " ";
+     }
+ }
+ return query;
 
 }
 
-function extractUrls(engine, htmlString) {
-    var urls = [];
-    var parser = new DOMParser();
-    var doc = parser.parseFromString(htmlString, "text/html");
-    var urlObjects = doc.querySelectorAll(returnQuery(engine.selector));
-    for (var i = 0; i < urlObjects.length; i++) {
-        urls.push(urlObjects[i][engine.finalSelector])
-    }
-    return urls;
+function extractUrls(engine, htmlString){
+  var urls = [];
+  var parser = new DOMParser();
+  var doc = parser.parseFromString(htmlString, "text/html");
+  var urlObjects = doc.querySelectorAll(returnQuery(engine.selector));
+  for(var i =0; i<urlObjects.length; i++){
+    urls.push(urlObjects[i][engine.finalSelector])
+  }
+  return urls;
 }
 
 var urlsList = [];
 
-function returnUrlsList(query, engines, callback) {
-    for (var i = 0; i < engines.length; i++) {
-        for (var j = 0; j < 10; j++) {
-            setInterval(httpGetAsync(engines[i].mainUrl + query + engines[i].pageUrl + engines[i].indexMarker(j), function (response, engine) {
-                var engineName = engine["engine"];
-                var urls = extractUrls(engine, response);
-                for (var k = 0; k < urls.length; k++) {
-                    var temp = {};
-                    temp["url"] = urls[k]
-                    temp["engine"] = engineName;
-                    urlsList.push(temp);
-                }
-                if (urlsList.length > 290) {
-                    // console.log(urlsList);
-                    callback();
-                }
-            }, engines[i]), getRandomInt(30000, 60000));
+function returnUrlsList(query, engines, callback){
+  for(var i = 0; i < engines.length; i++){
+    for(var j = 0; j < 1; j++){
+      setInterval(httpGetAsync(engines[i].mainUrl+query+engines[i].pageUrl+engines[i].indexMarker(j), function(response, engine){
+        var engineName = engine["engine"];
+        var urls = extractUrls(engine, response);
+        for(var k = 0; k<urls.length; k++){
+          var temp = {};
+          temp["url"] = urls[k]
+          temp["engine"] = engineName;
+          urlsList.push(temp);
         }
+        if(urlsList.length>10)
+        {
+          // console.log(urlsList);
+          callback();
+        }
+      }, engines[i]), getRandomInt(30000, 60000));
     }
+  }
 }
 
-returnUrlsList("Steve", engines, function () {
-    chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
-        chrome.storage.local.get(preferredAuthorsFieldName, function (preferredAuthorsObject))
-        {
-            console.log(getSailboatResults(urlsList, preferredDomainsObject, preferredAuthorsObject));
-        }
+returnUrlsList("Steve", engines, function(){
+  chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
+    chrome.storage.local.get(preferredAuthorsFieldName, function(preferredAuthorsObject){
+        console.log(urlsList);
+      console.log(getSailboatResults(urlsList, preferredDomainsObject, preferredAuthorsObject));
     })
-})
+  })})
 
 
 //ENDING: SCRAPER STUFF
