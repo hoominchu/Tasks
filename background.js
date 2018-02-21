@@ -1,5 +1,14 @@
 "use strict";
 
+chrome.commands.onCommand.addListener(function(command){
+  if(command == "like-page"){
+    chrome.tabs.get(activeTabId, function(tab){
+      likePage(tab.url ,"shortcut");
+    })
+  }
+});
+
+
 chrome.runtime.onMessage.addListener(function (request, sender) {
 
     refreshContextMenu();
@@ -67,7 +76,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
         saveTask(CTASKID);
         addToHistory(tab.url, tab.title, CTASKID);
     }
-    chrome.tabs.sendMessage(tabId, {data:tab})
+    chrome.tabs.sendMessage(tabId, {"type": "reload-like-button", data:tab})
 
 });
 
