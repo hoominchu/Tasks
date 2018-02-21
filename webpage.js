@@ -38,3 +38,15 @@ function updateExitTime(url, time){
     TASKS[CTASKID].history.find((page) => page.url === url).totalTimeSpent = getTotalTimeSpent(TASKS[CTASKID].history.find((page) => page.url === url));
   }
 }
+
+function likePage(url, method){
+  var page = TASKS[CTASKID].history.find((page) => page.url === url );
+  TASKS[CTASKID].history.find((page) => page.url === url ).isLiked = !(page.isLiked);
+  if(method == "shortcut"){
+    chrome.tabs.sendMessage(activeTabId, {
+      "type":"page-liked-with-shortcut"
+    });
+  }
+  updateStorage("TASKS",TASKS);
+
+}

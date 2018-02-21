@@ -28,11 +28,7 @@ function addToHistory(url, title, task_id){
 }
 
 
-function likePage(url, task_id){
-  var page = TASKS[task_id].history.find((page) => page.url === url );
-  TASKS[task_id].history.find((page) => page.url === url ).isLiked = !(page.isLiked);
-  updateStorage("TASKS",TASKS);
-}
+
 
 function getLikedPages(task_id){
   var likedPages = [];
