@@ -9,27 +9,36 @@
         "https://*/*"
       ],
       "css": [
-        "styles.css"
+        "contentscripts/styles.css"
       ],
       "js": [
-        "js/jquery/jquery-3.2.1.min.js",
-        "onpage.js"
+        "js/jquery/jquery-3.2.1.min.js"
       ]
     }
   ],
   "browser_action": {
-    "default_icon": "SailBoat.png",
-    "default_popup": "browserAction.html",
+    "default_icon": "images/SailBoat.png",
+    "default_popup": "popup/browserAction.html",
     "default_title": "Sail Boat"
   },
   "background": {
-    "scripts": ["background.js"]
+    "scripts": [
+      "init.js",
+      "util.js",
+      "web-util.js",
+      "tasks.js",
+      "webpage.js",
+      "contextmenu.js",
+      "domain.js",
+      "author.js",
+      "search.js",
+      "background.js"]
   },
   "content_scripts": [
     {
       "matches": ["https://*/*", "http://*/*"],
-      "css": ["css/font-awesome-4.7.0/css/font-awesome.min.css", "contentscript.css"],
-      "js": ["js/jquery/jquery-3.2.1.min.js", "contentscript.js"],
+      "css": ["css/font-awesome-4.7.0/css/font-awesome.min.css", "contentscripts/contentscript.css"],
+      "js": ["js/jquery/jquery-3.2.1.min.js", "contentscripts/contentscript.js"],
       "run_at": "document_end"
 
     }
@@ -66,7 +75,7 @@
     ]
   },
   "icons": {
-    "16": "SailBoat.png"
+    "16": "images/SailBoat.png"
   },
   "commands": {
     "view-all-tasks": {

@@ -1,4 +1,28 @@
 var initialURL = window.location.href
+var idleTime = 0;
+$(document).ready(function () {
+    //Increment the idle time counter every minute.
+    var idleInterval = setInterval(timerIncrement, 60000); // 1 minute
+
+    //Zero the idle timer on mouse movement.
+    $(this).mousemove(function (e) {
+        idleTime = 0;
+    });
+
+    $(this).keypress(function (e) {
+        idleTime = 0;
+    });
+});
+
+function timerIncrement() {
+    idleTime = idleTime + 1;
+    console.log(idleTime);
+    chrome.runtime.sendMessage({
+      "type": "idle-time",
+      "url": window.location.href,
+      "idle-time": idleTime
+    });
+}
 
 loadLikeButton(initialURL);
 
@@ -13,7 +37,9 @@ function loadLikeButton(currentURL){
           chrome.storage.local.get("CTASKID", function (cTaskIdObject) {
               if (cTaskIdObject["CTASKID"]>-1) {
                   var CTASKID = cTaskIdObject["CTASKID"];
-                  var pageLiked = TASKS[CTASKID].history.find((page) => page.url === currentURL ).isLiked;
+                  if(TASKS[CTASKID].history.find((page) => page.url === currentURL)){
+                    var pageLiked = (TASKS[CTASKID].history.find((page) => page.url === currentURL)).isLiked;
+                  }
                   if(pageLiked){
                     var likeButton = $('<div class="float" style="font-size:35px;"><i class="fa fa-thumbs-up likeButton clicked"></i></div>')
                   }

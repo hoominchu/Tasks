@@ -1,13 +1,4 @@
-// Local storage fields
-var preferredAuthorsFieldName = "Preferred authors";
-var totalFrequencyFieldName = "Total frequency";
-var authorsMetadataFieldName = "metadata";
 
-// Setting fields of author object
-var authorFrequencyFieldName = "frequency";
-var authorURL = "URL"; // Not being used yet
-var activeTasksFieldName = "Active tasks";
-var archivedTasksFieldName = "Archived tasks";
 
 // Stopwords array
 var stopwords = ["by"];
