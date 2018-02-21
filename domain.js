@@ -17,13 +17,7 @@ chrome.storage.local.get("CTASKID", function (response) {
 // Takes a URL and gets its
 function updatePreferredDomain(theUrl) {
     var domain = getDomainFromURL(theUrl);
-    var xmlHttp = new XMLHttpRequest();
-    xmlHttp.onreadystatechange = function () {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            updateDomain(xmlHttp.responseText, domain);
-    };
-    xmlHttp.open("GET", theUrl, true); // true for asynchronous
-    xmlHttp.send(null);
+    updateDomain(domain);
 }
 
 // Weight is calculated as-- authorFrequency/totalFrequency. Another way weight can be computed is-- authorFrequency/numberOfAuthors.
@@ -77,7 +71,7 @@ function updateStorage(key, obj) {
     chrome.storage.local.set(tempObj);
 }
 
-var updateDomain = function (htmlString, domain) {
+var updateDomain = function (domain) {
 
     // Checking if "Preferred domains" field exists in the local storage. Adding if it doesn't exist.
     chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
