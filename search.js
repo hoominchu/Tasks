@@ -129,7 +129,7 @@ var urlsList = [];
 function returnUrlsList(query, engines, callback) {
     for (var i = 0; i < engines.length; i++) {
         for (var j = 0; j < 1; j++) {
-            setInterval(httpGetAsync(engines[i].mainUrl + query + engines[i].pageUrl + engines[i].indexMarker(j), function (response, engine) {
+            setInterval(httpGetAsync(engines[i].mainUrl + query.replace(/\s/g,"+") + engines[i].pageUrl + engines[i].indexMarker(j), function (response, engine) {
                 var engineName = engine["engine"];
                 var urls = extractUrls(engine, response);
                 for (var k = 0; k < urls.length; k++) {
@@ -147,7 +147,7 @@ function returnUrlsList(query, engines, callback) {
     }
 }
 
-returnUrlsList("Steve", engines, function () {
+returnUrlsList("Steve Jobs", engines, function () {
     chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
         chrome.storage.local.get(preferredAuthorsFieldName, function (preferredAuthorsObject) {
             console.log(urlsList);
