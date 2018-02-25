@@ -11,6 +11,12 @@ function Task(task_id, task_name, tabs, bookmarks, isActive) {
     this.pages = {};
 }
 
+function createDefaultTask(){
+  var task = new Task(0, "Default", {}, {}, true);
+  TASKS[task.id] = task;
+}
+
+createDefaultTask();
 
 function addToHistory(url, title, task_id){
   if(url!= "chrome://newtab/" && url!="about:blank" && url){
@@ -26,8 +32,6 @@ function addToHistory(url, title, task_id){
     }
   }
 }
-
-
 
 
 function getLikedPages(task_id){
@@ -78,7 +82,12 @@ function activateTask(task_id) {
 
         CTASKID = task_id;
         chrome.storage.local.set({"CTASKID": task_id});
-        chrome.browserAction.setBadgeText({"text": TASKS[CTASKID].name.slice(0, 4)})
+        if(TASKS[CTASKID].id != 0){
+          chrome.browserAction.setBadgeText({"text": TASKS[CTASKID].name.slice(0, 4)})
+        }
+        else{
+          chrome.browserAction.setBadgeText({"text": ""})
+        }
         var now = new Date();
         TASKS[task_id].activationTime.push(now.toString());
         TASKS[task_id].isActive = true;
@@ -113,7 +122,7 @@ function deactivateTask(currentTaskId) {
         TASKS[currentTaskId].isActive = false;
         updateStorage("TASKS",TASKS);
     }
-    else if (currentTaskId == -1) {
+    else if (currentTaskId == 0) {
         closeAllTabs(false, chrome.windows.WINDOW_ID_CURRENT)
     }
 }

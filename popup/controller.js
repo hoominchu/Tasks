@@ -385,7 +385,9 @@ $("#index").click(function () {
     chrome.tabs.create({"url": "html/index.html"});
 });
 
-
-
-
-
+$("#pauseTasks").click(function(){
+    chrome.runtime.sendMessage({
+        "type": "switch-task",
+        "nextTaskId": "0"
+    });
+});

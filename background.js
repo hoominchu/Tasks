@@ -35,6 +35,7 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
     }
 
     if (request.type == "switch-task" && request.nextTaskId != "") {
+        console.log(request);
         deactivateTask(CTASKID);
         activateTask(request.nextTaskId);
     }
@@ -53,6 +54,11 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 
     if(request.type == "like-page"){
       likePage(request.url, CTASKID);
+    }
+
+    if(request.type =="pause-tasks"){
+        CTASKID = 0;
+        updateStorage("CTASKID", 0);
     }
 
     if(request.type == "search"){
@@ -83,7 +89,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 chrome.tabs.onActivated.addListener(function(activeInfo){
 
   //Set the exit time for previous url
-  if(tabIdToURL!= {} && activeTabId != -1){
+  if(tabIdToURL!= {} && activeTabId != 0){
     var date = new Date();
     updateExitTime(tabIdToURL[activeTabId], date.toString());
   }
@@ -94,7 +100,7 @@ chrome.tabs.onActivated.addListener(function(activeInfo){
     if(tab.url){
       if(TASKS[CTASKID].history.find((page) => page.url === tab.url)){
         var date = new Date();
-        TASKS[CTASKID].history.find((page) => page.url === tab.url).timeVisited.push(date.toString())
+        TASKS[CTASKID].history.find((page) => page.url === tab.url).timeVisited.push(date.toString());
       }
     }
   })
