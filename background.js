@@ -61,6 +61,10 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
         updateStorage("CTASKID", 0);
     }
 
+    if(request.type == "open-liked-pages"){
+      openLikedPages(request.taskId)
+    }
+
     if(request.type == "search"){
       returnUrlsList(request.query, engines, function(){
         chrome.runtime.sendMessage({

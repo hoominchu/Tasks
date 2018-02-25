@@ -153,3 +153,12 @@ function downloadTasks() {
 function addToTask(url, task_id) {
     TASKS[task_id].tabs.push({"url": url});
 }
+
+function openLikedPages(task_id){
+  var likedPages = getLikedPages(task_id);
+  var likedPagesUrls = [];
+  for(var i = 0; i<likedPages.length; i++){
+    likedPagesUrls.push(likedPages[i].url);
+  }
+  openTabs(likedPagesUrls);
+}

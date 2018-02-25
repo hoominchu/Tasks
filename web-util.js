@@ -178,3 +178,9 @@ function getDomainFromURL(url) {
     var domain = arr[2];
     return domain;
 }
+
+function openTabs(arrayOfUrls){
+  for(var i = 0; i<arrayOfUrls.length; i++){
+    chrome.tabs.create({"url": arrayOfUrls[i]});
+  }
+}
