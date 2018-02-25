@@ -1,5 +1,15 @@
 var engines = [
     {
+      "engine": "Google",
+      "mainUrl": "https://www.google.co.in/search?q=",
+      "pageUrl": "&start=",
+      "indexMarker": function (j) {
+          return j*10;
+      },
+      "selector": [{"class": "_Rm"}],
+      "finalSelector": "innerText"
+    },
+    {
         "engine": "Yahoo",
         "mainUrl": "https://in.search.yahoo.com/search?p=",
         "pageUrl": "&b=",
@@ -147,7 +157,7 @@ function returnUrlsList(query, engines, callback) {
     }
 }
 
-returnUrlsList("Steve Jobs", engines, function () {
+returnUrlsList("Narendra Modi USA", engines, function () {
     chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
         chrome.storage.local.get(preferredAuthorsFieldName, function (preferredAuthorsObject) {
             console.log(urlsList);

@@ -47,7 +47,7 @@ function likePage(url, method){
       "type":"page-liked-with-shortcut"
     });
   }
-  updatePreferredDomain(url);
+  // updatePreferredDomain(url);
   updateStorage("TASKS",TASKS);
 
 }

@@ -6,6 +6,7 @@ chrome.storage.local.get("TASKS", function (taskObject) {
               var CTASKID = cTaskIdObject["CTASKID"];
               loadLikeButton();
               markLikedStatus(initialURL);
+
           }
         });
     }
@@ -14,15 +15,15 @@ chrome.storage.local.get("TASKS", function (taskObject) {
   function loadLikeButton(){
     var likeButton = $('<div class="float" style="font-size:35px;"><i class="fa fa-thumbs-up likeButton"></i></div>');
     $('body').append(likeButton);
-    $(".likeButton").click(function(){
-      $(this).toggleClass("clicked");
-      return function(){
-        chrome.runtime.sendMessage({
-          "type": "like-page",
-          "url": currentURL
-        });
-      }
-    });
+      $(".likeButton").click(function(){
+          $(this).toggleClass("clicked");
+          // return function(){
+              chrome.runtime.sendMessage({
+                  "type": "like-page",
+                  "url": window.location.href
+              });
+          // }
+      });
   }
 
   function markLikedStatus(url){
@@ -52,3 +53,4 @@ chrome.storage.local.get("TASKS", function (taskObject) {
           }
         });
   }
+
