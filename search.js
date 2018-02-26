@@ -1,13 +1,13 @@
 var engines = [
     {
-      "engine": "Google",
-      "mainUrl": "https://www.google.co.in/search?q=",
-      "pageUrl": "&start=",
-      "indexMarker": function (j) {
-          return j*10;
-      },
-      "selector": [{"class": "_Rm"}],
-      "finalSelector": "innerText"
+        "engine": "Google",
+        "mainUrl": "https://www.google.co.in/search?q=",
+        "pageUrl": "&start=",
+        "indexMarker": function (j) {
+            return j * 10;
+        },
+        "selector": [{"class": "_Rm"}],
+        "finalSelector": "innerText"
     },
     {
         "engine": "Yahoo",
@@ -36,19 +36,22 @@ var engines = [
 var authors = [];
 var authorsRetrieved = false;
 
-// Receiving authors through message
-chrome.runtime.onMessage.addListener(function (message) {
-    authors = message["authors retrieved"];
-});
+var delayInMilliseconds = 1000; //1 second
+
+// Results array is global and should be cleared before a new query is received and processed. These results will be displayed in the search results page.
+var SAILBOATRESULTS = [];
+var urlToAuthorWeights = [];
+var urlToDomainWeights = [];
 
 // This function takes results object which contains results from Google, Bing, Yahoo etc., preferredDomains object and preferredAuthors object.
 // Returns array of re-ordered (in descending order of computed weights) results with result object. Fields of result object are -- URL, Engine and Weight.
 function getSailboatResults(results, preferredDomains, preferredAuthors) {
 
-    var sailboatResults = [];
+    SAILBOATRESULTS = [];
+    urlToAuthorWeights = {};
+    urlToDomainWeights = [];
 
     for (var i = 0; i < results.length; i++) {
-        var resultObj = {};
         var resObjTemp = results[i];
         var link = resObjTemp["url"];
         var engine = resObjTemp["engine"];
@@ -56,52 +59,62 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
 
         //Check if domain exists in domainToAuthorClassDict in author.js. If it doesn't exist there it doesn't make sense to get author and only domain is important.
         if (domainToAuthorClassDict[domain]) {
-            httpGetAsyncForGetAuthor(link);
-
-        } else {
-            authorsRetrieved = true;
+            httpGetAsyncForGetAuthor(link, engine, preferredAuthors);
         }
 
-        if (authorsRetrieved) {
-            var finalWeight = 0;
+        var domainWeight = 0;
 
-            var domainWeight = 0;
-            var authorWeight = 0;
-
-            if (preferredDomains[domain]) {
-                domainWeight = getDomainWeight(domain, preferredDomains);
-                finalWeight = domainWeight;
-            }
-
-            for (var j = 0; j < authors; j++) {
-                var authorName = authors[j];
-                var authorUniqueID = authorName + ", " + domain;
-                if (preferredAuthors[authorUniqueID]) {
-                    authorWeight = getAuthorWeight(authorName, domain, preferredAuthors);
-                }
-                finalWeight = finalWeight + authorWeight;
-            }
-
-
-            // Computing final weight for a result. computeFinalWeight can be edited
-            // finalWeight = domainWeight;//computeFinalWeight(domainWeight, authorWeight);
-            resultObj["URL"] = link;
-            resultObj["Engine"] = engine;
-            resultObj["Weight"] = finalWeight;
-
-            sailboatResults.push(resultObj);
-
-            // Setting authorsRetrieved to false for the next item in the loop.
-            authorsRetrieved = false;
+        if (preferredDomains[domain]) {
+            domainWeight = getDomainWeight(domain, preferredDomains);
         }
+        var temp = {};
+        temp["url"] = link;
+        temp["engine"] = engine;
+        temp["domain weight"] = domainWeight;
+        urlToDomainWeights.push(temp);
     }
 
-    // Sorting sailboatResults in descending order of weight
-    var awesomeResult = sailboatResults.sort(function (a, b) {
-        return b["Weight"] - a["Weight"];
-    });
+    // Adding delay to ensure all requests for getting authors are completed.
+    setTimeout(function() {
+        console.log(urlToDomainWeights.length);
+        // Combining both author weights and domain weights
+        for (var j = 0; j < urlToDomainWeights.length; j++) {
+            var finalWeight = 0;
+            var tempObj = urlToDomainWeights[j];
 
-    return awesomeResult;
+            var url = tempObj["url"];
+            var engine = tempObj["engine"];
+            var domainWeight = tempObj["domain weight"];
+
+            // Adding domain weight
+            finalWeight = finalWeight + domainWeight;
+
+            // Adding author weight
+            if (urlToAuthorWeights[url]) {
+                finalWeight = finalWeight + urlToAuthorWeights[url];
+            }
+            // Computing final weight for a result. computeFinalWeight can be edited
+            // finalWeight = domainWeight;//computeFinalWeight(domainWeight, authorWeight);
+            var resObj = {};
+            resObj["URL"] = url;
+            resObj["Engine"] = engine;
+            resObj["Weight"] = finalWeight;
+            SAILBOATRESULTS.push(resObj);
+        }
+
+
+        // Sorting sailboatResults in descending order of weight
+        var awesomeResult = SAILBOATRESULTS.sort(function (a, b) {
+            return b["Weight"] - a["Weight"];
+        });
+
+        console.log("Awesome results");
+        console.log(awesomeResult);
+        return awesomeResult;
+    }, delayInMilliseconds);
+
+
+
 }
 
 
@@ -118,7 +131,7 @@ function httpGetAsync(theUrl, callback, engine) {
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
             callback(xmlHttp.responseText, engine);
-    }
+    };
     xmlHttp.open("GET", theUrl, true); // true for asynchronous
     xmlHttp.send(null);
 }
@@ -139,7 +152,7 @@ var urlsList = [];
 function returnUrlsList(query, engines, callback) {
     for (var i = 0; i < engines.length; i++) {
         for (var j = 0; j < 1; j++) {
-            setInterval(httpGetAsync(engines[i].mainUrl + query.replace(/\s/g,"+") + engines[i].pageUrl + engines[i].indexMarker(j), function (response, engine) {
+            setInterval(httpGetAsync(engines[i].mainUrl + query.replace(/\s/g, "+") + engines[i].pageUrl + engines[i].indexMarker(j), function (response, engine) {
                 var engineName = engine["engine"];
                 var urls = extractUrls(engine, response);
                 for (var k = 0; k < urls.length; k++) {

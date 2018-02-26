@@ -21,15 +21,24 @@ function httpGetAsyncForUpdateAuthor(theUrl, callback) {
 }
 
 //httpGetAsync for getAuthor. Sends message once the authors array is received.
-function httpGetAsyncForGetAuthor(theUrl) {
+function httpGetAsyncForGetAuthor(theUrl, preferredAuthors) {
     var domain = getDomainFromURL(theUrl);
     var xmlHttp = new XMLHttpRequest();
     xmlHttp.onreadystatechange = function () {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
             var authors = getAuthors(xmlHttp.responseText, domain);
-            chrome.runtime.sendMessage({
-                "authors retrieved": authors
-            });
+            var totalAuthorWeight = 0;
+            for (var j = 0; j < authors; j++) {
+                var authorWeight = 0;
+                var authorName = authors[j];
+                var authorUniqueID = authorName + ", " + domain;
+                if (preferredAuthors[authorUniqueID]) {
+                    authorWeight = getAuthorWeight(authorName, domain, preferredAuthors);
+                    totalAuthorWeight = totalAuthorWeight + authorWeight;
+                }
+            }
+            // Adding URL and authors to the results array (declared in search.js)
+            urlToAuthorWeights[theUrl] = totalAuthorWeight;
         }
     };
     xmlHttp.open("GET", theUrl, true); // true for asynchronous
@@ -67,12 +76,6 @@ var domainToAuthorClassDict = {
     "edition.cnn.com": [{"tag": "span", "class": "metadata__byline__author"}]
 
 };
-
-function getDomainFromURL(url) {
-    var arr = url.split('/');
-    var domain = arr[2];
-    return domain;
-}
 
 function getUpdatedAuthorsObject(authors, domain, preferredAuthorsObject) {
     for (var n = 0; n < authors.length; n++) {
@@ -193,34 +196,36 @@ var getAuthors = function (htmlString, domain) {
 
 
     var authorElem = htmlDoc.querySelector(query);
-    var author = authorElem.innerText;
-    author = author.toLowerCase();
+    if (authorElem != null) {
+        var author = authorElem.innerText;
+        author = author.toLowerCase();
 
-    // Removing stopwords from author string
-    for (var j = 0; j < stopwords.length; j++) {
-        author = author.replace(stopwords[j], "");
-    }
+        // Removing stopwords from author string
+        for (var j = 0; j < stopwords.length; j++) {
+            author = author.replace(stopwords[j], "");
+        }
 
-    // Removing organisation names from author string
-    for (var k = 0; k < stopwords.length; k++) {
-        author = author.replace(organisationNames_stopwords[k], "");
-    }
+        // Removing organisation names from author string
+        for (var k = 0; k < stopwords.length; k++) {
+            author = author.replace(organisationNames_stopwords[k], "");
+        }
 
-    // Splitting with and
-    var authorsArr1 = author.split(" and ");
+        // Splitting with and
+        var authorsArr1 = author.split(" and ");
 
-    for (var l = 0; l < authorsArr1.length; l++) {
-        //Splitting with comma
-        var authorsArr2 = authorsArr1[l].split(",");
+        for (var l = 0; l < authorsArr1.length; l++) {
+            //Splitting with comma
+            var authorsArr2 = authorsArr1[l].split(",");
 
-        for (var m = 0; m < authorsArr2.length; m++) {
-            //Adding author name to authors array. Adding only if length is more than one.
-            if (authorsArr2[m].length > 1) {
-                authors.push(authorsArr2[m]);
+            for (var m = 0; m < authorsArr2.length; m++) {
+                //Adding author name to authors array. Adding only if length is more than one.
+                if (authorsArr2[m].length > 1) {
+                    authors.push(authorsArr2[m]);
+                }
             }
         }
     }
     return authors;
 };
 
-var resp = httpGetAsyncForUpdateAuthor('http://www.thehindu.com/news/national/ed-searches-45-locations-seizes-20-cr-assets/article22791357.ece?homepage=true', updateAuthor);
+// var resp = httpGetAsyncForUpdateAuthor('http://www.thehindu.com/news/national/ed-searches-45-locations-seizes-20-cr-assets/article22791357.ece?homepage=true', updateAuthor);

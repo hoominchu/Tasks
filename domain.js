@@ -24,7 +24,14 @@ function getUpdatedPreferredDomainsObject(domain, preferredDomainsObject) {
         // Fields of author objects are set at the top of the file.
         // Increasing frequency of the author.
         preferredDomainsObject[domain][domainFrequencyFieldName]++;
-        preferredDomainsObject[domain][activeTasksFieldName].push(CTASKID);
+
+        var activeTasksArray = preferredDomainsObject[domain][activeTasksFieldName];
+
+        // Checking if current task id already exists in active tasks field name. Pushing CTASKID if it doesn't exist in the array.
+        if(activeTasksArray.indexOf(CTASKID)=== -1) {
+            preferredDomainsObject[domain][activeTasksFieldName].push(CTASKID);
+        }
+
     }
 
     // If domain doesn't exist in storage-- adding domain to storage.

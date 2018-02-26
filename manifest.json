@@ -29,9 +29,9 @@
       "tasks.js",
       "webpage.js",
       "contextmenu.js",
-//      "domain.js",
-//      "author.js",
-//      "search.js",
+      "domain.js",
+      "author.js",
+      "search.js",
       "background.js"]
   },
   "content_scripts": [
@@ -45,7 +45,8 @@
   "web_accessible_resources": [
     "chrome_ex_oauth.html",
     "chrome_ex_oauth.js",
-    "chrome_ex_oauthsimple.html"
+    "chrome_ex_oauthsimple.html",
+    "images/fish_hook.png"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-inline' 'unsafe eval' object-src 'self'",
   "permissions": [

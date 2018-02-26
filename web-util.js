@@ -51,119 +51,150 @@ function removeBookmarks() {
     });
 }
 
-function createBookmarks(bookmarksNode, parentId){
-  for(var i=0; i<bookmarksNode.length; i++){
-    var bookmark = bookmarksNode[i];
-    var isRootFolder = !(bookmark.id>2);
-    var isFolder = (bookmark.url == null);
-    var isParentRoot = !(bookmark.parentId>2);
+function createBookmarks(bookmarksNode, parentId) {
+    for (var i = 0; i < bookmarksNode.length; i++) {
+        var bookmark = bookmarksNode[i];
+        var isRootFolder = !(bookmark.id > 2);
+        var isFolder = (bookmark.url == null);
+        var isParentRoot = !(bookmark.parentId > 2);
 
-    if(!isRootFolder && !isFolder && isParentRoot){
-      chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title, "url":bookmark.url});
-    }
+        if (!isRootFolder && !isFolder && isParentRoot) {
+            chrome.bookmarks.create({
+                "parentId": bookmark.parentId,
+                "index": bookmark.index,
+                "title": bookmark.title,
+                "url": bookmark.url
+            });
+        }
 
-    else if((!isRootFolder && !isFolder && !isParentRoot)){
-      chrome.bookmarks.create({"parentId":parentId, "index": bookmark.index, "title": bookmark.title, "url":bookmark.url});
-    }
+        else if ((!isRootFolder && !isFolder && !isParentRoot)) {
+            chrome.bookmarks.create({
+                "parentId": parentId,
+                "index": bookmark.index,
+                "title": bookmark.title,
+                "url": bookmark.url
+            });
+        }
 
-    else if (!isRootFolder && isFolder){
-      if(bookmark.children.length>0){
-        var children = bookmark.children;
-        chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title}, function(result){createBookmarks(children, result.id)});
-      }
-      else{
-        chrome.bookmarks.create({"parentId":bookmark.parentId, "index": bookmark.index, "title": bookmark.title});
-      }
-    }
+        else if (!isRootFolder && isFolder) {
+            if (bookmark.children.length > 0) {
+                var children = bookmark.children;
+                chrome.bookmarks.create({
+                    "parentId": bookmark.parentId,
+                    "index": bookmark.index,
+                    "title": bookmark.title
+                }, function (result) {
+                    createBookmarks(children, result.id)
+                });
+            }
+            else {
+                chrome.bookmarks.create({
+                    "parentId": bookmark.parentId,
+                    "index": bookmark.index,
+                    "title": bookmark.title
+                });
+            }
+        }
 
-    else if (isRootFolder){
-      if(bookmark.children.length > 0){
-        createBookmarks(bookmark.children);
-      }
+        else if (isRootFolder) {
+            if (bookmark.children.length > 0) {
+                createBookmarks(bookmark.children);
+            }
+        }
     }
-  }
 }
 
-function createBookmarks(bookmarksNode, parentId){
-  for(var i =0; i<bookmarksNode.length; i++){
-    var bookmark = bookmarksNode[i];
-    var isFolder = (bookmark.url == null);
-    var isRootFolder = !(bookmark.id>2);
-    if(isRootFolder){
-      createBookmarks(bookmark.children, bookmark.id);
-    }
-    else{
-      if(isFolder){
-        var children = bookmark.children;
-        if(children.length>0){
-          chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title}, function(result){createBookmarks(children, result.id)});
+function createBookmarks(bookmarksNode, parentId) {
+    for (var i = 0; i < bookmarksNode.length; i++) {
+        var bookmark = bookmarksNode[i];
+        var isFolder = (bookmark.url == null);
+        var isRootFolder = !(bookmark.id > 2);
+        if (isRootFolder) {
+            createBookmarks(bookmark.children, bookmark.id);
         }
-        else{
-          chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title});
+        else {
+            if (isFolder) {
+                var children = bookmark.children;
+                if (children.length > 0) {
+                    chrome.bookmarks.create({
+                        "parentId": parentId,
+                        "index": bookmark.index,
+                        "title": bookmark.title
+                    }, function (result) {
+                        createBookmarks(children, result.id)
+                    });
+                }
+                else {
+                    chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title});
+                }
+            }
+            else {
+                chrome.bookmarks.create({
+                    "parentId": parentId,
+                    "index": bookmark.index,
+                    "title": bookmark.title,
+                    "url": bookmark.url
+                });
+            }
         }
-      }
-      else{
-        chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title, "url": bookmark.url});
-      }
     }
-  }
 }
 
-function returnQuery(selectorDict){
-  var query = "";
+function returnQuery(selectorDict) {
+    var query = "";
 
-  for (var i = 0; i < selectorDict.length; i++) {
-     var tagName, className, idName, attributeName, attributeValue;
+    for (var i = 0; i < selectorDict.length; i++) {
+        var tagName, className, idName, attributeName, attributeValue;
 
-    if (selectorDict[i]["tag"] != null) {
-         tagName = selectorDict[i]["tag"];
-     } else {
-         tagName = null;
-     }
-     if (selectorDict[i]["class"] != null) {
-         className = selectorDict[i]["class"];
-     } else {
-         className = null;
-     }
-     if (selectorDict[i]["id"] != null) {
-         idName = selectorDict[i]["id"];
-     } else {
-         idName = null;
-     }
-     if (selectorDict[i]["attribute"] != null) {
-         attributeName = selectorDict[i]["attribute"];
-     } else {
-         attributeName = null;
-     }
-     if (selectorDict[i]["value"] != null) {
-         attributeValue = selectorDict[i]["value"];
-     } else {
-         attributeValue = null;
-     }
+        if (selectorDict[i]["tag"] != null) {
+            tagName = selectorDict[i]["tag"];
+        } else {
+            tagName = null;
+        }
+        if (selectorDict[i]["class"] != null) {
+            className = selectorDict[i]["class"];
+        } else {
+            className = null;
+        }
+        if (selectorDict[i]["id"] != null) {
+            idName = selectorDict[i]["id"];
+        } else {
+            idName = null;
+        }
+        if (selectorDict[i]["attribute"] != null) {
+            attributeName = selectorDict[i]["attribute"];
+        } else {
+            attributeName = null;
+        }
+        if (selectorDict[i]["value"] != null) {
+            attributeValue = selectorDict[i]["value"];
+        } else {
+            attributeValue = null;
+        }
 
-     //Creating query for querySelector
-     if (tagName != null) {
-         query = query + tagName;
-     }
+        //Creating query for querySelector
+        if (tagName != null) {
+            query = query + tagName;
+        }
 
-     if (className != null) {
-         var classes = className.replace(/\s/g, ".");
-         query = query + "." + classes;
-     }
+        if (className != null) {
+            var classes = className.replace(/\s/g, ".");
+            query = query + "." + classes;
+        }
 
-     if (idName != null) {
-         query = query + "#" + idName;
-     }
+        if (idName != null) {
+            query = query + "#" + idName;
+        }
 
-     if (attributeName != null) {
-         query = query + "[" + attributeName + "='" + attributeValue + "']";
-     }
+        if (attributeName != null) {
+            query = query + "[" + attributeName + "='" + attributeValue + "']";
+        }
 
-     if ((i + 1) < selectorDict.length) {
-         query = query + " ";
-     }
- }
- return query;
+        if ((i + 1) < selectorDict.length) {
+            query = query + " ";
+        }
+    }
+    return query;
 
 }
 
@@ -174,7 +205,13 @@ function updateStorage(key, obj) {
 }
 
 function getDomainFromURL(url) {
+    var domain = "";
     var arr = url.split('/');
-    var domain = arr[2];
+    if (url.search("http") != -1) {
+        domain = arr[2];
+    }
+    else {
+        domain = arr[0];
+    }
     return domain;
 }
