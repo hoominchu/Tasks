@@ -3,7 +3,7 @@ var stopwords = ["by"];
 var organisationNames_stopwords = ["cnn"];
 
 // Getting current task id
-var CTASKID = -1;
+var CTASKID = 0;
 chrome.storage.local.get("CTASKID", function (response) {
     CTASKID = response["CTASKID"];
 });

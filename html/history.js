@@ -1,3 +1,5 @@
+var idOfSelectedTask = 0;
+
 chrome.storage.local.get("TASKS", function (taskObject) {
   if(taskObject["TASKS"]){
     var Tasks = taskObject["TASKS"];
@@ -8,6 +10,7 @@ chrome.storage.local.get("TASKS", function (taskObject) {
       }
     }
     $(".tasks").click(function(){
+      idOfSelectedTask = Tasks[$(this).attr('id')].id;
       $("#historyTable").empty()
       var selectedTask = Tasks[$(this).attr('id')];
       for(var i = selectedTask.history.length-1; i>-1; i--){
@@ -42,7 +45,7 @@ function createRow(page){
     //   td.text(page.totalTimeSpent.hours + " hours");
     // }
     if(!Number.isNaN(page.totalTimeSpent))
-    td.text(page.totalTimeSpent+ " minutes")
+    td.text(Math.floor(page.totalTimeSpent/60000)+ " minutes")
 
     tableRow.append(td)
     tableRow.append('<td>' + page.timeVisited[page.timeVisited.length-1].slice(0,25) + '</td>')
@@ -85,3 +88,10 @@ $('#title, #liked, #time, #lastVisit')
         });
 
     });
+
+$("#openLikedPages").click(function(){
+  chrome.runtime.sendMessage({
+    "type": "open-liked-pages",
+    "taskId": idOfSelectedTask
+  });
+});

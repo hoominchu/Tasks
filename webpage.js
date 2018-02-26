@@ -10,19 +10,19 @@ function Page(url, title, isLiked, isBookmarked){
   this.idleTime = 0;
 }
 
+function addIdleTime(url, idleTime){
+  TASKS[CTASKID].history.find((page) => page.url === url).idleTime = idleTime;
+}
+
 function getTotalTimeSpent(Page){
   var timeSpent = Page.timeSpent;
   var idleTime = Page.idleTime;
-  var hours = 0;
-  var minutes = 0;
-  var seconds = 0;
+  t_timeSpent = 0
   for(var i = 0; i<timeSpent.length; i++){
-    hours = hours + timeSpent[i]["hours"];
-    minutes = minutes + timeSpent[i]["minutes"];
-    seconds = seconds + timeSpent[i]["seconds"];
+    t_timeSpent = t_timeSpent + timeSpent[i]
   }
-  var t_timeSpent = (hours*60 + minutes)-idleTime;
-  return t_timeSpent;
+  actualTimeSpent = t_timeSpent - idleTime
+  return actualTimeSpent;
 }
 
 function returnPage(page, url){

@@ -18,21 +18,17 @@ var authorFrequencyFieldName = "frequency";
 var authorURL = "URL"; // Not being used yet
 
 // Getting current task id
-var CTASKID = -1;
-
-chrome.storage.local.get("CTASKID", function (response) {
-    CTASKID = response["CTASKID"];
-});
+var CTASKID = 0;
 
 
 var tabIdToURL={};
 
-var activeTabId = -1;
+var activeTabId = 0;
 
-var TASKS = {lastAssignedId: -1};
-var CTASKID = -1;
+var TASKS = {lastAssignedId: 0};
+var CTASKID = 0;
 
-var currentTaskIsSet = !(CTASKID == -1);
+var currentTaskIsSet = !(CTASKID == 0);
 
 chrome.storage.local.get("TASKS", function (taskObject) {
     if (taskObject["TASKS"]) {
@@ -41,7 +37,7 @@ chrome.storage.local.get("TASKS", function (taskObject) {
 });
 
 chrome.storage.local.get("CTASKID", function (cTaskIdObject) {
-    if (cTaskIdObject["CTASKID"]>-1) {
+    if (cTaskIdObject["CTASKID"]>0) {
         CTASKID = cTaskIdObject["CTASKID"];
     }
 });
