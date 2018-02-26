@@ -33,7 +33,6 @@ function addToHistory(url, title, task_id){
   }
 }
 
-
 function getLikedPages(task_id){
   var likedPages = [];
   for(var i = 0; i<TASKS[task_id].history.length; i++){

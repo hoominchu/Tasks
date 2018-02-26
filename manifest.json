@@ -29,9 +29,9 @@
       "tasks.js",
       "webpage.js",
       "contextmenu.js",
-//      "domain.js",
-//      "author.js",
-//      "search.js",
+      "domain.js",
+      "author.js",
+      "search.js",
       "background.js"]
   },
   "content_scripts": [

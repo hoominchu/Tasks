@@ -45,7 +45,7 @@ function createRow(page){
     //   td.text(page.totalTimeSpent.hours + " hours");
     // }
     if(!Number.isNaN(page.totalTimeSpent))
-    td.text(page.totalTimeSpent+ " minutes")
+    td.text(Math.floor(page.totalTimeSpent/60000)+ " minutes")
 
     tableRow.append(td)
     tableRow.append('<td>' + page.timeVisited[page.timeVisited.length-1].slice(0,25) + '</td>')

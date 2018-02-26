@@ -184,3 +184,35 @@ function openTabs(arrayOfUrls){
     chrome.tabs.create({"url": arrayOfUrls[i]});
   }
 }
+
+function getIdsOfCurrentlyOpenTabs(windowId, callback){
+   var ids = [];
+   if(windowId){
+     chrome.tabs.query({"windowId": windowId}, function(tabs){
+       console.log(tabs)
+       for(var i = 0; i < tabs.length; i++){
+         ids.push(tabs[i].url);
+       }
+       callback(ids);
+     });
+   }
+   else{
+     chrome.tabs.query({}, function(tabs){
+       console.log(tabs)
+       for(var i = 0; i < tabs.length; i++){
+         ids.push(tabs[i].url);
+       }
+       callback(ids);
+     });
+   }
+
+}
+
+function setBadgeText(windowId, text){
+  var openTabsIds = [];
+  getIdsOfCurrentlyOpenTabs(windowId, function(ids){openTabsIds = ids});
+  for(var j = 0; j<openTabsIds.length; j++){
+    var openTabsId = openTabsIds[j]
+    chrome.browserAction.setBadgeText({"text": TASKS[CTASKID].name.slice(0, 4), openTabsId});
+  }
+}

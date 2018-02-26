@@ -56,6 +56,10 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
       likePage(request.url, CTASKID);
     }
 
+    if(request.type == "idle-time"){
+      addIdleTime(request.url, request["idle-time"]);
+    }
+
     if(request.type =="pause-tasks"){
         CTASKID = 0;
         updateStorage("CTASKID", 0);
