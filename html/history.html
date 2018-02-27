@@ -5,71 +5,77 @@
     <script src="../js/jquery/jquery-3.2.1.min.js"></script>
     <link rel="stylesheet" href="../css/bootstrap.css">
     <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="../css/custom.css">
     <link rel="stylesheet" href="../css/font-awesome-4.7.0/css/font-awesome.min.css">
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand" href="index.html">SailBoat</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#"><img src="../images/logo_white_sails.png" width="70em"></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
+            aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarColor01">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item ">
-          <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item active">
-          <a class="nav-link" href="history.html">History</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="search.html">Search</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="downloadTasks">Download Tasks</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="stats.html">Statistics</a>
-          </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">About</a>
-        </li>
-      </ul>
-      <form class="form-inline my-2 my-lg-0">
-        <input class="form-control mr-sm-2" type="text" placeholder="Search">
-        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-      </form>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item ">
+                <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="history.html">History</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="search.html">Search</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="downloadTasks">Download Tasks</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="stats.html">Statistics</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="about.html">About</a>
+            </li>
+        </ul>
+        <!--<form class="form-inline my-2 my-lg-0">-->
+        <!--<input class="form-control mr-sm-2" type="text" id="searchValue" placeholder="Search">-->
+        <!--<button class="btn btn-secondary my-2 my-sm-0 round-corner" id="search">Search</button>-->
+        <!--</form>-->
     </div>
-  </nav>
+</nav>
 
-  <div class="container">
-    <h3 class="text-center" style="padding-top:1em; background-color:">Task History</h3>
-    <button class="btn btn-primary my-2 my-sm-0" id="openLikedPages">Open Liked Pages</button>
-  </div>
-  <div class="container-fluid" style="padding-top:2em;">
-    <div class="row">
-      <div class="col-md-2">
-        <div class="btn-group-vertical" id="tasks-list" data-toggle="buttons">
+<div class="container-fluid">
+
+    <div class="row" style="padding-top: 1em">
+        <div class="col-lg-2">
+            <div class="btn-group-vertical" style="width: 100%; padding-bottom: 2em" data-toggle="buttons">
+                <button type="button" class="btn btn-secondary round-corner" id="openLikedPages">Open Liked Pages
+                </button>
+            </div>
+            <button type="button" style="width: 100%" class="btn btn-secondary disabled round-corner-top">Your Tasks
+            </button>
+            <div class="btn-group-vertical" style="width: 100%" id="tasks-list" data-toggle="buttons">
+            </div>
         </div>
-      </div>
-      <div class="col-md-8 text-left">
-        <table class="table table-hover" id="table"style="overflow:hidden;">
-          <thead>
-            <tr>
-              <th scope="col" id="title">Title</th>
-              <th scope="col" id="liked">Liked</th>
-              <th scope="col" id="time">Time Spent</th>
-              <th scope="col" id="lastVisit">Last Visited</th>
-            </tr>
-          </thead>
-          <tbody id="historyTable">
-          </tbody>
-        </table>
-        <div id="task-urls" style="overflow:scroll; height:600px;">
-          <ol id="urls-list">
-          </ol>
+
+        <div class="col-lg-10">
+            <table class="table table-hover" id="table" style="overflow:hidden;">
+                <thead style="text-align: center">
+                <tr>
+                    <th scope="col" id="title" style="width: 60%">Title</th>
+                    <th scope="col" id="liked" style="width: 10%">Liked</th>
+                    <th scope="col" id="time" style="width: 10%">Time Spent</th>
+                    <th scope="col" id="lastVisit" style="width: 20%">Last Visited</th>
+                </tr>
+                </thead>
+                <tbody id="historyTable">
+                </tbody>
+            </table>
+            <div id="task-urls" style="overflow:scroll; height:600px;">
+                <ol id="urls-list">
+                </ol>
+            </div>
         </div>
-      </div>
     </div>
 </div>
 <script src="sortElements.js"></script>

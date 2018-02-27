@@ -12,6 +12,16 @@
     border-top-right-radius: 0.6em;
 }
 
+.round-corner-top {
+    border-top-right-radius: 0.6em;
+    border-top-left-radius: 0.6em;
+}
+
+.round-corner-bottom {
+    border-bottom-right-radius: 0.6em;
+    border-bottom-left-radius: 0.6em;
+}
+
 .outline {
     border: 1px solid darkgray;
     margin: 0.8em;
