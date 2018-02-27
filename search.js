@@ -55,6 +55,8 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
         var resObjTemp = results[i];
         var link = resObjTemp["url"];
         var engine = resObjTemp["engine"];
+        var pageTitle = resObjTemp["title"];
+        var textSnippet = resObjTemp["snippet"];
         var domain = getDomainFromURL(link);
 
         //Check if domain exists in domainToAuthorClassDict in author.js. If it doesn't exist there it doesn't make sense to get author and only domain is important.
@@ -70,6 +72,8 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
         var temp = {};
         temp["url"] = link;
         temp["engine"] = engine;
+        temp["title"] = pageTitle;
+        temp["snippet"] = textSnippet;
         temp["domain weight"] = domainWeight;
         urlToDomainWeights.push(temp);
     }
@@ -84,6 +88,8 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
 
             var url = tempObj["url"];
             var engine = tempObj["engine"];
+            var pageTitle = tempObj["title"];
+            var textSnippet = tempObj["snippet"];
             var domainWeight = tempObj["domain weight"];
 
             // Adding domain weight
@@ -98,6 +104,8 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
             var resObj = {};
             resObj["URL"] = url;
             resObj["Engine"] = engine;
+            resObj["Title"] = pageTitle;
+            resObj["Snippet"] = textSnippet;
             resObj["Weight"] = finalWeight;
             SAILBOATRESULTS.push(resObj);
         }
@@ -107,7 +115,7 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
         var awesomeResult = SAILBOATRESULTS.sort(function (a, b) {
             return b["Weight"] - a["Weight"];
         });
-        // showSearchResults(awesomeResult);
+        showSearchResults(awesomeResult);
         console.log("Awesome results");
         console.log(awesomeResult);
 
@@ -120,36 +128,43 @@ function showSearchResults(results) {
     for (var result in results) {
 
         var resultCard = document.createElement("div");
-        resultCard.className = "result-card";
+        resultCard.className = "search-result-card";
 
         // Setting up variables from result object
         var url = result["URL"];
         var engine = result["Engine"];
         var weight = result["Weight"];
+        var title = result["Title"];
+        var snippet = result["Snippet"];
 
         // Creating elements to be displayed
-        var resultTitleElem = document.createElement("div");
-        resultTitleElem.className = "search-result-title";
-        resultTitleElem.innerText = "Should get this";
+        var resultTitleElem = document.createElement("h4");
+        // resultTitleElem.className = "search-result-title";
+        resultTitleElem.innerText = title;
         resultTitleElem.setAttribute("a",url);
 
-        var engineElem = document.createElement("div");
-        engineElem.className = "search-source-engine";
+        var engineElem = document.createElement("span");
+        engineElem.className = "badge badge-pill badge-light";
         engineElem.innerText = engine;
 
         var weightElem = document.createElement("div");
         engineElem.className = "search-result-weight";
         engineElem.innerText = weight;
 
-        var linkElem = document.createElement("div");
-        linkElem.className = "search-result-link";
+        var linkElem = document.createElement("p");
+        linkElem.className = "search-result-link text-success";
         linkElem.innerText = url;
+
+        var snippetElem = document.createElement("p");
+        snippetElem.className = "search-result-snippet text-muted";
+        snippetElem.innerText = snippet;
 
         // Adding all the components to result card
         resultCard.appendChild(resultTitleElem);
         resultCard.appendChild(engineElem);
-        resultCard.appendChild(weightElem);
+        // resultCard.appendChild(weightElem);
         resultCard.appendChild(linkElem);
+        resultCard.appendChild(snippetElem);
 
         document.getElementById("searchResults").appendChild(resultCard);
     }

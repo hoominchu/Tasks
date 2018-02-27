@@ -26,21 +26,25 @@
 }
 
 .search-result-title {
-
+    font-size: 15pt;
 }
 
 .search-result-link {
-
+    font-size: 8pt;
 }
 
 .search-result-snippet {
-
+    font-size: 10pt;
 }
 
 .search-source-engine {
-
+    font-size: 5pt;
 }
 
 .search-result-weight {
+    font-size: 5pt;
+}
 
+.search-result-card {
+    padding: 2em;
 }
