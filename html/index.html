@@ -9,52 +9,58 @@
     <link rel="stylesheet" href="../css/font-awesome-4.7.0/css/font-awesome.min.css">
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">SailBoat</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="#" style="padding-left: 1.5em"><img src="../images/logo_white_sails_no_text.png"
+                                                                      width="40em"></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
+            aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
     </button>
 
     <div class="collapse navbar-collapse" id="navbarColor01">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item active">
-          <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="history.html">History</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="search.html">Search</a>
-          </li>
-        <li class="nav-item">
-          <a class="nav-link" id="downloadTasks">Download Tasks</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="stats.html">Statistics</a>
-          </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">About</a>
-        </li>
-      </ul>
+        <ul class="navbar-nav mr-auto">
+            <li class="nav-item ">
+                <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="history.html">History</a>
+            </li>
+            <li class="nav-item active">
+                <a class="nav-link" href="search.html">Search</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="downloadTasks">Download Tasks</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="stats.html">Statistics</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="about.html">About</a>
+            </li>
+        </ul>
     </div>
-  </nav>
+</nav>
 
-  <div class="container-fluid content" >
+<div class="container-fluid content">
     <div class="row" id="tasks-container">
-      <div class="col-lg-3">
-      <div class="card text-white bg-dark mb-3 col-lg-3" style="max-width: 20rem; height:12em; border-radius:0.8em">
-        <div class="card-body">
-          <div class="form-group round-corner">
-              <input type="text" class="form-control round-corner" id="taskName" placeholder="Task name" style="border-radius: 0.6em">
-              <label for="createFromTabs">Create from current tabs</label>
-              <input type="checkbox" id="createFromCurrentTabs">
-          </div>
-          <button id="createTask" type="submit" class="btn btn-secondary round-corner btn-sm" style="border-radius: 0.6em">Create Task</button>
+        <div class="col-lg-3">
+            <div class="card text-white bg-dark mb-3 col-lg-3"
+                 style="max-width: 20rem; height:12em; border-radius:0.8em">
+                <div class="card-body">
+                    <div class="form-group round-corner">
+                        <input type="text" class="form-control round-corner" id="taskName" placeholder="Task name"
+                               style="border-radius: 0.6em">
+                        <label for="createFromTabs">Create from current tabs</label>
+                        <input type="checkbox" id="createFromCurrentTabs">
+                    </div>
+                    <button id="createTask" type="submit" class="btn btn-secondary round-corner btn-sm"
+                            style="border-radius: 0.6em">Create Task
+                    </button>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-    </div>
-  </div>
+</div>
 
 <script src="indexView.js"></script>
 <script src="indexController.js"></script>
