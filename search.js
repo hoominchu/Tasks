@@ -6,18 +6,26 @@ var engines = [
         "indexMarker": function (j) {
             return j * 10;
         },
-        "selector": [{"class": "_Rm"}],
-        "finalSelector": "innerText"
+        "urlSelector": [{"class": "_Rm"}],
+        "finalUrlSelector": "innerText",
+        "titleSelector": [{"class": "r"}],
+        "finalTitleSelector": "innerText",
+        "descSelector": [{"class": "st"}],
+        "finalDescSelector": "innerText"
     },
     {
         "engine": "Yahoo",
-        "mainUrl": "https://in.search.yahoo.com/search?p=",
+        "mainUrl": "https://search.yahoo.com/search?p=",
         "pageUrl": "&b=",
         "indexMarker": function (j) {
             return ((j * 10) + 1)
         },
-        "selector": [{"class": "fz-ms fw-m fc-12th wr-bw"}],
-        "finalSelector": "innerText"
+        "urlSelector": [{"class": "fz-ms fw-m fc-12th wr-bw"}],
+        "finalUrlSelector": "innerText",
+        "titleSelector": [{"class": "title"}],
+        "finalTitleSelector": "innerText",
+        "descSelector": [{"class": "compText"}],
+        "finalDescSelector": "innerText"
     },
 
     {
@@ -27,11 +35,21 @@ var engines = [
         "indexMarker": function (j) {
             return j * 10;
         },
-        "selector": [{"class": "b_algo"}, {"tag": "h2"}, {"tag": "a"}],
-        "finalSelector": "href"
+        "urlSelector": [{"class": "b_algo"}, {"tag": "h2"}, {"tag": "a"}],
+        "finalUrlSelector": "href",
+        "titleSelector": [{"class": "b_algo"}, {"tag": "h2"}],
+        "finalTitleSelector": "innerText",
+        "descSelector": [{"class": "b_caption"}, {"tag": "p"}],
+        "finalDescSelector": "innerText"
     }
 
 ];
+
+function ScrapedResult(url, title, desc){
+  this.url = url;
+  this.title = title;
+  this.desc = desc;
+}
 
 var authors = [];
 var authorsRetrieved = false;
@@ -175,33 +193,38 @@ function httpGetAsync(theUrl, callback, engine) {
     xmlHttp.send(null);
 }
 
-function extractUrls(engine, htmlString) {
-    var urls = [];
+function extractInfo(engine, htmlString) {
+    var scrapedResults = [];
     var parser = new DOMParser();
     var doc = parser.parseFromString(htmlString, "text/html");
-    var urlObjects = doc.querySelectorAll(returnQuery(engine.selector));
+    var titleObjects = doc.querySelectorAll(returnQuery(engine.titleSelector));
+    var urlObjects = doc.querySelectorAll(returnQuery(engine.urlSelector));
+    var descObjects = doc.querySelectorAll(returnQuery(engine.descSelector));
     for (var i = 0; i < urlObjects.length; i++) {
-        urls.push(urlObjects[i][engine.finalSelector])
+      var temp = new ScrapedResult(urlObjects[i][engine.finalUrlSelector], titleObjects[i][engine.finalTitleSelector], descObjects[i][engine.finalDescSelector]);
+      scrapedResults.push(temp);
     }
-    return urls;
+    return scrapedResults;
 }
 
-var urlsList = [];
+var scrapedResultsList = [];
 
-function returnUrlsList(query, engines, callback) {
+function returnResults(query, engines, callback) {
     for (var i = 0; i < engines.length; i++) {
         for (var j = 0; j < 1; j++) {
             setInterval(httpGetAsync(engines[i].mainUrl + query.replace(/\s/g, "+") + engines[i].pageUrl + engines[i].indexMarker(j), function (response, engine) {
                 var engineName = engine["engine"];
-                var urls = extractUrls(engine, response);
-                for (var k = 0; k < urls.length; k++) {
+                var scrapedResults = extractInfo(engine, response);
+                for (var k = 0; k < scrapedResults.length; k++) {
                     var temp = {};
-                    temp["url"] = urls[k];
+                    temp["url"] = scrapedResults[k].url;
+                    temp["title"] = scrapedResults[k].title;
+                    temp["desc"] = scrapedResults[k].desc;
                     temp["engine"] = engineName;
-                    urlsList.push(temp);
+                    scrapedResultsList.push(temp);
                 }
-                if (urlsList.length > 10) {
-                    // console.log(urlsList);
+                if (scrapedResultsList.length > 10) {
+                    console.log(scrapedResultsList);
                     callback();
                 }
             }, engines[i]), getRandomInt(30000, 60000));
@@ -209,11 +232,10 @@ function returnUrlsList(query, engines, callback) {
     }
 }
 
-returnUrlsList("failure to prove marathi translation governor", engines, function () {
+returnResults("failure to prove marathi translation governor", engines, function () {
     chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
         chrome.storage.local.get(preferredAuthorsFieldName, function (preferredAuthorsObject) {
-            console.log(urlsList);
-            console.log(getSailboatResults(urlsList, preferredDomainsObject[preferredDomainsFieldName], preferredAuthorsObject[preferredAuthorsFieldName]));
+            console.log(getSailboatResults(scrapedResultsList, preferredDomainsObject[preferredDomainsFieldName], preferredAuthorsObject[preferredAuthorsFieldName]));
         })
     })
 });
