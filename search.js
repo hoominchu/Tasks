@@ -39,7 +39,7 @@ var authorsRetrieved = false;
 var delayInMilliseconds = 1000; //1 second
 
 // Results array is global and should be cleared before a new query is received and processed. These results will be displayed in the search results page.
-var SAILBOATRESULTS = [];
+// var SAILBOATRESULTS = [];
 var urlToAuthorWeights = [];
 var urlToDomainWeights = [];
 
@@ -47,7 +47,7 @@ var urlToDomainWeights = [];
 // Returns array of re-ordered (in descending order of computed weights) results with result object. Fields of result object are -- URL, Engine and Weight.
 function getSailboatResults(results, preferredDomains, preferredAuthors) {
 
-    SAILBOATRESULTS = [];
+    var SAILBOATRESULTS = [];
     urlToAuthorWeights = {};
     urlToDomainWeights = [];
 
@@ -59,7 +59,7 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
 
         //Check if domain exists in domainToAuthorClassDict in author.js. If it doesn't exist there it doesn't make sense to get author and only domain is important.
         if (domainToAuthorClassDict[domain]) {
-            httpGetAsyncForGetAuthor(link, engine, preferredAuthors);
+            httpGetAsyncForGetAuthor(link, preferredAuthors);
         }
 
         var domainWeight = 0;
@@ -75,7 +75,7 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
     }
 
     // Adding delay to ensure all requests for getting authors are completed.
-    setTimeout(function() {
+    setTimeout(function () {
         console.log(urlToDomainWeights.length);
         // Combining both author weights and domain weights
         for (var j = 0; j < urlToDomainWeights.length; j++) {
@@ -112,7 +112,6 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
         console.log(awesomeResult);
         return awesomeResult;
     }, delayInMilliseconds);
-
 
 
 }
@@ -170,7 +169,7 @@ function returnUrlsList(query, engines, callback) {
     }
 }
 
-returnUrlsList("Narendra Modi USA", engines, function () {
+returnUrlsList("why feed your gut", engines, function () {
     chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
         chrome.storage.local.get(preferredAuthorsFieldName, function (preferredAuthorsObject) {
             console.log(urlsList);

@@ -28,7 +28,7 @@ function httpGetAsyncForGetAuthor(theUrl, preferredAuthors) {
         if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
             var authors = getAuthors(xmlHttp.responseText, domain);
             var totalAuthorWeight = 0;
-            for (var j = 0; j < authors; j++) {
+            for (var j = 0; j < authors.length; j++) {
                 var authorWeight = 0;
                 var authorName = authors[j];
                 var authorUniqueID = authorName + ", " + domain;
@@ -220,7 +220,8 @@ var getAuthors = function (htmlString, domain) {
             for (var m = 0; m < authorsArr2.length; m++) {
                 //Adding author name to authors array. Adding only if length is more than one.
                 if (authorsArr2[m].length > 1) {
-                    authors.push(authorsArr2[m]);
+                    var authorName = authorsArr2[m].replace(/\r?\n|\r/g, "");
+                    authors.push(authorName);
                 }
             }
         }
