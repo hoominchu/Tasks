@@ -45,10 +45,10 @@ var engines = [
 
 ];
 
-function ScrapedResult(url, title, desc){
-  this.url = url;
-  this.title = title;
-  this.desc = desc;
+function ScrapedResult(url, title, desc) {
+    this.url = url;
+    this.title = title;
+    this.desc = desc;
 }
 
 var authors = [];
@@ -60,6 +60,9 @@ var delayInMilliseconds = 4000; //1 second
 // var SAILBOATRESULTS = [];
 var urlToAuthorWeights = [];
 var urlToDomainWeights = [];
+
+// Final results variable
+var finalResults = [];
 
 // This function takes results object which contains results from Google, Bing, Yahoo etc., preferredDomains object and preferredAuthors object.
 // Returns array of re-ordered (in descending order of computed weights) results with result object. Fields of result object are -- URL, Engine and Weight.
@@ -133,9 +136,15 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
         var awesomeResult = SAILBOATRESULTS.sort(function (a, b) {
             return b["Weight"] - a["Weight"];
         });
-        showSearchResults(awesomeResult);
-        console.log("Awesome results");
-        console.log(awesomeResult);
+
+        // console.log("Awesome results");
+        // console.log(awesomeResult);
+
+        finalResults = awesomeResult;
+
+        chrome.runtime.sendMessage({
+            "message": "Results are ready"
+        });
 
     }, delayInMilliseconds);
 }
@@ -159,7 +168,7 @@ function showSearchResults(results) {
         var resultTitleElem = document.createElement("h4");
         // resultTitleElem.className = "search-result-title";
         resultTitleElem.innerText = title;
-        resultTitleElem.setAttribute("a",url);
+        resultTitleElem.setAttribute("a", url);
 
         var engineElem = document.createElement("span");
         engineElem.className = "badge badge-pill badge-light";
@@ -189,7 +198,6 @@ function showSearchResults(results) {
 }
 
 
-
 // This function adds the weights given. But computeFinalWeight function can be done in other ways as well.
 function computeFinalWeight(wt1, wt2) {
 
@@ -216,8 +224,8 @@ function extractInfo(engine, htmlString) {
     var urlObjects = doc.querySelectorAll(returnQuery(engine.urlSelector));
     var descObjects = doc.querySelectorAll(returnQuery(engine.descSelector));
     for (var i = 0; i < urlObjects.length; i++) {
-      var temp = new ScrapedResult(urlObjects[i][engine.finalUrlSelector], titleObjects[i][engine.finalTitleSelector], descObjects[i][engine.finalDescSelector]);
-      scrapedResults.push(temp);
+        var temp = new ScrapedResult(urlObjects[i][engine.finalUrlSelector], titleObjects[i][engine.finalTitleSelector], descObjects[i][engine.finalDescSelector]);
+        scrapedResults.push(temp);
     }
     return scrapedResults;
 }
