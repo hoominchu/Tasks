@@ -10,18 +10,54 @@ $("#search").click(function(){
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender){
+  $("#searchResults").empty();
   if(request.type=="search-reply"){
-    $("#searchResults").empty();
-    for(var i = 0; i <request.urlsList.length; i++){
-      engineName = Object.keys(request.urlsList[i])[0];
-      var engineNameObject = $("<h2>"+engineName+"</h2>");
-      $("#searchResults").append(engineNameObject);
-      var list = $("<ol></ol>");
-      for(var j = 0; j<request.urlsList[i][engineName].length; j++){
-        var li = $("<li>"+request.urlsList[i][engineName][j]+"</li>");
-        list.append(li);
-      }
-      $("#searchResults").append(list);
+    showSearchResults(request.finalResults);
     }
+  });
+
+  function showSearchResults(results) {
+      for (var i = 0; i<results.length; i++) {
+
+          var resultCard = document.createElement("div");
+          resultCard.className = "search-result-card";
+
+          // Setting up variables from result object
+          var url = results[i]["URL"];
+          var engine = results[i]["Engine"];
+          var weight = results[i]["Weight"];
+          var title = results[i]["Title"];
+          var snippet = results[i]["Desc"];
+
+          // Creating elements to be displayed
+          var resultTitleElem = document.createElement("h4");
+          // resultTitleElem.className = "search-result-title";
+          resultTitleElem.innerText = title;
+          resultTitleElem.setAttribute("a", url);
+
+          var engineElem = document.createElement("span");
+          engineElem.className = "badge badge-pill badge-light";
+          engineElem.innerText = engine;
+
+          var weightElem = document.createElement("div");
+          weightElem.className = "search-result-weight";
+          weightElem.innerText = weight;
+
+          var linkElem = document.createElement("p");
+          linkElem.className = "search-result-link text-success";
+          linkElem.innerText = url;
+
+          var snippetElem = document.createElement("p");
+          snippetElem.className = "search-result-snippet text-muted";
+          snippetElem.innerText = snippet;
+
+          // Adding all the components to result card
+          resultCard.appendChild(resultTitleElem);
+          resultCard.appendChild(engineElem);
+          // resultCard.appendChild(weightElem);
+          resultCard.appendChild(linkElem);
+          resultCard.appendChild(snippetElem);
+
+          document.getElementById("searchResults").appendChild(resultCard);
+      }
   }
-});

@@ -70,13 +70,19 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
     }
 
     if(request.type == "search"){
-      returnUrlsList(request.query, engines, function(){
-        chrome.runtime.sendMessage({
-          "urlsList": urlsList,
-          "type": "search-reply"
-        });
-    });
-  }
+      returnResults(request.query, engines, function () {
+          chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
+              chrome.storage.local.get(preferredAuthorsFieldName, function (preferredAuthorsObject) {
+                  getSailboatResults(scrapedResultsList, preferredDomainsObject[preferredDomainsFieldName], preferredAuthorsObject[preferredAuthorsFieldName], function(){
+                    chrome.runtime.sendMessage({
+                      "type": "search-reply",
+                      "finalResults": finalResults
+                    });
+                  });
+                });
+          });
+      });
+    }
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
@@ -113,6 +119,8 @@ chrome.tabs.onActivated.addListener(function(activeInfo){
     }
   })
 });
+
+
 
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
   if(removeInfo.isWindowClosing){
