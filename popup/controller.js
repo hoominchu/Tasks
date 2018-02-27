@@ -381,6 +381,10 @@ $("#history").click(function () {
     chrome.tabs.create({"url": "html/history.html"});
 });
 
+$("#search").click(function () {
+    chrome.tabs.create({"url": "html/search.html"});
+});
+
 $("#index").click(function () {
     chrome.tabs.create({"url": "html/index.html"});
 });

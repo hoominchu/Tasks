@@ -64,11 +64,13 @@ var urlToDomainWeights = [];
 // Final results variable
 var finalResults = [];
 
+
 // This function takes results object which contains results from Google, Bing, Yahoo etc., preferredDomains object and preferredAuthors object.
 // Returns array of re-ordered (in descending order of computed weights) results with result object. Fields of result object are -- URL, Engine and Weight.
-function getSailboatResults(results, preferredDomains, preferredAuthors) {
+function getSailboatResults(results, preferredDomains, preferredAuthors, callback) {
 
     var SAILBOATRESULTS = [];
+
     urlToAuthorWeights = {};
     urlToDomainWeights = [];
 
@@ -77,7 +79,7 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
         var link = resObjTemp["url"];
         var engine = resObjTemp["engine"];
         var pageTitle = resObjTemp["title"];
-        var textSnippet = resObjTemp["snippet"];
+        var textDesc = resObjTemp["desc"];
         var domain = getDomainFromURL(link);
 
         //Check if domain exists in domainToAuthorClassDict in author.js. If it doesn't exist there it doesn't make sense to get author and only domain is important.
@@ -94,7 +96,7 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
         temp["url"] = link;
         temp["engine"] = engine;
         temp["title"] = pageTitle;
-        temp["snippet"] = textSnippet;
+        temp["desc"] = textDesc;
         temp["domain weight"] = domainWeight;
         urlToDomainWeights.push(temp);
     }
@@ -110,7 +112,7 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
             var url = tempObj["url"];
             var engine = tempObj["engine"];
             var pageTitle = tempObj["title"];
-            var textSnippet = tempObj["snippet"];
+            var textDesc = tempObj["desc"];
             var domainWeight = tempObj["domain weight"];
 
             // Adding domain weight
@@ -126,7 +128,7 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
             resObj["URL"] = url;
             resObj["Engine"] = engine;
             resObj["Title"] = pageTitle;
-            resObj["Snippet"] = textSnippet;
+            resObj["Desc"] = textDesc;
             resObj["Weight"] = finalWeight;
             SAILBOATRESULTS.push(resObj);
         }
@@ -141,61 +143,15 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
         // console.log(awesomeResult);
 
         finalResults = awesomeResult;
-
-        chrome.runtime.sendMessage({
-            "message": "Results are ready"
-        });
+        console.log(awesomeResult)
+        callback();
 
     }, delayInMilliseconds);
 }
 
 
 // Show search results
-function showSearchResults(results) {
-    for (var result in results) {
 
-        var resultCard = document.createElement("div");
-        resultCard.className = "search-result-card";
-
-        // Setting up variables from result object
-        var url = result["URL"];
-        var engine = result["Engine"];
-        var weight = result["Weight"];
-        var title = result["Title"];
-        var snippet = result["Snippet"];
-
-        // Creating elements to be displayed
-        var resultTitleElem = document.createElement("h4");
-        // resultTitleElem.className = "search-result-title";
-        resultTitleElem.innerText = title;
-        resultTitleElem.setAttribute("a", url);
-
-        var engineElem = document.createElement("span");
-        engineElem.className = "badge badge-pill badge-light";
-        engineElem.innerText = engine;
-
-        var weightElem = document.createElement("div");
-        engineElem.className = "search-result-weight";
-        engineElem.innerText = weight;
-
-        var linkElem = document.createElement("p");
-        linkElem.className = "search-result-link text-success";
-        linkElem.innerText = url;
-
-        var snippetElem = document.createElement("p");
-        snippetElem.className = "search-result-snippet text-muted";
-        snippetElem.innerText = snippet;
-
-        // Adding all the components to result card
-        resultCard.appendChild(resultTitleElem);
-        resultCard.appendChild(engineElem);
-        // resultCard.appendChild(weightElem);
-        resultCard.appendChild(linkElem);
-        resultCard.appendChild(snippetElem);
-
-        document.getElementById("searchResults").appendChild(resultCard);
-    }
-}
 
 
 // This function adds the weights given. But computeFinalWeight function can be done in other ways as well.
@@ -232,6 +188,7 @@ function extractInfo(engine, htmlString) {
 
 var scrapedResultsList = [];
 
+
 function returnResults(query, engines, callback) {
     for (var i = 0; i < engines.length; i++) {
         for (var j = 0; j < 1; j++) {
@@ -255,10 +212,10 @@ function returnResults(query, engines, callback) {
     }
 }
 
-returnResults("failure to prove marathi translation governor", engines, function () {
-    chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
-        chrome.storage.local.get(preferredAuthorsFieldName, function (preferredAuthorsObject) {
-            console.log(getSailboatResults(scrapedResultsList, preferredDomainsObject[preferredDomainsFieldName], preferredAuthorsObject[preferredAuthorsFieldName]));
-        })
-    })
-});
+// returnResults("failure to prove marathi translation governor", engines, function () {
+//     chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
+//         chrome.storage.local.get(preferredAuthorsFieldName, function (preferredAuthorsObject) {
+//             getSailboatResults(scrapedResultsList, preferredDomainsObject[preferredDomainsFieldName], preferredAuthorsObject[preferredAuthorsFieldName], function(){console.log(SAILBOATRESULTS)}) ;
+//         })
+//     })
+// });
