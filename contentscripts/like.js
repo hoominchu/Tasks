@@ -12,10 +12,8 @@ chrome.storage.local.get("TASKS", function (taskObject) {
     }
   });
 
-var hookImagePath = chrome.extension.getURL("images/fish_hook.png");
-
   function loadLikeButton(){
-    var likeButton = $('<div class="float" style="font-size:35px;"><img src="'+hookImagePath+'"></div>');
+    var likeButton = $('<div class="float" style="font-size:35px;"><i class="fa fa-thumbs-up likeButton"></i></div>');
     $('body').append(likeButton);
       $(".likeButton").click(function(){
           $(this).toggleClass("clicked");

@@ -36,7 +36,7 @@ var engines = [
 var authors = [];
 var authorsRetrieved = false;
 
-var delayInMilliseconds = 1000; //1 second
+var delayInMilliseconds = 4000; //1 second
 
 // Results array is global and should be cleared before a new query is received and processed. These results will be displayed in the search results page.
 // var SAILBOATRESULTS = [];
@@ -107,14 +107,54 @@ function getSailboatResults(results, preferredDomains, preferredAuthors) {
         var awesomeResult = SAILBOATRESULTS.sort(function (a, b) {
             return b["Weight"] - a["Weight"];
         });
-
+        // showSearchResults(awesomeResult);
         console.log("Awesome results");
         console.log(awesomeResult);
-        return awesomeResult;
+
     }, delayInMilliseconds);
-
-
 }
+
+
+// Show search results
+function showSearchResults(results) {
+    for (var result in results) {
+
+        var resultCard = document.createElement("div");
+        resultCard.className = "result-card";
+
+        // Setting up variables from result object
+        var url = result["URL"];
+        var engine = result["Engine"];
+        var weight = result["Weight"];
+
+        // Creating elements to be displayed
+        var resultTitleElem = document.createElement("div");
+        resultTitleElem.className = "search-result-title";
+        resultTitleElem.innerText = "Should get this";
+        resultTitleElem.setAttribute("a",url);
+
+        var engineElem = document.createElement("div");
+        engineElem.className = "search-source-engine";
+        engineElem.innerText = engine;
+
+        var weightElem = document.createElement("div");
+        engineElem.className = "search-result-weight";
+        engineElem.innerText = weight;
+
+        var linkElem = document.createElement("div");
+        linkElem.className = "search-result-link";
+        linkElem.innerText = url;
+
+        // Adding all the components to result card
+        resultCard.appendChild(resultTitleElem);
+        resultCard.appendChild(engineElem);
+        resultCard.appendChild(weightElem);
+        resultCard.appendChild(linkElem);
+
+        document.getElementById("searchResults").appendChild(resultCard);
+    }
+}
+
 
 
 // This function adds the weights given. But computeFinalWeight function can be done in other ways as well.
@@ -169,7 +209,7 @@ function returnUrlsList(query, engines, callback) {
     }
 }
 
-returnUrlsList("why feed your gut", engines, function () {
+returnUrlsList("failure to prove marathi translation governor", engines, function () {
     chrome.storage.local.get(preferredDomainsFieldName, function (preferredDomainsObject) {
         chrome.storage.local.get(preferredAuthorsFieldName, function (preferredAuthorsObject) {
             console.log(urlsList);
