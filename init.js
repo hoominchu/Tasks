@@ -28,7 +28,7 @@ var activeTabId = 0;
 var TASKS = {lastAssignedId: 0};
 var CTASKID = 0;
 
-var currentTaskIsSet = !(CTASKID == 0);
+console.log(CTASKID);
 
 chrome.storage.local.get("TASKS", function (taskObject) {
     if (taskObject["TASKS"]) {
@@ -36,11 +36,11 @@ chrome.storage.local.get("TASKS", function (taskObject) {
     }
 });
 
-chrome.storage.local.get("CTASKID", function (cTaskIdObject) {
-    if (cTaskIdObject["CTASKID"]>0) {
-        CTASKID = cTaskIdObject["CTASKID"];
-    }
-});
+// chrome.storage.local.get("CTASKID", function (cTaskIdObject) {
+//     if (cTaskIdObject["CTASKID"]>0) {
+//         CTASKID = cTaskIdObject["CTASKID"];
+//     }
+// });
 
 chrome.storage.local.get(preferredAuthorsFieldName, function (prefAuthObj) {
     if (JSON.stringify(prefAuthObj) == "{}") {

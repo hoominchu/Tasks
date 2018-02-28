@@ -15,27 +15,28 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 
     if (request.type == "create-task") {
 
-        if (!currentTaskIsSet) {
+        if (CTASKID == 0) {
+
             chrome.bookmarks.getTree(function (bookmarks) {
                 createTask(request.taskName, request.tabs, request.createFromCurrentTabs, bookmarks);
                 if (request.activated) {
-                    deactivateTask(CTASKID);
+                    deactivateTask(CTASKID)
                     activateTask(TASKS["lastAssignedId"]);
                 }
             });
         }
         else {
-            createTask(request.taskName, request.tabs, request.createFromCurrentTabs, request.bookmarks);
+            createTask(request.taskName, request.tabs, request.createFromCurrentTabs, {});
+            if (request.activated) {
+                deactivateTask(CTASKID);
+                activateTask(TASKS["lastAssignedId"]);
+            }
         }
 
-        if (request.activated) {
-            deactivateTask(CTASKID);
-            activateTask(TASKS["lastAssignedId"]);
-        }
+
     }
 
     if (request.type == "switch-task" && request.nextTaskId != "") {
-        console.log(request);
         deactivateTask(CTASKID);
         activateTask(request.nextTaskId);
     }
@@ -119,7 +120,6 @@ chrome.tabs.onActivated.addListener(function(activeInfo){
     }
   })
 });
-
 
 
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {

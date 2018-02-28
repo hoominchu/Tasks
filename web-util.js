@@ -51,94 +51,137 @@ function removeBookmarks() {
     });
 }
 
-function createBookmarks(bookmarksNode, parentId) {
-    for (var i = 0; i < bookmarksNode.length; i++) {
-        var bookmark = bookmarksNode[i];
-        var isRootFolder = !(bookmark.id > 2);
-        var isFolder = (bookmark.url == null);
-        var isParentRoot = !(bookmark.parentId > 2);
+// function createBookmarks(bookmarksNode, parentId) {
+//     for (var i = 0; i < bookmarksNode.length; i++) {
+//         var bookmark = bookmarksNode[i];
+//         var isRootFolder = !(bookmark.id > 2);
+//         var isFolder = (bookmark.url == null);
+//         var isParentRoot = !(bookmark.parentId > 2);
+//
+//         if (!isRootFolder && !isFolder && isParentRoot) {
+//             chrome.bookmarks.create({
+//                 "parentId": bookmark.parentId,
+//                 "index": bookmark.index,
+//                 "title": bookmark.title,
+//                 "url": bookmark.url
+//             });
+//         }
+//
+//         else if ((!isRootFolder && !isFolder && !isParentRoot)) {
+//             chrome.bookmarks.create({
+//                 "parentId": parentId,
+//                 "index": bookmark.index,
+//                 "title": bookmark.title,
+//                 "url": bookmark.url
+//             });
+//         }
+//
+//         else if (!isRootFolder && isFolder) {
+//             if (bookmark.children.length > 0) {
+//                 var children = bookmark.children;
+//                 chrome.bookmarks.create({
+//                     "parentId": bookmark.parentId,
+//                     "index": bookmark.index,
+//                     "title": bookmark.title
+//                 }, function (result) {
+//                     createBookmarks(children, result.id)
+//                 });
+//             }
+//             else {
+//                 chrome.bookmarks.create({
+//                     "parentId": bookmark.parentId,
+//                     "index": bookmark.index,
+//                     "title": bookmark.title
+//                 });
+//             }
+//         }
+//
+//         else if (isRootFolder) {
+//             if (bookmark.children.length > 0) {
+//                 createBookmarks(bookmark.children);
+//             }
+//         }
+//     }
+// }
 
-        if (!isRootFolder && !isFolder && isParentRoot) {
-            chrome.bookmarks.create({
-                "parentId": bookmark.parentId,
-                "index": bookmark.index,
-                "title": bookmark.title,
-                "url": bookmark.url
-            });
+function createBookmarks(bookmarks, parentId){
+
+    var isRootFolder = !(bookmarks.id);
+    var isParentRoot = (bookmarks.id<3)
+
+    if(isRootFolder){
+        if(bookmarks[0]) { // check if bookmarks is empty
+            for (var i = 0; i < bookmarks[0].children.length; i++) {
+                createBookmarks(bookmarks[0].children[i], bookmarks[0].id);
+            }
         }
 
-        else if ((!isRootFolder && !isFolder && !isParentRoot)) {
+    }
+
+    else if(isParentRoot){
+        for(var i = 0; i<bookmarks.children.length; i++){
+            createBookmarks(bookmarks.children[i], bookmarks.id)
+        }
+    }
+
+    else if(!isRootFolder && !isParentRoot){
+        if(bookmarks.url == null){
             chrome.bookmarks.create({
                 "parentId": parentId,
-                "index": bookmark.index,
-                "title": bookmark.title,
-                "url": bookmark.url
+                "index": bookmarks.index,
+                "title": bookmarks.title
+            }, function(newNode){
+                for(var i =0; i<bookmarks.children.length; i++){
+                    createBookmarks(bookmarks.children[i], newNode.id)
+                }
             });
         }
-
-        else if (!isRootFolder && isFolder) {
-            if (bookmark.children.length > 0) {
-                var children = bookmark.children;
-                chrome.bookmarks.create({
-                    "parentId": bookmark.parentId,
-                    "index": bookmark.index,
-                    "title": bookmark.title
-                }, function (result) {
-                    createBookmarks(children, result.id)
-                });
-            }
-            else {
-                chrome.bookmarks.create({
-                    "parentId": bookmark.parentId,
-                    "index": bookmark.index,
-                    "title": bookmark.title
-                });
-            }
-        }
-
-        else if (isRootFolder) {
-            if (bookmark.children.length > 0) {
-                createBookmarks(bookmark.children);
-            }
+        else{
+            chrome.bookmarks.create({
+                "parentId": parentId,
+                "index": bookmarks.index,
+                "title": bookmarks.title,
+                "url": bookmarks.url
+            });
         }
     }
 }
 
-function createBookmarks(bookmarksNode, parentId) {
-    for (var i = 0; i < bookmarksNode.length; i++) {
-        var bookmark = bookmarksNode[i];
-        var isFolder = (bookmark.url == null);
-        var isRootFolder = !(bookmark.id > 2);
-        if (isRootFolder) {
-            createBookmarks(bookmark.children, bookmark.id);
-        }
-        else {
-            if (isFolder) {
-                var children = bookmark.children;
-                if (children.length > 0) {
-                    chrome.bookmarks.create({
-                        "parentId": parentId,
-                        "index": bookmark.index,
-                        "title": bookmark.title
-                    }, function (result) {
-                        createBookmarks(children, result.id)
-                    });
-                }
-                else {
-                    chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title});
-                }
-            }
-            else {
-                chrome.bookmarks.create({
-                    "parentId": parentId,
-                    "index": bookmark.index,
-                    "title": bookmark.title,
-                    "url": bookmark.url
-                });
-            }
-        }
-    }
-}
+// function createBookmarks(bookmarksNode, parentId) {
+//     for (var i = 0; i < bookmarksNode.length; i++) {
+//         var bookmark = bookmarksNode[i];
+//         var isFolder = (bookmark.url == null);
+//         var isRootFolder = !(bookmark.id > 2);
+//         if (isRootFolder) {
+//             createBookmarks(bookmark.children, bookmark.id);
+//         }
+//         else {
+//             if (isFolder) {
+//                 var children = bookmark.children;
+//                 if (children.length > 0) {
+//                     chrome.bookmarks.create({
+//                         "parentId": parentId,
+//                         "index": bookmark.index,
+//                         "title": bookmark.title
+//                     }, function (result) {
+//                         createBookmarks(children, result.id)
+//                     });
+//                 }
+//                 else {
+//                     chrome.bookmarks.create({"parentId": parentId, "index": bookmark.index, "title": bookmark.title});
+//                 }
+//             }
+//             else {
+//                 chrome.bookmarks.create({
+//                     "parentId": parentId,
+//                     "index": bookmark.index,
+//                     "title": bookmark.title,
+//                     "url": bookmark.url
+//                 });
+//             }
+//         }
+//     }
+// }
 
 function returnQuery(selectorDict) {
     var query = "";

@@ -3,10 +3,10 @@ var stopwords = ["by"];
 var organisationNames_stopwords = ["cnn"];
 
 // Getting current task id
-var CTASKID = 0;
-chrome.storage.local.get("CTASKID", function (response) {
-    CTASKID = response["CTASKID"];
-});
+// var CTASKID = 0;
+// chrome.storage.local.get("CTASKID", function (response) {
+//     CTASKID = response["CTASKID"];
+// });
 
 // Takes a URL and gets its
 function httpGetAsyncForUpdateAuthor(theUrl, callback) {
