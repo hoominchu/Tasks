@@ -6,11 +6,16 @@ chrome.storage.local.get("TASKS", function (taskObject) {
               var CTASKID = cTaskIdObject["CTASKID"];
               loadLikeButton();
               markLikedStatus(initialURL);
-
+              loadDock();
           }
         });
     }
   });
+
+function loadDock(){
+    var dock = $('<div class="" style="width: 100%; height: 8em; background-color: #20454f"></div>');
+    $('body').appendChild(dock);
+}
 
   function loadLikeButton(){
     var likeButton = $('<div class="float" style="font-size:35px;"><i class="fa fa-thumbs-up likeButton"></i></div>');

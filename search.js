@@ -146,6 +146,8 @@ function getSailboatResults(results, preferredDomains, preferredAuthors, callbac
         // console.log(awesomeResult);
 
         finalResults = awesomeResult;
+        // SAILBOATRESULTS = [];
+        scrapedResultsList = [];
         console.log(awesomeResult);
         callback();
 
@@ -183,7 +185,7 @@ function extractInfo(engine, htmlString) {
     var urlObjects = doc.querySelectorAll(returnQuery(engine.urlSelector));
     var descObjects = doc.querySelectorAll(returnQuery(engine.descSelector));
     for (var i = 0; i < urlObjects.length; i++) {
-        var temp = new ScrapedResult(urlObjects[i][engine.finalUrlSelector], titleObjects[i][engine.finalTitleSelector], descObjects[i][engine.finalDescSelector]);
+        var temp = new ScrapedResult(urlObjects[i][engine.finalUrlSelector], titleObjects[i][engine.finalTitleSelector], descObjects[i]);
         scrapedResults.push(temp);
     }
     return scrapedResults;
@@ -207,8 +209,9 @@ function returnResults(query, engines, callback) {
                     scrapedResultsList.push(temp);
                 }
                 if (scrapedResultsList.length > 10) {
-                    console.log(scrapedResultsList);
+                    // console.log(scrapedResultsList);
                     callback();
+
                 }
             }, engines[i]), getRandomInt(30000, 60000));
         }
