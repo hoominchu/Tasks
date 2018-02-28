@@ -71,6 +71,9 @@ function getSailboatResults(results, preferredDomains, preferredAuthors, callbac
 
     var SAILBOATRESULTS = [];
 
+    // Emptying finalResults array
+    finalResults = [];
+
     urlToAuthorWeights = {};
     urlToDomainWeights = [];
 
@@ -143,7 +146,7 @@ function getSailboatResults(results, preferredDomains, preferredAuthors, callbac
         // console.log(awesomeResult);
 
         finalResults = awesomeResult;
-        console.log(awesomeResult)
+        console.log(awesomeResult);
         callback();
 
     }, delayInMilliseconds);
