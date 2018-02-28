@@ -6,7 +6,7 @@ chrome.storage.local.get("TASKS", function (taskObject) {
         console.log(Tasks)
         for (var task_id in Tasks) {
             if (task_id != "lastAssignedId") {
-                $("#tasks-list").append('<button type="button" class="task btn btn-outline-primary" id="' + Tasks[task_id].id + '"> ' + Tasks[task_id].name + '</button>');
+                $("#tasks-list").append('<button type="button" class="tasks btn btn-outline-primary" id="' + Tasks[task_id].id + '"> ' + Tasks[task_id].name + '</button>');
             }
         }
         $(".tasks").click(function () {
