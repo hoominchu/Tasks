@@ -1,8 +1,10 @@
 var searchValue = "";
 
-$("#search").click(function(){
+$("#searchButton").click(function(){
   var searchValue = $("#searchValue").val();
-  $("#main-content").append("<h2>"+searchValue+"</h2>");
+  $("#logo-large-search-page").remove();
+  $("#search-bar-large-center").css({"margin-top" : "40px"});
+  // $("#main-content").append("<h2>"+searchValue+"</h2>");
   chrome.runtime.sendMessage({
     "type": "search",
     "query": searchValue
