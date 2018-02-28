@@ -73,18 +73,15 @@ document.getElementById("createTask").addEventListener("click", function(){
 
 function sendCreateTaskMessage() {
     chrome.tabs.query({}, function (tabs) {
-        chrome.bookmarks.getTree(function (bookmarks) {
             chrome.runtime.sendMessage(
                 {
                     "type": "create-task",
                     "taskName": document.getElementById("taskName").value,
                     "createFromCurrentTabs": document.getElementById("createFromCurrentTabs").checked,
                     "tabs": tabs,
-                    "bookmarks": bookmarks,
                     "activated": true
                 }
             );
-        });
     });
 }
 
