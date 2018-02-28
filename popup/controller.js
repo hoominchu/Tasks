@@ -251,7 +251,7 @@ function revokeToken() {
 
 window.onload = function () {
 
-    changeLoginStatusMessage();
+    // changeLoginStatusMessage();
 
     chrome.storage.local.get("TASKS", function (taskObject) {
         if (taskObject["TASKS"]) {
