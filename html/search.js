@@ -1,4 +1,5 @@
 var searchValue = "";
+var currentSearchResultsLength = 0;
 
 $("#searchButton").click(function(){
   var searchValue = $("#searchValue").val();
@@ -12,9 +13,12 @@ $("#searchButton").click(function(){
 });
 
 chrome.runtime.onMessage.addListener(function(request, sender){
-  $("#searchResults").empty();
   if(request.type=="search-reply"){
-    showSearchResults(request.finalResults);
+      if(request.finalResults.length>currentSearchResultsLength){
+          $("#searchResults").empty();
+          showSearchResults(request.finalResults);
+          currentSearchResultsLength = request.finalResults.length;
+      }
     }
   });
 

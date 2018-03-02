@@ -185,7 +185,7 @@ function extractInfo(engine, htmlString) {
     var urlObjects = doc.querySelectorAll(returnQuery(engine.urlSelector));
     var descObjects = doc.querySelectorAll(returnQuery(engine.descSelector));
     for (var i = 0; i < urlObjects.length; i++) {
-        var temp = new ScrapedResult(urlObjects[i][engine.finalUrlSelector], titleObjects[i][engine.finalTitleSelector], descObjects[i]);
+        var temp = new ScrapedResult(urlObjects[i][engine.finalUrlSelector], titleObjects[i][engine.finalTitleSelector], descObjects[i][engine.finalDescSelector]);
         scrapedResults.push(temp);
     }
     return scrapedResults;
@@ -195,8 +195,9 @@ var scrapedResultsList = [];
 
 
 function returnResults(query, engines, callback) {
+    var resultsCurrentLength = 0;
     for (var i = 0; i < engines.length; i++) {
-        for (var j = 0; j < 1; j++) {
+        for (var j = 0; j < 10; j++) {
             setInterval(httpGetAsync(engines[i].mainUrl + query.replace(/\s/g, "+") + engines[i].pageUrl + engines[i].indexMarker(j), function (response, engine) {
                 var engineName = engine["engine"];
                 var scrapedResults = extractInfo(engine, response);
@@ -209,9 +210,10 @@ function returnResults(query, engines, callback) {
                     scrapedResultsList.push(temp);
                 }
                 if (scrapedResultsList.length > 10) {
-                    // console.log(scrapedResultsList);
-                    callback();
-
+                    if(resultsCurrentLength<scrapedResultsList.length){
+                        callback();
+                        resultsCurrentLength = scrapedResultsList.length;
+                    }
                 }
             }, engines[i]), getRandomInt(30000, 60000));
         }
