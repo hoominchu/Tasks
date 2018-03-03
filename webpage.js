@@ -21,7 +21,7 @@ function getTotalTimeSpent(Page){
   for(var i = 0; i<timeSpent.length; i++){
     t_timeSpent = t_timeSpent + timeSpent[i]
   }
-  actualTimeSpent = t_timeSpent - (idleTime*60000)
+  actualTimeSpent = t_timeSpent;
   return actualTimeSpent;
 }
 
