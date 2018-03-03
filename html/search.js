@@ -38,8 +38,10 @@ chrome.runtime.onMessage.addListener(function(request, sender){
           // Creating elements to be displayed
           var resultTitleElem = document.createElement("h4");
           // resultTitleElem.className = "search-result-title";
-          resultTitleElem.innerText = title;
-          resultTitleElem.setAttribute("a", url);
+          var resultTitleLinkElem = document.createElement("a");
+          resultTitleLinkElem.setAttribute("href",url);
+          resultTitleLinkElem.innerText = title;
+          resultTitleElem.appendChild(resultTitleLinkElem);
 
           var engineElem = document.createElement("span");
           engineElem.className = "badge badge-pill badge-light";

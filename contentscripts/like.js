@@ -6,7 +6,6 @@ chrome.storage.local.get("TASKS", function (taskObject) {
               var CTASKID = cTaskIdObject["CTASKID"];
               loadLikeButton();
               markLikedStatus(initialURL);
-              loadDock();
           }
         });
     }
