@@ -18,15 +18,16 @@ var authorFrequencyFieldName = "frequency";
 var authorURL = "URL"; // Not being used yet
 
 // Getting current task id
-var CTASKID = 0;
-
-
-var tabIdToURL={};
-
-var activeTabId = 0;
-
 var TASKS = {lastAssignedId: 0};
 var CTASKID = 0;
+
+var taskToWindow = {};
+
+var tabIdToURL={};
+var activeTabId = 0;
+
+var backgroundPageId = -1
+
 
 console.log(CTASKID);
 
