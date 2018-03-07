@@ -29,7 +29,7 @@ function getUpdatedPreferredDomainsObject(domain, preferredDomainsObject) {
 
         // Checking if current task id already exists in active tasks field name. Pushing CTASKID if it doesn't exist in the array.
         if(activeTasksArray.indexOf(CTASKID)=== -1) {
-            preferredDomainsObject[domain][activeTasksFieldName].push(CTASKID);
+            preferredDomainsObject[domain][activeTasksFieldName].push(parseInt(CTASKID));
         }
 
     }

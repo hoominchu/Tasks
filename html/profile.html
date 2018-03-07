@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../css/index.css">
     <link rel="stylesheet" href="../css/custom.css">
     <link rel="stylesheet" href="../css/font-awesome-4.7.0/css/font-awesome.min.css">
+    <script src="../js/fontawesome-all.min.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -21,7 +22,7 @@
             <li class="nav-item ">
                 <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
             </li>
-            <li class="nav-item active">
+            <li class="nav-item">
                 <a class="nav-link" href="history.html">History</a>
             </li>
             <li class="nav-item">
@@ -44,41 +45,24 @@
 </nav>
 
 <div class="container-fluid">
+<div class="row" style="margin-top: 1.5em">
+    <div class="col-lg-1">
+    </div>
+    <div class="col-lg-4" id="preferredDomains">
+        <h5>Preferred domains</h5>
 
-    <div class="row" style="padding-top: 1em">
-        <div class="col-lg-2">
-            <div class="btn-group-vertical" style="width: 100%; padding-bottom: 2em" data-toggle="buttons">
-                <button type="button" class="btn btn-secondary round-corner" id="openLikedPages">Open Liked Pages
-                </button>
-            </div>
-            <button type="button" style="width: 100%" class="btn btn-secondary disabled round-corner-top">Your Tasks
-            </button>
-            <div class="btn-group-vertical" style="width: 100%" id="tasks-list" data-toggle="buttons">
-            </div>
-        </div>
-
-        <div class="col-lg-10">
-            <table class="table table-hover" id="table" style="overflow:hidden;">
-                <thead style="text-align: center">
-                <tr>
-                    <th scope="col" id="title" style="width: 64%">Title</th>
-                    <th scope="col" id="liked" style="width: 6%">Liked</th>
-                    <th scope="col" id="time" style="width: 10%">Time Spent</th>
-                    <th scope="col" id="lastVisit" style="width: 20%">Last Visited</th>
-                </tr>
-                </thead>
-                <tbody id="historyTable">
-                </tbody>
-            </table>
-            <div id="task-urls" style="overflow:scroll; height:600px;">
-                <ol id="urls-list">
-                </ol>
-            </div>
-        </div>
+    </div>
+    <div class="col-lg-1">
+    </div>
+    <div class="col-lg-4">
+        <h5>Preferred authors</h5>
+        <div class="col-lg-3" id="preferredauthors"></div>
+    </div>
+    <div class="col-lg-1">
     </div>
 </div>
-<script src="sortElements.js"></script>
-<script src="history.js"></script>
-<script src="indexController.js"></script>
+</div>
+
+<script src="profile.js"></script>
 </body>
 </html>
