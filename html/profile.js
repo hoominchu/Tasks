@@ -14,42 +14,48 @@ chrome.storage.local.get("TASKS", function (tasksObject) {
                 var domainFrequency = preferredDomainsObject[domainName]["frequency"];
                 var activeTasks = preferredDomainsObject[domainName]["Active tasks"];
 
-                // <li class="list-group-item d-flex justify-content-between align-items-center">
-                //         Morbi leo risus
-                //     <span class="badge badge-primary badge-pill">1</span>
-                //         </li>
-
-                // <div class="card border-dark mb-3 round-corner" style="max-width: 20rem;">
-                //         <div class="card-header round-corner-top">Domain</div>
-                //         <div class="card-body">
-                //         <h4 class="card-title">Dark card title</h4>
-                //     <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                //     </div>
+                //    <div class="btn-group" role="group" aria-label="Button group with nested dropdown"> -- domainDropdownElem
+                //         <button type="button" class="btn btn-primary">Primary</button> -- domainButtonElem
+                //         <div class="btn-group" role="group"> -- domainDropdownGroupElem
+                //              <button id="btnGroupDrop1" type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></button> -- domainDropdownButtonsElem
+                //              <div class="dropdown-menu" aria-labelledby="btnGroupDrop1"> -- tasksGroupForDropdown
+                //                  <a class="dropdown-item" href="#">Dropdown link</a> -- domainActiveTasksListElem
+                //                  <a class="dropdown-item" href="#">Dropdown link</a>
+                //              </div>
+                //          </div>
                 //     </div>
 
-                var domainCardElem = document.createElement("div");
-                domainCardElem.className = "card border-dark mb-3 round-corner";
+                var domainDropdownElem = document.createElement("div");
+                domainDropdownElem.className = "btn-group";
+                domainDropdownElem.setAttribute("role", "group");
+                domainDropdownElem.setAttribute("aria-label", "Button group with nested dropdown");
 
-                var domainCardHeaderElem = document.createElement("div");
-                domainCardHeaderElem.className = "card-header round-corner-top text-primary";
+                var domainButtonElem = document.createElement("button");
+                domainButtonElem.className = "btn btn-outline-primary";
                 // domainCardHeaderElem.innerText = domainName;
-                var domainCardHeaderLinkElem = document.createElement("a");
-                domainCardHeaderLinkElem.setAttribute("href","http://"+domainName);
-                domainCardHeaderLinkElem.innerText = domainName;
-                domainCardHeaderElem.appendChild(domainCardHeaderLinkElem);
+                var domainButtonLinkElem = document.createElement("a");
+                domainButtonLinkElem.setAttribute("href", "http://" + domainName);
+                domainButtonLinkElem.innerText = domainName;
+                domainButtonElem.appendChild(domainButtonLinkElem);
 
-                var domainCardBodyElem = document.createElement("div");
-                domainCardBodyElem.className = "card-body";
+                var domainDropdownGroupElem = document.createElement("div");
+                domainDropdownGroupElem.className = "btn-group";
+                domainDropdownGroupElem.setAttribute("role", "group");
 
-                var domainCardTitleElem = document.createElement("p");
-                domainCardTitleElem.className = "card-title";
-                domainCardTitleElem.innerText = "Preferred in tasks";
+                var domainDropdownButtonsElem = document.createElement("button");
+                domainDropdownButtonsElem.id = "activeTasksForDomain" + i;
+                domainDropdownButtonsElem.setAttribute("type", "button");
+                domainDropdownButtonsElem.className = "btn btn-primary dropdown-toggle";
+                domainDropdownButtonsElem.setAttribute("data-toggle", "dropdown");
+                domainDropdownButtonsElem.setAttribute("aria-haspopup", "true");
+                domainDropdownButtonsElem.setAttribute("aria-expanded", "false");
 
-                var domainFrequencyElem = document.createElement("p");
-                domainFrequencyElem.className = "text-muted";
-                domainFrequencyElem.innerText = "Frequency : " + domainFrequency;
+                var tasksGroupForDropdown = document.createElement("div");
+                tasksGroupForDropdown.className = "dropdown-menu";
+                tasksGroupForDropdown.setAttribute("aria-labelledby", "activeTasksForDomain" + i);
+                // tasksGroupForDropdown.innerText = "Frequency : " + domainFrequency;
 
-                domainCardBodyElem.appendChild(domainCardTitleElem);
+                // domainDropdownGroupElem.appendChild(domainDropdownButtonsElem);
                 // domainCardBodyElem.appendChild(domainFrequencyElem);
 
                 for (var j = 0; j < activeTasks.length; j++) {
@@ -57,23 +63,26 @@ chrome.storage.local.get("TASKS", function (tasksObject) {
 
                     // This check is to ignore default task
                     if (activeTaskID != 0) {
-                        var domainActiveTasksListElem = document.createElement("li");
+                        var domainActiveTasksListElem = document.createElement("a");
                         var taskName = allTasks[activeTaskID]["name"];
-                        domainActiveTasksListElem.className = "list-group-item d-flex justify-content-between align-items-center";
+                        domainActiveTasksListElem.className = "dropdown-item";
+                        domainActiveTasksListElem.setAttribute("a","#");
                         domainActiveTasksListElem.innerText = taskName;
 
-                        var removeButton = document.createElement("i");
-                        removeButton.className = "far fa-trash-alt";
-                        domainActiveTasksListElem.appendChild(removeButton);
+                        // var removeButton = document.createElement("i");
+                        // removeButton.className = "far fa-trash-alt";
+                        // domainActiveTasksListElem.appendChild(removeButton);
 
-                        domainCardBodyElem.appendChild(domainActiveTasksListElem);
+                        tasksGroupForDropdown.appendChild(domainActiveTasksListElem);
                     }
                 }
 
-                domainCardElem.appendChild(domainCardHeaderElem);
-                domainCardElem.appendChild(domainCardBodyElem);
+                domainDropdownGroupElem.appendChild(domainDropdownButtonsElem);
+                domainDropdownGroupElem.appendChild(tasksGroupForDropdown);
+                domainDropdownElem.appendChild(domainButtonElem);
+                domainDropdownElem.appendChild(domainDropdownGroupElem);
 
-                domainsPanel.appendChild(domainCardElem);
+                domainsPanel.appendChild(domainDropdownElem);
             }
         }
     });

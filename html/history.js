@@ -96,3 +96,9 @@ $("#openLikedPages").click(function () {
         "taskId": idOfSelectedTask
     });
 });
+
+var options = {
+    valueNames: [ 'name', 'born' ]
+};
+
+var userList = new List('table', options);

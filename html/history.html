@@ -58,7 +58,10 @@
         </div>
 
         <div class="col-lg-10">
-            <table class="table table-hover" id="table" style="overflow:hidden;">
+            <div class="form-group">
+                <input type="search" class="form-control round-corner" id="searchHistoryTable" placeholder="Search table by page title">
+            </div>
+            <table class="table table-hover history-table" id="table" style="overflow:hidden;">
                 <thead style="text-align: center">
                 <tr>
                     <th scope="col" id="title" style="width: 64%">Title</th>
@@ -70,6 +73,12 @@
                 <tbody id="historyTable">
                 </tbody>
             </table>
+            <script>
+                var tf = new TableFilter(document.querySelector('#table'), {
+                    base_path: '../js/tablefilter'
+                });
+                tf.init();
+            </script>
             <div id="task-urls" style="overflow:scroll; height:600px;">
                 <ol id="urls-list">
                 </ol>
@@ -80,5 +89,7 @@
 <script src="sortElements.js"></script>
 <script src="history.js"></script>
 <script src="indexController.js"></script>
+<script src="../js/list.min.js"></script>
+<script src="../js/tablefilter/tablefilter.js"></script>
 </body>
 </html>
