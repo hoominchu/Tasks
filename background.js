@@ -11,7 +11,7 @@ chrome.commands.onCommand.addListener(function(command){
 
 chrome.runtime.onMessage.addListener(function (request, sender) {
 
-    refreshContextMenu();
+    //refreshContextMenu();
 
     if (request.type == "create-task") {
 
@@ -20,16 +20,16 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
             chrome.bookmarks.getTree(function (bookmarks) {
                 createTask(request.taskName, request.tabs, request.createFromCurrentTabs, bookmarks);
                 if (request.activated) {
-                    deactivateTask(CTASKID)
-                    activateTask(TASKS["lastAssignedId"]);
+                    deactivateTaskInWindow(CTASKID)
+                    activateTaskInWindow(TASKS["lastAssignedId"]);
                 }
             });
         }
         else {
             createTask(request.taskName, request.tabs, request.createFromCurrentTabs, {});
             if (request.activated) {
-                deactivateTask(CTASKID);
-                activateTask(TASKS["lastAssignedId"]);
+                deactivateTaskInWindow(CTASKID);
+                activateTaskInWindow(TASKS["lastAssignedId"]);
             }
         }
 
@@ -37,8 +37,8 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
     }
 
     if (request.type == "switch-task" && request.nextTaskId != "") {
-        deactivateTask(CTASKID);
-        activateTask(request.nextTaskId);
+        deactivateTaskInWindow(CTASKID);
+        activateTaskInWindow(request.nextTaskId);
     }
 
     if (request.type == "rename-task") {
@@ -86,6 +86,12 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
     }
 });
 
+chrome.windows.onRemoved.addListener(function(windowId){
+    deactivateTaskInWindow(getKeyByValue(taskToWindow, windowId));
+    delete taskToWindow[getKeyByValue(taskToWindow, windowId)];
+    getIdsOfCurrentlyOpenTabs(windowId, function(ids){console.log(ids)});
+});
+
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
     if (changeInfo.status== "complete") {
@@ -94,7 +100,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
         updateExitTime(tabIdToURL[tabId], date.toString())
       }
         tabIdToURL[tabId] = tab.url;
-        saveTask(CTASKID);
+        saveTaskInWindow(CTASKID);
         addToHistory(tab.url, tab.title, CTASKID);
     }
     chrome.tabs.sendMessage(tabId, {"type": "reload-like-button", data:tab})
@@ -121,7 +127,6 @@ chrome.tabs.onActivated.addListener(function(activeInfo){
   })
 });
 
-
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
   if(removeInfo.isWindowClosing){
     var date = new Date();
@@ -130,6 +135,19 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
     }
   }
     if (!removeInfo.isWindowClosing) {
-        saveTask(CTASKID);
+        saveTaskInWindow(CTASKID);
     }
   });
+
+chrome.windows.onFocusChanged.addListener(function (newWindowId){
+  if(newWindowId>backgroundPageId){
+    chrome.windows.get(newWindowId, function(window){
+        if(window.type == "normal"){
+            if(getKeyByValue(taskToWindow, newWindowId)){
+                deactivateTaskInWindow(CTASKID)
+                activateTaskInWindow(getKeyByValue(taskToWindow, newWindowId));
+            }
+        }
+    });
+  }
+});

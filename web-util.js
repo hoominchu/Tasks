@@ -269,30 +269,33 @@ function getIdsOfCurrentlyOpenTabs(windowId, callback){
    var ids = [];
    if(windowId){
      chrome.tabs.query({"windowId": windowId}, function(tabs){
-       console.log(tabs)
        for(var i = 0; i < tabs.length; i++){
-         ids.push(tabs[i].url);
+         ids.push(tabs[i].id);
        }
-       callback(ids);
+       if(callback){
+           callback(ids);
+       }
      });
    }
    else{
      chrome.tabs.query({}, function(tabs){
        console.log(tabs)
        for(var i = 0; i < tabs.length; i++){
-         ids.push(tabs[i].url);
+         ids.push(tabs[i].id);
        }
-       callback(ids);
+       if(callback){
+           callback(ids);
+       }
      });
    }
 
 }
 
-function setBadgeText(windowId, text){
-  var openTabsIds = [];
-  getIdsOfCurrentlyOpenTabs(windowId, function(ids){openTabsIds = ids});
-  for(var j = 0; j<openTabsIds.length; j++){
-    var openTabsId = openTabsIds[j]
-    chrome.browserAction.setBadgeText({"text": TASKS[CTASKID].name.slice(0, 4), openTabsId});
-  }
+function setTaskBadge(windowId, task_id) {
+    getIdsOfCurrentlyOpenTabs(windowId, function (ids) {
+        for (var i = 0; i < ids.length; i++) {
+            chrome.browserAction.setBadgeText({"text": TASKS[task_id].name.slice(0, 4), "tabId": ids[i]});
+        }
+    });
 }
+

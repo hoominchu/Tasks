@@ -20,9 +20,9 @@ createDefaultTask();
 
 function addToHistory(url, title, task_id){
   if(url!= "chrome://newtab/" && url!="about:blank" && url){
-    if(TASKS[task_id].history.find((page) => page.url === url)){
+    if(TASKS[task_id].history.find((page) => page.url === url)) {
       var date = new Date();
-      TASKS[task_id].history.find((page) => page.url === url).timeVisited.push(date.toString())
+      TASKS[task_id].history.find((page) => page.url === url).timeVisited.push(date.toString());
     }
     else{
       var newPage = new Page(url, title)
@@ -67,7 +67,8 @@ function activateTask(task_id) {
                     chrome.tabs.create({
                         "url": TASKS[task_id].tabs[i].url,
                         "pinned": TASKS[task_id].tabs[i].pinned,
-                        "active": TASKS[task_id].tabs[i].active
+                        "active": TASKS[task_id].tabs[i].active,
+
                     });
                 }
             }
@@ -98,11 +99,76 @@ function activateTask(task_id) {
     }
 }
 
+function activateTaskInWindow(task_id){
+    try {
+        var urls = [];
+
+        if(taskToWindow.hasOwnProperty(task_id)){
+            chrome.windows.update(taskToWindow[task_id], {"focused": true});
+        }
+        else{
+
+            if (TASKS[task_id].tabs.length > 0) {
+                for (var i = 0; i < TASKS[task_id].tabs.length; i++) {
+                    urls.push(TASKS[task_id].tabs[i].url);
+                }
+                chrome.windows.create({"url": urls}, function(window){
+                    var taskId = task_id;
+                    taskToWindow[taskId] = window.id;
+                });
+            }
+
+            else {
+                chrome.windows.create({"url": "about:blank"}, function (window) {
+                    var taskId = task_id;
+                    taskToWindow[taskId] = window.id;
+                });
+            }
+
+        }
+        createBookmarks(TASKS[task_id].bookmarks);
+        chrome.browserAction.setBadgeText({"text": TASKS[task_id].name.slice(0, 4)});
+
+
+        //
+        // if(TASKS[CTASKID].id != 0){
+        //     chrome.browserAction.setBadgeText({"text": TASKS[CTASKID].name.slice(0, 4)})
+        // }
+        // else{
+        //     chrome.browserAction.setBadgeText({"text": ""})
+        // }
+        var now = new Date();
+        TASKS[task_id].activationTime.push(now.toString());
+        TASKS[task_id].isActive = true;
+        CTASKID = task_id;
+        updateStorage("TASKS",TASKS);
+        chrome.storage.local.set({"CTASKID": task_id});
+
+    }
+    catch (err) {
+        console.log(err.message);
+    }
+
+}
+
 function saveTask(task_id) {
     if (TASKS[task_id]) {
         chrome.tabs.query({}, function (allTabs) {
             TASKS[task_id].tabs = allTabs;
             updateStorage("TASKS",TASKS);
+        });
+        chrome.bookmarks.getTree(function (bookmarks) {
+            TASKS[task_id].bookmarks = bookmarks;
+            updateStorage("TASKS",TASKS);
+        });
+    }
+}
+
+function saveTaskInWindow(task_id){
+    if(TASKS[task_id]){
+        chrome.tabs.query({"windowId": taskToWindow[task_id]}, function(tabs){
+            TASKS[task_id].tabs = tabs;
+            updateStorage("TASKS", TASKS);
         });
         chrome.bookmarks.getTree(function (bookmarks) {
             TASKS[task_id].bookmarks = bookmarks;
@@ -124,6 +190,26 @@ function deactivateTask(currentTaskId) {
     else if (currentTaskId == 0) {
         closeAllTabs(false, chrome.windows.WINDOW_ID_CURRENT)
     }
+}
+
+function deactivateTaskInWindow(task_id){
+    if(taskToWindow.hasOwnProperty(task_id)){
+        saveTaskInWindow(task_id);
+        // closeAllTabs(false, taskToWindow[task_id]);
+        removeBookmarks();
+        var now = new Date();
+        TASKS[task_id].deactivationTime.push(now.toString());
+        TASKS[task_id].isActive = false;
+        updateStorage("TASKS",TASKS);
+    }
+    else if (task_id == 0){
+        closeAllTabs(false, taskToWindow[task_id]);
+    }
+}
+
+function closeTask(task_id){
+    saveTaskInWindow(task_id);
+    delete taskToWindow[task_id];
 }
 
 function deleteTask(task_id) {
