@@ -54,8 +54,6 @@ function logContent(url, logDict) {
 function newTaskDetector(tasks, textLog) {
     var tagsToLog = ["div", "span", "a", "h1", "h2", "th", "td"];
 
-    var similaritiesDict = {};
-
     var taskScore = {};
 
     for (var i = 0; i < tagsToLog.length; i++) {
@@ -78,7 +76,7 @@ function newTaskDetector(tasks, textLog) {
                     var currentTask = tasks[taskID];
                     // Taking open tab urls. Can also take history URLs or URLs of liked pages.
                     var taskURLs = currentTask["tabs"];
-                    if (!taskScore[taskID]){
+                    if (!taskScore[taskID]) {
                         taskScore[taskID] = {};
                     }
                     if (!taskScore[taskID][logTag]) {
@@ -102,38 +100,53 @@ function newTaskDetector(tasks, textLog) {
             }
         }
     }
-    console.log("Task Scores");
-    console.log(taskScore);
-}
 
-function suggestProbableTask(tasks, similarURLsArray, similaritiesDict) {
-    var taskScore = {};
-    var taskToURLs = {};
-    for (var key in tasks) {
-        if (tasks.hasOwnProperty(key)) {
-            if (key != 'lastAssignedId') {
-                var currentTask = tasks[key];
-                // Taking open tab urls. Can also take history urls.
-                var urls = currentTask["tabs"];
-                var urlsOfTask = [];
-                var score = 0;
-                console.log(typeof (urls));
-                for (var j = 0; j < urls.length; j++) {
-                    urlsOfTask.push(urls[j]["url"]);
-                    if (similaritiesDict[urls[j]["url"]]) {
-                        score = score + similaritiesDict[urls[j]["url"]]["frequency"]["total"];
-                    }
-                }
-                taskToURLs[currentTask["id"]] = score;
-            }
-        }
-    }
-    var taskToURLArray = Object.keys(taskToURLs).map(function (key) {
-        return [key, taskToURLs[key]];
+    chrome.storage.local.get("CTASKID", function (ctaskid) {
+        ctaskid = ctaskid["CTASKID"];
+        suggestProbableTask(tagsToLog, taskScore, ctaskid, tasks);
     });
 
-    console.log("Suggest task");
-    console.log(taskToURLArray);
+}
+
+function suggestProbableTask(tagsList, taskScores, currentTaskID, tasks) {
+    console.log(currentTaskID);
+    var taskFinalScore = {};
+    for (var taskID in taskScores) {
+        taskFinalScore[taskID] = 0;
+        // var task = taskScores[taskID];
+        for (var i = 0; i < tagsList.length; i++) {
+            taskFinalScore[taskID] = taskFinalScore[taskID] + taskScores[taskID][tagsList[i]];
+        }
+    }
+
+    // Create probableTasks array
+    var probableTasks = Object.keys(taskFinalScore).map(function (key) {
+        return [key, taskFinalScore[key]];
+    });
+
+    // Sorting probableTasks array
+    probableTasks.sort(function (o1, o2) {
+        return o2[1] - o1[1];
+    });
+
+    var mostProbableTaskID = probableTasks[0][0];
+    if (currentTaskID != mostProbableTaskID) {
+        var mostProbableTask = tasks[probableTasks[0][0]]["name"];
+        console.log("This page looks like it belongs to task " + mostProbableTask);
+        // alert("Change task!");
+        loadSuggestion(1, probableTasks, tasks)
+    }
+}
+
+function loadSuggestion(tab, probableTasks, tasks) {
+
+    var mostProbableTask = tasks[probableTasks[0][0]]["name"];
+    alert("This page looks like it belongs to task " + mostProbableTask + "!");
+    var suggestNotification = $('<div class="alert alert-dismissible alert-light float" style="width: 10em; height: 4em; font-size: 10pt">\n' +
+        '  <button type="button" class="close" data-dismiss="alert">&times;</button>\n' +
+        '  This page looks like it belongs to task "' + mostProbableTask + '"' +
+        '</div>');
+    $('body').append(suggestNotification);
 }
 
 function updateStorage(key, obj) {
