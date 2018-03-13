@@ -55,6 +55,8 @@ function newTaskDetector(tasks, textLog) {
     var tagsToLog = ["div", "span", "a", "h1", "h2", "th", "td"];
 
     var taskScore = {};
+    var JaccardCounts = {};
+    var JaccardSimilarityScores = {};
 
     for (var i = 0; i < tagsToLog.length; i++) {
         var logTag = tagsToLog[i];
@@ -73,6 +75,10 @@ function newTaskDetector(tasks, textLog) {
 
             if (tasks.hasOwnProperty(taskID)) {
                 if (taskID != 'lastAssignedId' && taskID > 0) {
+
+                    var ITsUnion = ITsOfCurrentPage;
+                    var ITsIntersection = [];
+
                     var currentTask = tasks[taskID];
                     // Taking open tab urls. Can also take history URLs or URLs of liked pages.
                     var taskURLs = currentTask["tabs"];
@@ -83,13 +89,25 @@ function newTaskDetector(tasks, textLog) {
                         taskScore[taskID][logTag] = 0;
                     }
 
+                    if (!JaccardCounts[taskID]) {
+                        JaccardCounts[taskID]={};
+                        JaccardCounts[taskID]["Intersection"] = 0;
+                        JaccardCounts[taskID]["Union"] = 0;
+
+                        JaccardSimilarityScores[taskID] = 0;
+                    }
+
                     for (var j = 0; j < taskURLs.length; j++) {
                         var urlInTask = taskURLs[j]["url"];
                         if (textLog[urlInTask]) {
                             var ITsOfURL = textLog[urlInTask];
                             for (var k = 0; k < ITsOfCurrentPage.length; k++) {
                                 var innerText = ITsOfCurrentPage[k];
+                                if (ITsUnion.indexOf(innerText) < 0) {
+                                    ITsUnion.push(innerText);
+                                }
                                 if (ITsOfURL[innerText]) {
+                                    ITsIntersection.push(innerText);
                                     taskScore[taskID][logTag]++;
                                 }
                             }
@@ -98,18 +116,48 @@ function newTaskDetector(tasks, textLog) {
 
                 }
             }
+
+            // Logging common tags
+            // console.log(ITsIntersection);
+            if (JaccardCounts[taskID]) {
+                JaccardCounts[taskID]["Intersection"] = JaccardCounts[taskID]["Intersection"] + ITsIntersection.length;
+                JaccardCounts[taskID]["Union"] = JaccardCounts[taskID]["Union"] + ITsUnion.length;
+            }
         }
     }
 
+    for (var id in JaccardCounts) {
+        JaccardSimilarityScores[id] = JaccardCounts[id]["Intersection"]/JaccardCounts[id]["Union"];
+    }
+
+    console.log(JaccardSimilarityScores);
+
     chrome.storage.local.get("CTASKID", function (ctaskid) {
         ctaskid = ctaskid["CTASKID"];
-        suggestProbableTask(tagsToLog, taskScore, ctaskid, tasks);
+        // suggestProbableTask(tagsToLog, taskScore, ctaskid, tasks);
+        suggestJaccardTask(JaccardSimilarityScores,ctaskid,tasks);
     });
 
 }
 
+function suggestJaccardTask(JaccardScores, currentTaskID, tasks) {
+    var JaccardScores = Object.keys(JaccardScores).map(function (key) {
+        return [key, JaccardScores[key]];
+    });
+    JaccardScores.sort(function (o1, o2) {
+        return o2[1] - o1[1];
+    });
+    var mostProbableTaskID = JaccardScores[0][0];
+    if (currentTaskID != mostProbableTaskID) {
+        var mostProbableTask = tasks[JaccardScores[0][0]]["name"];
+        console.log("This page looks like it belongs to task " + mostProbableTask);
+        // alert("Change task!");
+        loadSuggestion(1, JaccardScores, tasks)
+    }
+}
+
 function suggestProbableTask(tagsList, taskScores, currentTaskID, tasks) {
-    console.log(currentTaskID);
+    // console.log(currentTaskID);
     var taskFinalScore = {};
     for (var taskID in taskScores) {
         taskFinalScore[taskID] = 0;
@@ -141,18 +189,9 @@ function suggestProbableTask(tagsList, taskScores, currentTaskID, tasks) {
 function loadSuggestion(tab, probableTasks, tasks) {
 
     var mostProbableTask = tasks[probableTasks[0][0]]["name"];
-    // chrome.extension.sendRequest({msg: "Sup?"}, function(response) { // optional callback - gets response
-    //     console.log(response.returnMsg);
-    // });
 
-    chrome.runtime.sendMessage({"type":"task suggestion","probable task":mostProbableTask});
+    chrome.runtime.sendMessage({"type": "task suggestion", "probable task": mostProbableTask});
 
-    // alert("This page looks like it belongs to task " + mostProbableTask + "!");
-    // var suggestNotification = $('<div class="alert alert-dismissible alert-light float" style="width: 10em; height: 4em; font-size: 10pt">\n' +
-    //     '  <button type="button" class="close" data-dismiss="alert">&times;</button>\n' +
-    //     '  This page looks like it belongs to task "' + mostProbableTask + '"' +
-    //     '</div>');
-    // $('body').append(suggestNotification);
 }
 
 function updateStorage(key, obj) {
