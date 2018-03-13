@@ -192,7 +192,7 @@ function loadSuggestion(tab, probableTasks, tasks) {
 
     var mostProbableTask = tasks[probableTasks[0][0]]["name"];
 
-    chrome.runtime.sendMessage({"type": "task suggestion", "probable task": mostProbableTask});
+    chrome.runtime.sendMessage({"type": "task suggestion", "probable task": mostProbableTask, "probable task id":probableTasks[0][0]});
 
 }
 
