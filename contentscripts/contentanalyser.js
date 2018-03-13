@@ -141,12 +141,18 @@ function suggestProbableTask(tagsList, taskScores, currentTaskID, tasks) {
 function loadSuggestion(tab, probableTasks, tasks) {
 
     var mostProbableTask = tasks[probableTasks[0][0]]["name"];
-    alert("This page looks like it belongs to task " + mostProbableTask + "!");
-    var suggestNotification = $('<div class="alert alert-dismissible alert-light float" style="width: 10em; height: 4em; font-size: 10pt">\n' +
-        '  <button type="button" class="close" data-dismiss="alert">&times;</button>\n' +
-        '  This page looks like it belongs to task "' + mostProbableTask + '"' +
-        '</div>');
-    $('body').append(suggestNotification);
+    // chrome.extension.sendRequest({msg: "Sup?"}, function(response) { // optional callback - gets response
+    //     console.log(response.returnMsg);
+    // });
+
+    chrome.runtime.sendMessage({"type":"task suggestion","probable task":mostProbableTask});
+
+    // alert("This page looks like it belongs to task " + mostProbableTask + "!");
+    // var suggestNotification = $('<div class="alert alert-dismissible alert-light float" style="width: 10em; height: 4em; font-size: 10pt">\n' +
+    //     '  <button type="button" class="close" data-dismiss="alert">&times;</button>\n' +
+    //     '  This page looks like it belongs to task "' + mostProbableTask + '"' +
+    //     '</div>');
+    // $('body').append(suggestNotification);
 }
 
 function updateStorage(key, obj) {

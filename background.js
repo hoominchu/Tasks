@@ -151,3 +151,25 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
     });
   }
 });
+
+chrome.runtime.onMessage.addListener(function (response, sender) {
+    if (response.type == "task suggestion") {
+        chrome.notifications.create({"type":"basic","iconUrl":"images/logo_white_sails_no_text.png","title":"Task Suggestion : " + response["probable task"],"message":"Looks like this page belongs to task " + response["probable task"],"buttons":[{"title":"Add to " + response["probable task"]}]});
+    }
+});
+
+// chrome.extension.onRequest.addListener(
+//     function(request, sender, sendResponse) {
+//
+//         // Create a simple text notification:
+//         var notify = webkitNotifications.createNotification(
+//             '48.png',  // icon url - can be relative
+//             'Hello!',  // notification title
+//             request.msg  // notification body text
+//         );
+//
+//         notify.show();
+//
+//         setTimeout(function(){ notify.cancel(); },5000);
+//         sendResponse({returnMsg: "All good!"}); // optional response
+// });
