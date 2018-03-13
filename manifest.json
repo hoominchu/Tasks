@@ -38,7 +38,7 @@
     {
       "matches": ["https://*/*", "http://*/*"],
       "css": ["css/font-awesome-4.7.0/css/font-awesome.min.css", "contentscripts/contentscript.css"],
-      "js": ["js/jquery/jquery-3.2.1.min.js", "contentscripts/like.js", "contentscripts/time.js", "contentscripts/contentscript.js"],
+      "js": ["js/jquery/jquery-3.2.1.min.js", "contentscripts/like.js", "contentscripts/time.js", "contentscripts/contentscript.js","contentscripts/contentanalyser.js"],
       "run_at": "document_end"
     }
   ],
