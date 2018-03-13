@@ -59,45 +59,6 @@ function createTask(taskName, tabs, createFromCurrentTabs, bookmarks) {
     }
 }
 
-function activateTask(task_id) {
-    try {
-        if (TASKS[task_id].tabs.length > 0) {
-            for (var i = 0; i < TASKS[task_id].tabs.length; i++) {
-                if (!TASKS[task_id].tabs[i].pinned) {
-                    chrome.tabs.create({
-                        "url": TASKS[task_id].tabs[i].url,
-                        "pinned": TASKS[task_id].tabs[i].pinned,
-                        "active": TASKS[task_id].tabs[i].active,
-
-                    });
-                }
-            }
-        }
-        else {
-            chrome.tabs.create({"url": "about:blank"});
-        }
-
-        createBookmarks(TASKS[task_id].bookmarks);
-
-
-        CTASKID = task_id;
-        chrome.storage.local.set({"CTASKID": task_id});
-        if(TASKS[CTASKID].id != 0){
-          chrome.browserAction.setBadgeText({"text": TASKS[CTASKID].name.slice(0, 4)})
-        }
-        else{
-          chrome.browserAction.setBadgeText({"text": ""})
-        }
-        var now = new Date();
-        TASKS[task_id].activationTime.push(now.toString());
-        TASKS[task_id].isActive = true;
-        updateStorage("TASKS",TASKS);
-
-    }
-    catch (err) {
-        console.log(err.message);
-    }
-}
 
 function activateTaskInWindow(task_id){
     try {
@@ -126,17 +87,9 @@ function activateTaskInWindow(task_id){
             }
 
         }
-        createBookmarks(TASKS[task_id].bookmarks);
+        // createBookmarks(TASKS[task_id].bookmarks);
         chrome.browserAction.setBadgeText({"text": TASKS[task_id].name.slice(0, 4)});
 
-
-        //
-        // if(TASKS[CTASKID].id != 0){
-        //     chrome.browserAction.setBadgeText({"text": TASKS[CTASKID].name.slice(0, 4)})
-        // }
-        // else{
-        //     chrome.browserAction.setBadgeText({"text": ""})
-        // }
         var now = new Date();
         TASKS[task_id].activationTime.push(now.toString());
         TASKS[task_id].isActive = true;
@@ -177,26 +130,12 @@ function saveTaskInWindow(task_id){
     }
 }
 
-function deactivateTask(currentTaskId) {
-    if (TASKS[currentTaskId]) {
-        saveTask(currentTaskId);
-        closeAllTabs(false, chrome.windows.WINDOW_ID_CURRENT)
-        removeBookmarks();
-        var now = new Date();
-        TASKS[currentTaskId].deactivationTime.push(now.toString());
-        TASKS[currentTaskId].isActive = false;
-        updateStorage("TASKS",TASKS);
-    }
-    else if (currentTaskId == 0) {
-        closeAllTabs(false, chrome.windows.WINDOW_ID_CURRENT)
-    }
-}
 
 function deactivateTaskInWindow(task_id){
     if(taskToWindow.hasOwnProperty(task_id)){
-        saveTaskInWindow(task_id);
+        // saveTaskInWindow(task_id);
         // closeAllTabs(false, taskToWindow[task_id]);
-        removeBookmarks();
+        // removeBookmarks();
         var now = new Date();
         TASKS[task_id].deactivationTime.push(now.toString());
         TASKS[task_id].isActive = false;
@@ -207,15 +146,15 @@ function deactivateTaskInWindow(task_id){
     }
 }
 
-function closeTask(task_id){
-    saveTaskInWindow(task_id);
-    delete taskToWindow[task_id];
-}
-
 function deleteTask(task_id) {
     if (TASKS[task_id]) {
-        delete TASKS[task_id];
-        updateStorage("TASKS",TASKS);
+        if(CTASKID == task_id){
+            alert("This is the current task. Please switch before deleting.");
+        }
+        else{
+            delete TASKS[task_id];
+            updateStorage("TASKS",TASKS);
+        }
     }
 }
 

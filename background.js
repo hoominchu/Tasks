@@ -20,6 +20,7 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
             chrome.bookmarks.getTree(function (bookmarks) {
                 createTask(request.taskName, request.tabs, request.createFromCurrentTabs, bookmarks);
                 if (request.activated) {
+                    saveTaskInWindow(CTASKID);
                     deactivateTaskInWindow(CTASKID)
                     activateTaskInWindow(TASKS["lastAssignedId"]);
                 }
@@ -28,6 +29,7 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
         else {
             createTask(request.taskName, request.tabs, request.createFromCurrentTabs, {});
             if (request.activated) {
+                saveTaskInWindow(CTASKID);
                 deactivateTaskInWindow(CTASKID);
                 activateTaskInWindow(TASKS["lastAssignedId"]);
             }
@@ -37,6 +39,7 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
     }
 
     if (request.type == "switch-task" && request.nextTaskId != "") {
+        saveTaskInWindow(CTASKID);
         deactivateTaskInWindow(CTASKID);
         activateTaskInWindow(request.nextTaskId);
     }
@@ -144,7 +147,8 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
     chrome.windows.get(newWindowId, function(window){
         if(window.type == "normal"){
             if(getKeyByValue(taskToWindow, newWindowId)){
-                deactivateTaskInWindow(CTASKID)
+                saveTaskInWindow(CTASKID);
+                deactivateTaskInWindow(CTASKID);
                 activateTaskInWindow(getKeyByValue(taskToWindow, newWindowId));
             }
         }
