@@ -133,7 +133,7 @@ function saveTaskInWindow(task_id){
 
 function deactivateTaskInWindow(task_id){
     if(taskToWindow.hasOwnProperty(task_id)){
-        saveTaskInWindow(task_id);
+        // saveTaskInWindow(task_id);
         // closeAllTabs(false, taskToWindow[task_id]);
         // removeBookmarks();
         var now = new Date();
@@ -148,8 +148,13 @@ function deactivateTaskInWindow(task_id){
 
 function deleteTask(task_id) {
     if (TASKS[task_id]) {
-        delete TASKS[task_id];
-        updateStorage("TASKS",TASKS);
+        if(CTASKID == task_id){
+            alert("This is the current task. Please switch before deleting.");
+        }
+        else{
+            delete TASKS[task_id];
+            updateStorage("TASKS",TASKS);
+        }
     }
 }
 
