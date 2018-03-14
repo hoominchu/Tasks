@@ -60,16 +60,19 @@ function createTask(taskName, tabs, createFromCurrentTabs, bookmarks) {
 }
 
 
+
 function activateTaskInWindow(task_id){
     try {
-        var urls = [];
 
+        //If the task is already open in some window, focus the window
         if(taskToWindow.hasOwnProperty(task_id)){
             chrome.windows.update(taskToWindow[task_id], {"focused": true});
         }
+        //If not, then open all the urls from the task in a new window
         else{
-
+            //If task has any urls, then open them in a new window and assign the new window to the task.
             if (TASKS[task_id].tabs.length > 0) {
+                var urls = [];
                 for (var i = 0; i < TASKS[task_id].tabs.length; i++) {
                     urls.push(TASKS[task_id].tabs[i].url);
                 }
@@ -78,7 +81,7 @@ function activateTaskInWindow(task_id){
                     taskToWindow[taskId] = window.id;
                 });
             }
-
+            //If not, then just open a new page.
             else {
                 chrome.windows.create({"url": "about:blank"}, function (window) {
                     var taskId = task_id;
@@ -88,11 +91,16 @@ function activateTaskInWindow(task_id){
 
         }
         // createBookmarks(TASKS[task_id].bookmarks);
+
+        //Set the badge text as new task name.
         chrome.browserAction.setBadgeText({"text": TASKS[task_id].name.slice(0, 4)});
 
+        //Mark task as active.
         var now = new Date();
         TASKS[task_id].activationTime.push(now.toString());
         TASKS[task_id].isActive = true;
+
+        //Set the CTASKID as the id of the task and update Storage.
         CTASKID = task_id;
         updateStorage("TASKS",TASKS);
         chrome.storage.local.set({"CTASKID": task_id});
@@ -104,19 +112,7 @@ function activateTaskInWindow(task_id){
 
 }
 
-function saveTask(task_id) {
-    if (TASKS[task_id]) {
-        chrome.tabs.query({}, function (allTabs) {
-            TASKS[task_id].tabs = allTabs;
-            updateStorage("TASKS",TASKS);
-        });
-        chrome.bookmarks.getTree(function (bookmarks) {
-            TASKS[task_id].bookmarks = bookmarks;
-            updateStorage("TASKS",TASKS);
-        });
-    }
-}
-
+//Run this when you want to save a task
 function saveTaskInWindow(task_id){
     if(TASKS[task_id]){
         chrome.tabs.query({"windowId": taskToWindow[task_id]}, function(tabs){
@@ -131,6 +127,7 @@ function saveTaskInWindow(task_id){
 }
 
 
+//Run this when a task is closed
 function deactivateTaskInWindow(task_id){
     if(taskToWindow.hasOwnProperty(task_id)){
         // saveTaskInWindow(task_id);
@@ -141,9 +138,8 @@ function deactivateTaskInWindow(task_id){
         TASKS[task_id].isActive = false;
         updateStorage("TASKS",TASKS);
     }
-    else if (task_id == 0){
-        closeAllTabs(false, taskToWindow[task_id]);
-    }
+    //Set the badge text to nothing
+    chrome.browserAction.setBadgeText({"text": ""});
 }
 
 function deleteTask(task_id) {

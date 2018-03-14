@@ -26,7 +26,9 @@ var taskToWindow = {};
 var tabIdToURL={};
 var activeTabId = 0;
 
-var backgroundPageId = -1
+//
+var backgroundPageId = -1;
+var defaultTaskId = 0;
 
 
 console.log(CTASKID);
