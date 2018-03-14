@@ -30,18 +30,19 @@ function returnPage(page, url){
 }
 
 function updateExitTime(url, time){
-  if(TASKS[CTASKID].history.find((page) => page.url === url)){
-    TASKS[CTASKID].history.find((page) => page.url === url).exitTimes.push(time);
-    var page = TASKS[CTASKID].history.find((page) => page.url === url);
-    var duration = returnDuration(page.timeVisited[page.timeVisited.length-1], time);
-    TASKS[CTASKID].history.find((page) => page.url === url).timeSpent.push(duration);
-    TASKS[CTASKID].history.find((page) => page.url === url).totalTimeSpent = getTotalTimeSpent(TASKS[CTASKID].history.find((page) => page.url === url));
+    var pageIndex = indexOfElementWithProperty(TASKS[CTASKID].history, "url", url);
+    if(pageIndex != -1){
+        var page = TASKS[CTASKID].history[pageIndex];
+        page.exitTimes.push(time);
+        var duration = returnDuration(page.timeVisited[page.timeVisited.length-1], time);
+        page.timeSpent.push(duration);
+        page.totalTimeSpent = getTotalTimeSpent(page);
   }
 }
 
 function likePage(url, method){
-  var page = TASKS[CTASKID].history.find((page) => page.url === url );
-  TASKS[CTASKID].history.find((page) => page.url === url ).isLiked = !(page.isLiked);
+  var page = indexOfElementWithProperty(TASKS[CTASKID].history, "url", url);
+  page.isLiked = !(page.isLiked);
   if(method == "shortcut"){
     chrome.tabs.sendMessage(activeTabId, {
       "type":"page-liked-with-shortcut"

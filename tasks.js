@@ -9,6 +9,7 @@ function Task(task_id, task_name, tabs, bookmarks, isActive) {
     this.deactivationTime = [];
     this.likedPages = [];
     this.pages = {};
+    this.archived = false;
 }
 
 function createDefaultTask(){
@@ -172,6 +173,17 @@ function downloadTasks() {
 
 function addToTask(url, task_id) {
     TASKS[task_id].tabs.push({"url": url});
+}
+
+function archiveTask(task_id){
+    if(task_id != CTASKID){
+        TASKS[task_id].archived = !TASKS[task_id].archived;
+        updateStorage("TASKS", TASKS);
+    }
+    else{
+        alert("Can't archive an open task. Please switch before archiving.")
+    }
+
 }
 
 function openLikedPages(task_id){

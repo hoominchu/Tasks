@@ -19,6 +19,19 @@ window.onload = function () {
                 }(element);
             });
 
+
+            funcOnClick("archiveTask", "class", function (element) {
+                return function (element) {
+                    chrome.runtime.sendMessage(
+                        {
+                            "type": "archive-task",
+                            "taskId": $(element.srcElement).closest(".card").attr("id")
+                        }
+                    );
+                    location.reload();
+                }(element);
+            });
+
             funcOnClick("deleteTask", "class", function (element) {
                 var Tasks = taskObject["TASKS"];
                 if(Tasks[$(element.srcElement).closest(".card").attr("id")].isActive){
@@ -69,7 +82,6 @@ window.onload = function () {
 document.getElementById("createTask").addEventListener("click", function(){
     sendCreateTaskMessage();
 });
-
 
 function sendCreateTaskMessage() {
     chrome.tabs.query({}, function (tabs) {
