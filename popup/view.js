@@ -1,6 +1,6 @@
 function showTasks(Tasks) {
     for (var task_id in Tasks) {
-        if (task_id != "lastAssignedId" && Tasks[task_id].id!= 0) {
+        if (task_id != "lastAssignedId" && Tasks[task_id].id!= 0 && !Tasks[task_id].archived) {
             var li = document.createElement("li");
             var taskName = document.createElement("button");
             taskName.innerText = Tasks[task_id].name;

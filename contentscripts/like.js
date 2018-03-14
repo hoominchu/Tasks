@@ -17,7 +17,7 @@ function loadDock(){
 }
 
   function loadLikeButton(){
-    var likeButton = $('<div class="float" style="font-size:35px;"><i class="fa fa-thumbs-up likeButton"></i></div>');
+    var likeButton = $('<div class="float" style="font-size:23px;"><span class="likeButton" style="margin-top:25px">Like</span></div>');
     $('body').append(likeButton);
       $(".likeButton").click(function(){
           $(this).toggleClass("clicked");

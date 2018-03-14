@@ -30,6 +30,10 @@ var activeTabId = 0;
 var backgroundPageId = -1;
 var defaultTaskId = 0;
 
+//Suggestion log dictionary
+chrome.storage.local.set({"Suggestion Log": {}});
+chrome.storage.local.set({"Text Log": {}});
+
 
 console.log(CTASKID);
 

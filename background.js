@@ -60,8 +60,12 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
       likePage(request.url, CTASKID);
     }
 
-    if(request.type == "idle-time"){
-      addIdleTime(request.url, request["idle-time"]);
+    // if(request.type == "idle-time"){
+    //   addIdleTime(request.url, request["idle-time"]);
+    // }
+
+    if(request.type =="archive-task"){
+        archiveTask(request.taskId);
     }
 
     if(request.type =="pause-tasks"){
@@ -145,11 +149,6 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
   else {
         saveTaskInWindow(CTASKID);
     }
-
-    console.log("Tab Removed" + TASKS);
-    console.log(TASKS);
-
-
 });
 
 chrome.windows.onFocusChanged.addListener(function (newWindowId){
@@ -169,9 +168,6 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
       CTASKID = 0;
       chrome.storage.local.set({"CTASKID": 0});
   }
-
-    console.log("Focus Changed");
-    console.log(TASKS);
 
 });
 
