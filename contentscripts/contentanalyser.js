@@ -58,6 +58,8 @@ function newTaskDetector(tasks, textLog) {
     var JaccardCounts = {};
     var JaccardSimilarityScores = {};
 
+    var allITIntersection = [];
+
     for (var i = 0; i < tagsToLog.length; i++) {
         var logTag = tagsToLog[i];
         var elems = document.getElementsByTagName(logTag);
@@ -109,6 +111,7 @@ function newTaskDetector(tasks, textLog) {
                                 if (ITsOfURL[innerText]) {
                                     if (ITsIntersection.indexOf(innerText) < 0) {
                                         ITsIntersection.push(innerText);
+                                        allITIntersection.push(innerText);
                                     }
                                     taskScore[taskID][logTag]++;
                                 }
@@ -132,7 +135,11 @@ function newTaskDetector(tasks, textLog) {
         JaccardSimilarityScores[id] = JaccardCounts[id]["Intersection"]/JaccardCounts[id]["Union"];
     }
 
+    console.log("Jaccard Scores");
     console.log(JaccardSimilarityScores);
+
+    console.log("All common tags");
+    console.log(allITIntersection);
 
     chrome.storage.local.get("CTASKID", function (ctaskid) {
         ctaskid = ctaskid["CTASKID"];
