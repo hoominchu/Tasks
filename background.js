@@ -175,24 +175,59 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
 
 });
 
+// Creates notification for suggested task.
 chrome.runtime.onMessage.addListener(function (response, sender) {
     if (response.type == "task suggestion") {
-        chrome.notifications.create({"type":"basic","iconUrl":"images/logo_white_sails_no_text.png","title":"Task Suggestion : " + response["probable task"],"message":"Looks like this page belongs to task " + response["probable task"],"buttons":[{"title":"Add to " + response["probable task"]}]});
+        var probableTaskID = response["probable task id"];
+        chrome.notifications.create({"type" : "basic",
+            "iconUrl" : "images/logo_white_sails_no_text.png",
+            "title" : "Task Suggestion : " + response["probable task"],
+            "message" : "Looks like this page belongs to task " + response["probable task"],
+            "buttons" : [{"title":"Add to task " + response["probable task"] + " and go to that task"},{"title":"Add to task " + response["probable task"] + " and stay on the current task"}],
+            "isClickable" : true,
+            "requireInteraction" : true}, function (notificationID) {
+            // Respond to the user's clicking one of the buttons
+            chrome.notifications.onButtonClicked.addListener(function(notifId, btnIdx) {
+                if (notifId === notificationID) {
+
+                    // This button adds the current webpage to the suggested task and takes the user to the suggested task.
+                    if (btnIdx === 0) {
+                        // Logging that the suggestion is correct.
+                        chrome.storage.local.get("Correct suggestions", function (resp) {
+                            resp = resp["Correct suggestions"];
+                            resp++;
+                            updateStorage("Correct suggestions",resp);
+                        });
+
+                        // Call function to add to task and move to task.
+
+                    }
+
+                    // This button adds the current webpage to the suggested task and stays in the current task.
+                    else if (btnIdx === 1){
+                        // Logging that the suggestion is correct.
+                        chrome.storage.local.get("Correct suggestions", function (resp) {
+                            resp = resp["Correct suggestions"];
+                            resp++;
+                            updateStorage("Correct suggestions",resp);
+                        });
+
+                        // Call function to add to task but not move to task.
+                    }
+                }
+            });
+
+            // When the user clicks on close the current page is added to the current task.
+            chrome.notifications.onClosed.addListener(function() {
+                // Logging that the suggestion is incorrect.
+                chrome.storage.local.get("Incorrect suggestions", function (resp) {
+                    resp = resp["Incorrect suggestions"];
+                    resp++;
+                    updateStorage("Incorrect suggestions", resp);
+                });
+            });
+        });
     }
 });
 
-// chrome.extension.onRequest.addListener(
-//     function(request, sender, sendResponse) {
-//
-//         // Create a simple text notification:
-//         var notify = webkitNotifications.createNotification(
-//             '48.png',  // icon url - can be relative
-//             'Hello!',  // notification title
-//             request.msg  // notification body text
-//         );
-//
-//         notify.show();
-//
-//         setTimeout(function(){ notify.cancel(); },5000);
-//         sendResponse({returnMsg: "All good!"}); // optional response
-// });
+

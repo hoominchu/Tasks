@@ -107,7 +107,9 @@ function newTaskDetector(tasks, textLog) {
                                     ITsUnion.push(innerText);
                                 }
                                 if (ITsOfURL[innerText]) {
-                                    ITsIntersection.push(innerText);
+                                    if (ITsIntersection.indexOf(innerText) < 0) {
+                                        ITsIntersection.push(innerText);
+                                    }
                                     taskScore[taskID][logTag]++;
                                 }
                             }
@@ -190,7 +192,7 @@ function loadSuggestion(tab, probableTasks, tasks) {
 
     var mostProbableTask = tasks[probableTasks[0][0]]["name"];
 
-    chrome.runtime.sendMessage({"type": "task suggestion", "probable task": mostProbableTask});
+    chrome.runtime.sendMessage({"type": "task suggestion", "probable task": mostProbableTask, "probable task id":probableTasks[0][0]});
 
 }
 
