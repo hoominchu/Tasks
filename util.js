@@ -14,5 +14,6 @@ function getKeyByValue(object, value) {
 }
 
 function indexOfElementWithProperty(arr, propName, propValue){
-    return arr.indexOf(arr.find((element) => element.propName === propValue));
+    return arr.indexOf(arr.find((element) => element[propName] === propValue));
 }
+

@@ -41,7 +41,7 @@ function updateExitTime(url, time){
 }
 
 function likePage(url, method){
-  var page = indexOfElementWithProperty(TASKS[CTASKID].history, "url", url);
+  var page = TASKS[CTASKID].history[indexOfElementWithProperty(TASKS[CTASKID].history, "url", url)];
   page.isLiked = !(page.isLiked);
   if(method == "shortcut"){
     chrome.tabs.sendMessage(activeTabId, {
