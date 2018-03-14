@@ -26,8 +26,8 @@ function logContent(url, logDict) {
         for (var i = 0; i < elems.length; i++) {
             var currentElem = elems[i];
             var elemText = currentElem.innerText;
-            elemText = elemText.replace(/\r?\n|\r/g, "");
-            if (elemText.length < 20 && elemText.length > 3 && /.*[a-zA-Z].*/g.test(elemText)) {
+            elemText = cleanTag(elemText);
+            if (isValidTag(elemText)) {
                 elemText = elemText.toLowerCase();
                 if (texts[elemText]) {
                     // console.log(texts[elemText]);
@@ -65,8 +65,8 @@ function newTaskDetector(tasks, textLog) {
 
         for (var count = 0; count < elems.length; count++) {
             var it = elems[count].innerText;
-            it = it.replace(/\r?\n|\r/g, "");
-            if (it.length < 20 && it.length > 3 && /.*[a-zA-Z].*/g.test(it)) {
+            it = cleanTag(it);
+            if (isValidTag(it)) {
                 ITsOfCurrentPage.push(it.toLowerCase());
             }
         }
@@ -142,6 +142,7 @@ function newTaskDetector(tasks, textLog) {
 
 }
 
+// Takes Jaccard Scores of page and tasks and calls load suggestion function with the most probable task.
 function suggestJaccardTask(JaccardScores, currentTaskID, tasks) {
     var JaccardScores = Object.keys(JaccardScores).map(function (key) {
         return [key, JaccardScores[key]];
@@ -158,6 +159,7 @@ function suggestJaccardTask(JaccardScores, currentTaskID, tasks) {
     }
 }
 
+// Takes simple HTMLtag-wise scores of page and tasks and calls load suggestion function with the most probable task.
 function suggestProbableTask(tagsList, taskScores, currentTaskID, tasks) {
     // console.log(currentTaskID);
     var taskFinalScore = {};
@@ -188,14 +190,42 @@ function suggestProbableTask(tagsList, taskScores, currentTaskID, tasks) {
     }
 }
 
+// Shows chrome notification.
 function loadSuggestion(tab, probableTasks, tasks) {
 
     var mostProbableTask = tasks[probableTasks[0][0]]["name"];
-
     chrome.runtime.sendMessage({"type": "task suggestion", "probable task": mostProbableTask, "probable task id":probableTasks[0][0]});
 
 }
 
+// Takes an uncleaned tag and cleans it. Add any required condition in this condition.
+function cleanTag(str) {
+
+    if(str == null) {
+        return str;
+    }
+
+    str.replace(/\r?\n|\r/g, "");
+
+    // Replaces spaces at the beginning
+    str = str.replace(/^\s+/g, '');
+    // Replaces spaces at the end
+    str = str.replace(/\s+$/g, '');
+
+    // Replaces " at the beginning
+    str = str.replace(/^"+/g, '');
+    // Replaces " at the end
+    str = str.replace(/"+$/g, '');
+
+    return str;
+}
+
+// Checks if a tag should be indexed. Add more conditions here if required.
+function isValidTag(tag) {
+    return tag.length < 20 && tag.length > 3 && /.*[a-zA-Z].*/g.test(tag);
+}
+
+// Updates chrome.storage.local with key and object.
 function updateStorage(key, obj) {
     var tempObj = {};
     tempObj[key] = obj;

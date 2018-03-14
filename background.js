@@ -189,10 +189,11 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
                     // This button adds the current webpage to the suggested task and takes the user to the suggested task.
                     if (btnIdx === 0) {
                         // Logging that the suggestion is correct.
-                        chrome.storage.local.get("Correct suggestions", function (resp) {
-                            resp = resp["Correct suggestions"];
+                        chrome.storage.local.get("Suggestions Log", function (resp) {
+                            resp = resp["Suggestions Log"]["Correct suggestions"];
                             resp++;
-                            updateStorage("Correct suggestions",resp);
+                            var obj = {"Correct suggestions" : resp};
+                            updateStorage("Suggestions Log", obj);
                         });
 
                         // Call function to add to task and move to task.
@@ -202,10 +203,11 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
                     // This button adds the current webpage to the suggested task and stays in the current task.
                     else if (btnIdx === 1){
                         // Logging that the suggestion is correct.
-                        chrome.storage.local.get("Correct suggestions", function (resp) {
-                            resp = resp["Correct suggestions"];
+                        chrome.storage.local.get("Suggestions Log", function (resp) {
+                            resp = resp["Suggestions Log"]["Correct suggestions"];
                             resp++;
-                            updateStorage("Correct suggestions",resp);
+                            var obj = {"Correct suggestions" : resp};
+                            updateStorage("Suggestions Log", obj);
                         });
 
                         // Call function to add to task but not move to task.
@@ -216,10 +218,11 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
             // When the user clicks on close the current page is added to the current task.
             chrome.notifications.onClosed.addListener(function() {
                 // Logging that the suggestion is incorrect.
-                chrome.storage.local.get("Incorrect suggestions", function (resp) {
-                    resp = resp["Incorrect suggestions"];
+                chrome.storage.local.get("Suggestions Log", function (resp) {
+                    resp = resp["Suggestions Log"]["Incorrect suggestions"];
                     resp++;
-                    updateStorage("Incorrect suggestions", resp);
+                    var obj = {"Incorrect suggestions" : resp};
+                    updateStorage("Suggestions Log", obj);
                 });
             });
         });
