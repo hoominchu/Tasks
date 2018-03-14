@@ -181,7 +181,7 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
             "message" : "Looks like this page belongs to task " + response["probable task"],
             "buttons" : [{"title":"Add to task " + response["probable task"] + " and go to that task"},{"title":"Add to task " + response["probable task"] + " and stay on the current task"}],
             "isClickable" : true,
-            "requireInteraction" : true}, function (notificationID) {
+            "requireInteraction" : false}, function (notificationID) {
             // Respond to the user's clicking one of the buttons
             chrome.notifications.onButtonClicked.addListener(function(notifId, btnIdx) {
                 if (notifId === notificationID) {
