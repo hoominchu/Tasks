@@ -90,9 +90,13 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 });
 
 chrome.windows.onRemoved.addListener(function(windowId){
-    deactivateTaskInWindow(getKeyByValue(taskToWindow, windowId));
-    delete taskToWindow[getKeyByValue(taskToWindow, windowId)];
-    getIdsOfCurrentlyOpenTabs(windowId, function(ids){console.log(ids)});
+    if(windowId != backgroundPageId){
+        //deactivateTaskInWindow(getKeyByValue(taskToWindow, windowId));
+        console.log("Window Removed" + TASKS);
+        console.log(TASKS);
+        delete taskToWindow[getKeyByValue(taskToWindow, windowId)];
+        // getIdsOfCurrentlyOpenTabs(windowId, function(ids){console.log(ids)});
+    }
 });
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
@@ -110,50 +114,65 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 });
 
-chrome.tabs.onActivated.addListener(function(activeInfo){
-
-  //Set the exit time for previous url
-  if(tabIdToURL!= {} && activeTabId != 0){
-    var date = new Date();
-    updateExitTime(tabIdToURL[activeTabId], date.toString());
-  }
-
-  activeTabId = activeInfo.tabId;
-
-  chrome.tabs.get(activeTabId, function(tab){
-    if(tab.url){
-      if(TASKS[CTASKID].history.find((page) => page.url === tab.url)){
-        var date = new Date();
-        TASKS[CTASKID].history.find((page) => page.url === tab.url).timeVisited.push(date.toString());
-      }
-    }
-  })
-});
+// chrome.tabs.onActivated.addListener(function(activeInfo){
+//
+//   // //Set the exit time for previous url
+//   // if(tabIdToURL!= {} && activeTabId != 0){
+//   //   var date = new Date();
+//   //   updateExitTime(tabIdToURL[activeTabId], date.toString());
+//   // }
+//
+//   activeTabId = activeInfo.tabId;
+//
+//   // chrome.tabs.get(activeTabId, function(tab){
+//   //   if(tab.url){
+//   //     if(TASKS[CTASKID].history.find((page) => page.url === tab.url)){
+//   //       var date = new Date();
+//   //       TASKS[CTASKID].history.find((page) => page.url === tab.url).timeVisited.push(date.toString());
+//   //     }
+//   //   }
+//   // })
+// });
 
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
   if(removeInfo.isWindowClosing){
-    var date = new Date();
-    if(tabIdToURL!= {}){
-      updateExitTime(tabIdToURL[tabId], date.toString());
-    }
+    //
+    // var date = new Date();
+    // if(tabIdToURL!= {}){
+    //   updateExitTime(tabIdToURL[tabId], date.toString());
+    // }
   }
-    if (!removeInfo.isWindowClosing) {
+  else {
         saveTaskInWindow(CTASKID);
     }
-  });
+
+    console.log("Tab Removed" + TASKS);
+    console.log(TASKS);
+
+
+});
 
 chrome.windows.onFocusChanged.addListener(function (newWindowId){
-  if(newWindowId>backgroundPageId){
+  if(newWindowId != chrome.windows.WINDOW_ID_NONE){
     chrome.windows.get(newWindowId, function(window){
         if(window.type == "normal"){
             if(getKeyByValue(taskToWindow, newWindowId)){
-                saveTaskInWindow(CTASKID);
+                //saveTaskInWindow(CTASKID);
                 deactivateTaskInWindow(CTASKID);
                 activateTaskInWindow(getKeyByValue(taskToWindow, newWindowId));
             }
         }
     });
   }
+  else{
+      deactivateTaskInWindow(getKeyByValue(taskToWindow, newWindowId));
+      CTASKID = 0;
+      chrome.storage.local.set({"CTASKID": 0});
+  }
+
+    console.log("Focus Changed");
+    console.log(TASKS);
+
 });
 
 // Creates notification for suggested task.
