@@ -190,10 +190,8 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
                     if (btnIdx === 0) {
                         // Logging that the suggestion is correct.
                         chrome.storage.local.get("Suggestions Log", function (resp) {
-                            resp = resp["Suggestions Log"]["Correct suggestions"];
-                            resp++;
-                            var obj = {"Correct suggestions" : resp};
-                            updateStorage("Suggestions Log", obj);
+                            resp["Suggestions Log"]["Correct suggestions"]++;
+                            updateStorage("Suggestions Log", resp);
                         });
 
                         // Call function to add to task and move to task.
@@ -204,10 +202,8 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
                     else if (btnIdx === 1){
                         // Logging that the suggestion is correct.
                         chrome.storage.local.get("Suggestions Log", function (resp) {
-                            resp = resp["Suggestions Log"]["Correct suggestions"];
-                            resp++;
-                            var obj = {"Correct suggestions" : resp};
-                            updateStorage("Suggestions Log", obj);
+                            resp["Suggestions Log"]["Correct suggestions"]++;
+                            updateStorage("Suggestions Log", resp);
                         });
 
                         // Call function to add to task but not move to task.
@@ -219,10 +215,8 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
             chrome.notifications.onClosed.addListener(function() {
                 // Logging that the suggestion is incorrect.
                 chrome.storage.local.get("Suggestions Log", function (resp) {
-                    resp = resp["Suggestions Log"]["Incorrect suggestions"];
-                    resp++;
-                    var obj = {"Incorrect suggestions" : resp};
-                    updateStorage("Suggestions Log", obj);
+                    resp["Suggestions Log"]["Incorrect suggestions"]++;
+                    updateStorage("Suggestions Log", resp);
                 });
             });
         });
