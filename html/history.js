@@ -34,7 +34,7 @@ function createRow(page) {
         tableRow.append('<td></td>')
     }
 
-    var td = $('<td></td>');
+    // var td = $('<td></td>');
 
     // if(page.totalTimeSpent.seconds>0){
     //   td.text(page.totalTimeSpent.seconds + " seconds")
@@ -45,10 +45,10 @@ function createRow(page) {
     // if(page.totalTimeSpent.hours>0){
     //   td.text(page.totalTimeSpent.hours + " hours");
     // }
-    if (!Number.isNaN(page.totalTimeSpent))
-        td.text(Math.floor(page.totalTimeSpent / 60000) + " minutes")
+    // if (!Number.isNaN(page.totalTimeSpent))
+        // td.text(Math.floor(page.totalTimeSpent / 60000) + " minutes")
 
-    tableRow.append(td)
+    // tableRow.append(td)
     tableRow.append('<td>' + page.timeVisited[page.timeVisited.length - 1].slice(0, 25) + '</td>')
 
     $("#historyTable").append(tableRow)

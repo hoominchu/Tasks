@@ -5,7 +5,6 @@ window.onload = function () {
         if (taskObject["TASKS"]) {
 
 
-
             showTasks(taskObject["TASKS"]);
 
             funcOnClick("openTask", "class", function (element) {
@@ -81,18 +80,24 @@ window.onload = function () {
 };
 
 document.getElementById("createTask").addEventListener("click", function(){
-    var closeCurrentTask = confirm("Switch to the new task?")
-    sendCreateTaskMessage(closeCurrentTask);
+    var tabs = [];
+    chrome.windows.getCurrent({"populate": true}, function (window) {
+        for (var i = 0; i < window.tabs.length; i++) {
+            if (window.tabs[i].highlighted) {
+                tabs.push(window.tabs[i]);
+            }
+        }
+        var closeCurrentTask = confirm("Switch to the new task?")
+        sendCreateTaskMessage(closeCurrentTask, tabs);
+    });
 });
 
-function sendCreateTaskMessage(closeCurrentTask) {
-    chrome.tabs.query({}, function (tabs) {
+function sendCreateTaskMessage(closeCurrentTask, tabs) {
         if(closeCurrentTask){
             chrome.runtime.sendMessage(
                 {
                     "type": "create-task",
                     "taskName": document.getElementById("taskName").value,
-                    "createFromCurrentTabs": document.getElementById("createFromCurrentTabs").checked,
                     "tabs": tabs,
                     "activated": true
                 }
@@ -103,13 +108,11 @@ function sendCreateTaskMessage(closeCurrentTask) {
                 {
                     "type": "create-task",
                     "taskName": document.getElementById("taskName").value,
-                    "createFromCurrentTabs": document.getElementById("createFromCurrentTabs").checked,
                     "tabs": tabs,
                     "activated": false
                 }
             );
         }
-    });
 }
 
 function funcOnClick(classNameOrIdName, type, func) {
