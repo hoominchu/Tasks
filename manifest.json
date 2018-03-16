@@ -19,13 +19,28 @@
       "domain.js",
       "author.js",
       "search.js",
-      "background.js"]
+      "background.js"
+    ]
   },
   "content_scripts": [
     {
-      "matches": ["https://*/*", "http://*/*"],
-      "css": ["css/custom.css", "contentscripts/contentscript.css"],
-      "js": ["js/jquery/jquery-3.2.1.min.js", "contentscripts/like.js", "contentscripts/time.js", "contentscripts/contentscript.js","contentscripts/contentanalyser.js"],
+      "matches": [
+        "https://*/*",
+        "http://*/*"
+      ],
+      "css": [
+        "css/custom.css",
+        "contentscripts/contentscript.css"
+      ],
+      "js": [
+        "js/jquery/jquery-3.2.1.min.js",
+        "contentscripts/like.js",
+        "contentscripts/time.js",
+        "contentscripts/contentscript.js",
+        "contentscripts/contentanalyser.js",
+        "js/lodash.js",
+        "web-util.js"
+      ],
       "run_at": "document_end"
     }
   ],
