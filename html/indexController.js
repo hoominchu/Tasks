@@ -10,13 +10,14 @@ window.onload = function () {
 
             funcOnClick("openTask", "class", function (element) {
                 return function (element) {
-                    chrome.runtime.sendMessage(
-                        {
-                            "type": "switch-task",
-                            "nextTaskId": $(element.srcElement).closest(".card").attr("id")
-                        }
-                    );
-                }(element);
+                        chrome.runtime.sendMessage(
+                            {
+                                "type": "switch-task",
+                                "nextTaskId": $(element.srcElement).closest(".card").attr("id"),
+                            }
+                        )(element);
+                }
+
             });
 
 
@@ -80,11 +81,13 @@ window.onload = function () {
 };
 
 document.getElementById("createTask").addEventListener("click", function(){
-    sendCreateTaskMessage();
+    var closeCurrentTask = confirm("Switch to the new task?")
+    sendCreateTaskMessage(closeCurrentTask);
 });
 
-function sendCreateTaskMessage() {
+function sendCreateTaskMessage(closeCurrentTask) {
     chrome.tabs.query({}, function (tabs) {
+        if(closeCurrentTask){
             chrome.runtime.sendMessage(
                 {
                     "type": "create-task",
@@ -94,6 +97,18 @@ function sendCreateTaskMessage() {
                     "activated": true
                 }
             );
+        }
+        else{
+            chrome.runtime.sendMessage(
+                {
+                    "type": "create-task",
+                    "taskName": document.getElementById("taskName").value,
+                    "createFromCurrentTabs": document.getElementById("createFromCurrentTabs").checked,
+                    "tabs": tabs,
+                    "activated": false
+                }
+            );
+        }
     });
 }
 

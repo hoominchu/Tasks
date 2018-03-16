@@ -300,17 +300,6 @@ window.onload = function () {
                 }(deleteButton);
             });
         }
-
-
-        document.getElementById("createTask").addEventListener("click", function () {
-            sendCreateTaskMessage();
-        });
-
-        $('#taskName').keypress(function (event) {
-            if (event.which == '13' && !event.shiftKey) {
-                sendCreateTaskMessage();
-            }
-        });
     });
 
     document.getElementById("contacts").addEventListener("click", function () {
@@ -360,19 +349,6 @@ window.onload = function () {
     });
 };
 
-function sendCreateTaskMessage() {
-    chrome.tabs.query({}, function (tabs) {
-            chrome.runtime.sendMessage(
-                {
-                    "type": "create-task",
-                    "taskName": document.getElementById("taskName").value,
-                    "createFromCurrentTabs": document.getElementById("createFromCurrentTabs").checked,
-                    "tabs": tabs,
-                    "activated": true
-                }
-            );
-    });
-}
 
 $("#history").click(function () {
     chrome.tabs.create({"url": "html/history.html"});
@@ -386,9 +362,9 @@ $("#index").click(function () {
     chrome.tabs.create({"url": "html/index.html"});
 });
 
-$("#pauseTasks").click(function(){
-    chrome.runtime.sendMessage({
-        "type": "switch-task",
-        "nextTaskId": "0"
-    });
-});
+// $("#pauseTasks").click(function(){
+//     chrome.runtime.sendMessage({
+//         "type": "switch-task",
+//         "nextTaskId": "0"
+//     });
+// });
