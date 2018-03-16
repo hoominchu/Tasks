@@ -11,16 +11,12 @@ chrome.storage.local.get("TASKS", function (taskObject) {
     }
   });
 
-function loadDock(){
-    var dock = $('<div class="" style="width: 100%; height: 8em; background-color: #20454f"></div>');
-    $('body').appendChild(dock);
-}
-
   function loadLikeButton(){
-    var likeButton = $('<div class="float" style="font-size:23px;"><span class="likeButton" style="margin-top:25px">Like</span></div>');
+    var likeButton = $('<div class="float btn-sailboat round-corner" id="sailboat-like-btn">Like</div>');
     $('body').append(likeButton);
-      $(".likeButton").click(function(){
-          $(this).toggleClass("clicked");
+      $("#sailboat-like-btn").click(function(){
+          //$(this).toggleClass("btn-secondary");
+          $(this).toggleClass("btn-sailboat-primary");
           // return function(){
               chrome.runtime.sendMessage({
                   "type": "like-page",
@@ -45,11 +41,11 @@ function loadDock(){
                     }
                   }
                 if(pageLiked){
-                  $(".likeButton").addClass("clicked");
+                  $("#sailboat-like-btn").addClass("btn-sailboat-primary");
                 }
                 else{
-                  if($(".likeButton").hasClass("clicked")){
-                    $(".likeButton").removeClass("clicked");
+                  if($("#sailboat-like-btn").hasClass("btn-sailboat-secondary")){
+                    $("#sailboat-like-btn").removeClass("btn-sailboat-secondary");
                   }
                 }
               }

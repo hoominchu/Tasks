@@ -1,15 +1,15 @@
 .float{
 	position:fixed;
-	width:60px;
-	height:60px;
+	/*width:60px;*/
+	/*height:60px;*/
 	bottom:40px;
 	right:40px;
-	color:#FFF;
-	border-radius:50px;
-	border-color: black;
-	background-color: #eee;
-	border: 4px;
-	text-align:center;
+	/*color:#FFF;*/
+	/*border-radius:10px;*/
+	/*border-color: black;*/
+	/*background-color: #eee;*/
+	/*border: 4px;*/
+	/*text-align:center;*/
 	/* box-shadow: 3px 3px 3px #999; */
 	z-index: 10000;
 }

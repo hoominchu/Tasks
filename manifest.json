@@ -3,19 +3,6 @@
   "name": "Sail Boat",
   "description": "Browser as it should be.",
   "version": "0.1",
-  "content_scripts": [
-    {
-      "matches": [
-        "https://*/*"
-      ],
-      "css": [
-        "contentscripts/styles.css"
-      ],
-      "js": [
-        "js/jquery/jquery-3.2.1.min.js"
-      ]
-    }
-  ],
   "browser_action": {
     "default_icon": "images/SailBoat.png",
     "default_popup": "popup/browserAction.html",
@@ -37,7 +24,7 @@
   "content_scripts": [
     {
       "matches": ["https://*/*", "http://*/*"],
-      "css": ["css/font-awesome-4.7.0/css/font-awesome.min.css", "contentscripts/contentscript.css"],
+      "css": ["css/custom.css", "contentscripts/contentscript.css"],
       "js": ["js/jquery/jquery-3.2.1.min.js", "contentscripts/like.js", "contentscripts/time.js", "contentscripts/contentscript.js","contentscripts/contentanalyser.js"],
       "run_at": "document_end"
     }
