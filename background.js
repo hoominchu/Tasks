@@ -93,6 +93,15 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
     }
 });
 
+chrome.runtime.onMessage.addListener(function (request, sender) {
+    if(request.type == "likePages"){
+        likePages(request.urls, request.taskId);
+    }
+    if(request.type == "deletePages"){
+        deleteFromHistory(request.urls, request.taskId);
+    }
+});
+
 chrome.windows.onRemoved.addListener(function(windowId){
     if(windowId != backgroundPageId){
         //deactivateTaskInWindow(getKeyByValue(taskToWindow, windowId));

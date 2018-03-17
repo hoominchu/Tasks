@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="../css/bootstrap.css">
     <link rel="stylesheet" href="../css/index.css">
     <link rel="stylesheet" href="../css/custom.css">
+    <link rel="stylesheet" href="../css/history.css">
     <link rel="stylesheet" href="../css/font-awesome-4.7.0/css/font-awesome.min.css">
 </head>
 <body>
@@ -34,7 +35,7 @@
                 <a class="nav-link" href="stats.html">Statistics</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" href="profile.html">Profile</a>
+                <a class="nav-link" href="profile.html">Profile</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="about.html">About</a>
@@ -64,6 +65,7 @@
             <table class="table table-hover history-table" id="table" style="overflow:hidden;">
                 <thead style="text-align: center">
                 <tr>
+                    <th scope="col" style="width:1px;"><input type="checkbox" id="selectAll"></th>
                     <th scope="col" id="title" style="width: 64%">Title</th>
                     <th scope="col" id="liked" style="width: 6%">Liked</th>
                     <!--<th scope="col" id="time" style="width: 10%">Time Spent</th>-->
@@ -86,9 +88,15 @@
         </div>
     </div>
 </div>
+
+<ul class='custom-menu'>
+    <li data-action="likePages">Like</li>
+    <li data-action="deletePages">Delete from history</li>
+</ul>
+
 <script src="sortElements.js"></script>
 <script src="history.js"></script>
-<script src="indexController.js"></script>
+<!--<script src="indexController.js"></script>-->
 <script src="../js/list.min.js"></script>
 <script src="../js/tablefilter/tablefilter.js"></script>
 </body>
