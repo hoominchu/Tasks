@@ -2,7 +2,7 @@
 var preferredDomainsFieldName = "Preferred domains";
 var totalFrequencyFieldName = "Total frequency";
 var domainsMetadataFieldName = "metadata";
-preferredAuthorsFieldName = "Preferred authors"
+preferredAuthorsFieldName = "Preferred authors";
 
 // Setting fields of author object
 var domainFrequencyFieldName = "frequency";
@@ -40,6 +40,12 @@ console.log(CTASKID);
 chrome.storage.local.get("TASKS", function (taskObject) {
     if (taskObject["TASKS"]) {
         TASKS = taskObject["TASKS"];//On retreiving TASKS from chrome storage, one gets an object {TASKS: balhah}, to retreive the actual array call taskObject["TASKS"]
+    }
+});
+
+chrome.storage.local.get("Page Content", function(e){
+    if(isEmpty(e)){
+        chrome.storage.local.set({"Page Content": {}});
     }
 });
 

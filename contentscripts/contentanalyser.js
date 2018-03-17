@@ -1,17 +1,14 @@
 $(document).ready(function () {
-    chrome.storage.local.get("Text Log", function (textLogDict) {
-        var logDict = textLogDict["Text Log"];
+    chrome.storage.local.get("TASKS", function (tasksDict) {
+        var tasksObject = tasksDict["TASKS"];
+        chrome.storage.local.get("Text Log", function (textLogDict) {
+            var logDict = textLogDict["Text Log"];
 
-        chrome.storage.local.get("TASKS", function (tasksDict) {
-            var tasksObject = tasksDict["TASKS"];
             newTaskDetector(tasksObject, logDict);
-            logContent(window.location.href, logDict);
+            logTags(window.location.href, logDict);
+            storePageContent(window.location.href, document.documentElement.innerText);
         });
-
-        // newTaskDetector(logDict);
-
     });
-
 });
 
 var HTML_TAGS_TO_LOG = ["div", "span", "a", "h1", "h2", "th", "td"];
@@ -20,6 +17,7 @@ var DOMAINS_TO_BE_IGNORED = ["www.google.com", "www.google.co.in", "www.facebook
 var TAGS_NOT_TO_COMPARE = [];
 var DOMAIN_WISE_TAGS_TO_BE_IGNORED = {"www.google.com": ["search"]};
 var URL_ENDINGS_TO_BE_IGNORED = [".pdf"];
+var TAGS_TO_BE_IGNORED = ["like", "privacy policy", "help", "share"];
 
 function shouldDetectTaskForPage(url) {
     var page_URL = url;
@@ -35,7 +33,7 @@ function shouldDetectTaskForPage(url) {
     return true;
 }
 
-function logContent(url, logDict) {
+function logTags(url, logDict) {
     var logObject = logDict;
 
     var current_page_URL = location.href;
@@ -101,6 +99,30 @@ function getTagsOnCurrentPage() {
     tags = removeDuplicatesInArray(tags);
 
     return tags;
+}
+
+function getTaskTags(task, tagLog) {
+    var allTags = [];
+    var taskURLs = [];
+
+    for (var tab in task["tabs"]) {
+        taskURLs.push(task["tabs"][tab]["url"]);
+    }
+    for (var i = 0; i < taskURLs.length; i++) {
+        var url = taskURLs[i];
+        if (tagLog.hasOwnProperty(url)) {
+            allTags.concat(Object.keys(tagLog(url)));
+        }
+    }
+    return removeDuplicatesInArray(allTags);
+}
+
+function storePageContent(url, content) {
+    chrome.storage.local.get("Page Content", function (response) {
+        var cont = response["Page Content"];
+        cont[url] = cleanTag(content);
+        chrome.storage.local.set({"Page Content": cont});
+    });
 }
 
 function getCommonTags(tags, task, tagLog) {
@@ -178,183 +200,22 @@ function newTaskDetector(tasks, textLog) {
     }
 }
 
-function oldTaskDetector(tasks, textLog) {
-
-    var current_page_URL = location.href;
-    var current_page_domain = getDomainFromURL(current_page_URL);
-
-    if (shouldDetectTaskForPage(current_page_URL)) {
-
-        console.log("Executing detector");
-
-        var ITsOfCurrentPage = getTagsOnCurrentPage();
-
-        var taskScore = {};
-
-        // Not using Jaccard Similarity for now.
-        // var JaccardCounts = {};
-        // var JaccardSimilarityScores = {};
-
-        var allITIntersection = [];
-
-        var taskITs = {};
-
-        for (var i = 0; i < HTML_TAGS_TO_LOG.length; i++) {
-            var logTag = HTML_TAGS_TO_LOG[i];
-            for (var taskID in tasks) {
-                if (tasks.hasOwnProperty(taskID)) {
-                    if (taskID !== 'lastAssignedId' && taskID > 0 && tasks[taskID]["archived"] === false) {
-
-                        var ITsUnion = ITsOfCurrentPage;
-                        var ITsIntersection = [];
-
-                        var currentTask = tasks[taskID];
-                        // Taking open tab urls. Can also take history URLs or URLs of liked pages.
-                        var taskURLs = currentTask["tabs"];
-                        if (!taskScore[taskID]) {
-                            taskScore[taskID] = {};
-                        }
-                        if (!taskScore[taskID][logTag]) {
-                            taskScore[taskID][logTag] = 0;
-                        }
-
-                        // if (!JaccardCounts[taskID]) {
-                        //     JaccardCounts[taskID] = {};
-                        //     JaccardCounts[taskID]["Intersection"] = 0;
-                        //     JaccardCounts[taskID]["Union"] = 0;
-                        //
-                        //     JaccardSimilarityScores[taskID] = 0;
-                        // }
-
-                        for (var j = 0; j < taskURLs.length; j++) {
-                            var urlInTask = taskURLs[j]["url"];
-                            var urlDomain = getDomainFromURL(urlInTask);
-                            if (textLog[urlInTask]) {
-                                var ITsOfURL = textLog[urlInTask];
-                                for (var k = 0; k < ITsOfCurrentPage.length; k++) {
-                                    var innerText = ITsOfCurrentPage[k];
-                                    if (ITsUnion.indexOf(innerText) < 0) {
-                                        ITsUnion.push(innerText);
-                                    }
-                                    if (ITsOfURL.hasOwnProperty(innerText)) {
-
-                                        if (ITsIntersection.indexOf(innerText) < 0) {
-                                            ITsIntersection.push(innerText);
-                                            taskScore[taskID][logTag]++;
-                                        }
-                                        if (allITIntersection.indexOf(innerText) < 0) {
-                                            allITIntersection.push(innerText);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        taskITs[taskID] = ITsUnion;
-                    }
-                }
-
-                // Logging common tags
-                // console.log(ITsIntersection);
-
-                // if (JaccardCounts[taskID]) {
-                //     JaccardCounts[taskID]["Intersection"] = JaccardCounts[taskID]["Intersection"] + ITsIntersection.length;
-                //     JaccardCounts[taskID]["Union"] = JaccardCounts[taskID]["Union"] + ITsUnion.length;
-                // }
-            }
-        }
-
-        var allITs = [];
-
-        for (var taskid in taskITs) {
-            allITs.push(taskITs[taskid]);
-        }
-
-        var commonITsFromAllTasks = _.intersection(allITs);
-        // TAGS_NOT_TO_COMPARE = commonITsFromAllTasks;
-        console.log("Common tags from all tasks");
-        console.log(commonITsFromAllTasks);
-
-        // for (var id in JaccardCounts) {
-        //     JaccardSimilarityScores[id] = JaccardCounts[id]["Intersection"] / JaccardCounts[id]["Union"];
-        // }
-
-        // console.log("Jaccard Scores");
-        // console.log(JaccardSimilarityScores);
-
-        console.log("All common tags");
-        console.log(allITIntersection);
-
-        chrome.storage.local.get("CTASKID", function (ctaskid) {
-            ctaskid = ctaskid["CTASKID"];
-            // suggestProbableTask(HTML_TAGS_TO_LOG, taskScore, ctaskid, tasks);
-            suggestProbableTask(HTML_TAGS_TO_LOG, taskScore, ctaskid, tasks);
-        });
-    } else {
-        console.log("Domain is to be ignored. Did not execute detector.");
-    }
-
-}
-
-// Takes Jaccard Scores of page and tasks and calls load suggestion function with the most probable task.
-function suggestJaccardTask(JaccardScores, currentTaskID, tasks) {
-    var JaccardScores = Object.keys(JaccardScores).map(function (key) {
-        return [key, JaccardScores[key]];
-    });
-    JaccardScores.sort(function (o1, o2) {
-        return o2[1] - o1[1];
-    });
-    var mostProbableTaskID = JaccardScores[0][0];
-    if (currentTaskID !== mostProbableTaskID) {
-        var mostProbableTask = tasks[JaccardScores[0][0]]["name"];
-        console.log("This page looks like it belongs to task " + mostProbableTask);
-        // alert("Change task!");
-        loadSuggestion(1, JaccardScores, tasks)
-    }
-}
 
 function suggestProbableTask(taskWiseCommonTags, currentTaskID, tasks) {
 
     var mostProbableTaskID = taskWiseCommonTags[0][0];
-    if (currentTaskID !== mostProbableTaskID) {
-        var mostProbableTask = tasks[taskWiseCommonTags[0][0]];
-        console.log("This page looks like it belongs to task " + mostProbableTask["name"]);
-        // alert("Change task!");
-        loadSuggestion(1, mostProbableTaskID, tasks)
-    }
-}
+    var secondMostProbableTaskID = taskWiseCommonTags[1][0];
 
-// Takes simple HTMLtag-wise scores of page and tasks and calls load suggestion function with the most probable task.
-function oldSuggestProbableTask(tagsList, taskScores, currentTaskID, tasks) {
-    // console.log(currentTaskID);
-    var taskFinalScore = {};
-    for (var taskID in taskScores) {
-        taskFinalScore[taskID] = 0;
-        // var task = taskScores[taskID];
-        for (var i = 0; i < tagsList.length; i++) {
-            taskFinalScore[taskID] = taskFinalScore[taskID] + taskScores[taskID][tagsList[i]];
+    var diff = 0;
+    diff = taskWiseCommonTags[0][1].length - taskWiseCommonTags[1][1].length;
+
+    if ((diff/taskWiseCommonTags[0][1].length) > 0.25) {
+        if (currentTaskID !== mostProbableTaskID) {
+            var mostProbableTask = tasks[taskWiseCommonTags[0][0]];
+            console.log("This page looks like it belongs to task " + mostProbableTask["name"]);
+            // alert("Change task!");
+            loadSuggestion(1, mostProbableTaskID, tasks)
         }
-    }
-
-    console.log("Task scores");
-    console.log(taskScores);
-    console.log(taskFinalScore);
-
-    // Create probableTasks array
-    var probableTasks = Object.keys(taskFinalScore).map(function (key) {
-        return [key, taskFinalScore[key]];
-    });
-
-    // Sorting probableTasks array
-    probableTasks.sort(function (o1, o2) {
-        return o2[1] - o1[1];
-    });
-
-    var mostProbableTaskID = probableTasks[0][0];
-    if (currentTaskID !== mostProbableTaskID) {
-        var mostProbableTask = tasks[probableTasks[0][0]]["name"];
-        console.log("This page looks like it belongs to task " + mostProbableTask);
-        // alert("Change task!");
-        loadSuggestion(1, probableTasks, tasks)
     }
 }
 
@@ -373,7 +234,7 @@ function loadSuggestion(tab, mostProbableTaskID, tasks) {
 // Takes an uncleaned tag and cleans it. Add any required condition in this condition.
 function cleanTag(str) {
 
-    str.replace(/\r?\n|\r/g, "");
+    str.replace(/\r?\n|\r/g, " ");
 
     // Replaces spaces at the beginning
     str = str.replace(/^\s+/g, '');
@@ -390,7 +251,7 @@ function cleanTag(str) {
 
 // Checks if a tag should be indexed. Add more conditions here if required.
 function isValidTag(tag) {
-    return tag.length < 20 && tag.length > 3 && /.*[a-zA-Z].*/g.test(tag);
+    return tag.length < 20 && tag.length > 3 && /.*[a-zA-Z].*/g.test(tag) && TAGS_TO_BE_IGNORED.indexOf(tag) < 0;
 }
 
 function removeDuplicatesInArray(arr) {
