@@ -23,7 +23,9 @@ chrome.storage.local.get("TASKS", function (taskObject) {
 
 function createRow(page) {
 
-    var tableRow = $('<tr></tr>');
+    var tableRow = $('<tr class="historyRow"></tr>');
+
+    tableRow.append('<td><input type="checkbox" class="selectBox" value="'+page.url+'"></td>');
 
     tableRow.append('<td><a href="' + page.url + '">' + page.title + '</a></td>');
 
@@ -34,7 +36,7 @@ function createRow(page) {
         tableRow.append('<td></td>')
     }
 
-    var td = $('<td></td>');
+    // var td = $('<td></td>');
 
     // if(page.totalTimeSpent.seconds>0){
     //   td.text(page.totalTimeSpent.seconds + " seconds")
@@ -45,15 +47,17 @@ function createRow(page) {
     // if(page.totalTimeSpent.hours>0){
     //   td.text(page.totalTimeSpent.hours + " hours");
     // }
-    if (!Number.isNaN(page.totalTimeSpent))
-        td.text(Math.floor(page.totalTimeSpent / 60000) + " minutes")
+    // if (!Number.isNaN(page.totalTimeSpent))
+        // td.text(Math.floor(page.totalTimeSpent / 60000) + " minutes")
 
-    tableRow.append(td)
+    // tableRow.append(td)
     tableRow.append('<td>' + page.timeVisited[page.timeVisited.length - 1].slice(0, 25) + '</td>')
 
     $("#historyTable").append(tableRow)
 }
 
+
+//Sorting Methods
 
 var table = $("#table");
 
@@ -97,8 +101,74 @@ $("#openLikedPages").click(function () {
     });
 });
 
-var options = {
-    valueNames: [ 'name', 'born' ]
-};
+// var options = {
+//     valueNames: [ 'name', 'born' ]
+// };
+//
+//
+// var userList = new List('table', options);
 
-var userList = new List('table', options);
+
+$("#selectAll").click(function(){
+    var checkBoxes = $(".selectBox");
+    checkBoxes.prop("checked", !checkBoxes.prop("checked"));
+});
+
+
+$(document).bind("contextmenu", function (event) {
+
+    // Avoid the real one
+    event.preventDefault();
+
+    // Show contextmenu
+    $(".custom-menu").finish().toggle(100).
+
+    // In the right position (the mouse)
+    css({
+        top: event.pageY + "px",
+        left: event.pageX + "px"
+    });
+});
+
+
+// If the document is clicked somewhere
+$(document).bind("mousedown", function (e) {
+
+    // If the clicked element is not the menu
+    if (!$(e.target).parents(".custom-menu").length > 0) {
+
+        // Hide it
+        $(".custom-menu").hide(100);
+    }
+});
+
+// $('input[type=checkbox]').each(function () {
+//     var sThisVal = (this.checked ? $(this).val() : "");
+// });
+
+
+// If the menu element is clicked
+$(".custom-menu li").click(function(){
+    var type = $(this).attr("data-action");
+    var urls = [];
+    $('input[type=checkbox]').each(function () {
+        var x = (this.checked ? $(this).val() : "");
+        if(x != ""){
+            urls.push(x);
+        }
+    });
+
+    var temp = {
+        "urls": urls,
+        "type": type,
+        "taskId": idOfSelectedTask
+    }
+
+    chrome.runtime.sendMessage(temp);
+
+    // Hide it AFTER the action was triggered
+    $(".custom-menu").hide(100);
+
+    location.reload();
+});
+

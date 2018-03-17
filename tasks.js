@@ -44,6 +44,20 @@ function getLikedPages(task_id){
   return likedPages;
 }
 
+function likePages(urls, task_id){
+    for(var i = 0; i<urls.length; i++){
+        TASKS[task_id].history[indexOfElementWithProperty(TASKS[task_id].history, "url", urls[i])].isLiked = !TASKS[task_id].history[indexOfElementWithProperty(TASKS[task_id].history, "url", urls[i])].isLiked;
+    }
+    updateStorage("TASKS", TASKS);
+}
+
+function deleteFromHistory(urls, task_id){
+    for(var i =0; i<urls.length; i++){
+        TASKS[task_id].history.splice(indexOfElementWithProperty(TASKS[task_id].history, "url", urls[i]), 1);
+    }
+    updateStorage("TASKS", TASKS);
+}
+
 function createTask(taskName, tabs, createFromCurrentTabs, bookmarks) {
     if (createFromCurrentTabs) {
         var newTask = new Task(TASKS["lastAssignedId"] + 1, taskName, tabs, bookmarks);

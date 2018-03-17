@@ -28,11 +28,41 @@
         <li class="nav-item" id="history">
             <a class="nav-link" href="#">History</a>
         </li>
+
+        <!--<li class="nav-item" id="login">-->
+        <!--<a class="nav-link" href="#">Login</a>-->
+        <!--</li>-->
+        <!--<li class="nav-item" id="logout">-->
+        <!--<a class="nav-link" href="#">Logout</a>-->
+        <!--</li>-->
+        <!--<li class="nav-item" id="createFolder">-->
+        <!--<a class="nav-link" href="#">Create Folder</a>-->
+        <!--</li>-->
+        <!--<li class="nav-item" id="contacts">-->
+        <!--<a class="nav-link" href="#">Get contacts</a>-->
+        <!--</li>-->
+        <!--<li class="nav-item" id="checkIfFolderExists">-->
+        <!--<a class="nav-link" href="#">Check</a>-->
+        <!--</li>-->
+        <!--<li class="nav-item" id="pauseTasks">-->
+            <!--<a class="nav-link" href="#">Pause</a>-->
+        <!--</li>-->
     </ul>
     <hr>
     <h4>Tasks</h4>
     <ol id="tasks" style="list-style-type: none; padding: 0; margin: 0">
     </ol>
+    <hr>
+    <h4>Create Task</h4>
+    <p><small>Select multiple tabs using ctrl/command. Select a range of tabs by using shift.</small></p>
+    <div class="form-group round-corner">
+        <label for="taskName">Task Name:</label>
+        <input type="text" class="form-control round-corner" id="taskName">
+        <label for="closeCurrent">Switch to new Task</label>
+        <input type="checkbox" id="closeCurrent">
+    </div>
+    <button id="createTask" type="submit" class="btn btn-primary round-corner">Create Task</button>
+    <hr>
 </div>
 <script src="view.js"></script>
 <script src="controller.js"></script>

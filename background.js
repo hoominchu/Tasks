@@ -18,7 +18,7 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
         if (CTASKID == 0) {
 
             chrome.bookmarks.getTree(function (bookmarks) {
-                createTask(request.taskName, request.tabs, request.createFromCurrentTabs, bookmarks);
+                createTask(request.taskName, request.tabs, bookmarks);
                 if (request.activated) {
                     saveTaskInWindow(CTASKID);
                     deactivateTaskInWindow(CTASKID)
@@ -27,7 +27,7 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
             });
         }
         else {
-            createTask(request.taskName, request.tabs, request.createFromCurrentTabs, {});
+            createTask(request.taskName, request.tabs, {});
             if (request.activated) {
                 saveTaskInWindow(CTASKID);
                 deactivateTaskInWindow(CTASKID);
@@ -90,6 +90,15 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
                 });
           });
       });
+    }
+});
+
+chrome.runtime.onMessage.addListener(function (request, sender) {
+    if(request.type == "likePages"){
+        likePages(request.urls, request.taskId);
+    }
+    if(request.type == "deletePages"){
+        deleteFromHistory(request.urls, request.taskId);
     }
 });
 
