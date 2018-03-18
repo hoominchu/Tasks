@@ -125,6 +125,32 @@ function storePageContent(url, content) {
     });
 }
 
+function getCommonTagsInNTasks(n, tasks, tagLog) {
+    var tagCount = {};
+    var filteredTags = [];
+
+    for (var taskID in tasks) {
+        if (taskID != "lastAssignedId" && taskID > 0 && tasks[taskID]["archived"] == false) {
+            var taskTags = getTaskTags(tasks[taskID], tagLog);
+            for (var i = 0; i < taskTags.length; i++) {
+                var tag = taskTags[i];
+                if (tagCount.hasOwnProperty(tag)) {
+                    tagCount[tag]++;
+                } else {
+                    tagCount[tag] = 1;
+                }
+            }
+        }
+    }
+    for (var tag in tagCount) {
+        if (tagCount[tag] > n) {
+            filteredTags.push(tag);
+        }
+    }
+
+    return filteredTags;
+}
+
 function getCommonTags(tags, task, tagLog) {
     var commonTags = [];
     var taskURLs = [];
@@ -209,7 +235,9 @@ function suggestProbableTask(taskWiseCommonTags, currentTaskID, tasks) {
     var diff = 0;
     diff = taskWiseCommonTags[0][1].length - taskWiseCommonTags[1][1].length;
 
-    if ((diff/taskWiseCommonTags[0][1].length) > 0.25) {
+    console.log(diff / taskWiseCommonTags[0][1].length);
+
+    if ((diff / taskWiseCommonTags[0][1].length) > 0.25) {
         if (currentTaskID !== mostProbableTaskID) {
             var mostProbableTask = tasks[taskWiseCommonTags[0][0]];
             console.log("This page looks like it belongs to task " + mostProbableTask["name"]);
