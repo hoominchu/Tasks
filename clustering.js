@@ -116,8 +116,8 @@ function clusterTabs(){
                     }
                   }
                 }
-                var sortedResults = Object.keys(result).sort(function(a,b){return result[a]-result[b]});
-                console.log(sortedResults);
+                // var sortedResults = Object.keys(result).sort(function(a,b){return result[a]-result[b]});
+                // console.log(sortedResults);
             });
 
         });
