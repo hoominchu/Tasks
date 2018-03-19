@@ -83,22 +83,29 @@ function logTags(url, logDict, stopwords) {
 
         var tempObject = {};
         tempObject[getDomainFromURL(url)] = texts;
-
-        if(stopwords[getDomainFromURL(url)]){
-                stopwords[getDomainFromURL(url)]["tags"] = _.intersection(Object.keys(texts), stopwords[getDomainFromURL(url)]["tags"]);
-                stopwords[getDomainFromURL(url)]["iteration"] = stopwords[getDomainFromURL(url)]["iteration"] + 1;
-
-            updateStorage("Stopwords for websites", stopwords);
-        }
-        else {
-            stopwords[getDomainFromURL(url)] = {};
-            stopwords[getDomainFromURL(url)]["tags"] = Object.keys(texts);
-            stopwords[getDomainFromURL(url)]["iteration"] = 1;
-            updateStorage("Stopwords for websites", stopwords);
-        }
-        console.log(stopwords);
-        updateStorage("Text Log", logObject);
     }
+
+    if(stopwords[getDomainFromURL(url)]){
+        if(stopwords[getDomainFromURL(url)]["tags"]){
+          if(stopwords[getDomainFromURL(url)]["iteration"]<3){
+            stopwords[getDomainFromURL(url)]["tags"] = _.intersection(Object.keys(texts), stopwords[getDomainFromURL(url)]["tags"]);
+            console.log(Object.keys(texts));
+            console.log(_.intersection(Object.keys(texts), stopwords[getDomainFromURL(url)]["tags"]));
+            stopwords[getDomainFromURL(url)]["iteration"] = stopwords[getDomainFromURL(url)]["iteration"] + 1;
+            updateStorage("Stopwords for websites", stopwords);
+          }
+        }
+
+    }
+    else {
+        stopwords[getDomainFromURL(url)] = {};
+        stopwords[getDomainFromURL(url)]["tags"] = Object.keys(texts);
+        stopwords[getDomainFromURL(url)]["iteration"] = 1;
+        updateStorage("Stopwords for websites", stopwords);
+    }
+    console.log(stopwords);
+    updateStorage("Text Log", logObject);
+
   }
 
 

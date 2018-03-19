@@ -80,21 +80,21 @@ function getJaccardScores(urlTags1, urlTags2){
 // }
 
 function clusterTabs(){
-    chrome.windows.getCurrent({"populate": true}, function(win){
+    chrome.tabs.query({}, function(tabs){
         chrome.storage.local.get("Text Log", function(textLog){
             textLog = textLog["Text Log"];
             chrome.storage.local.get("Stopwords for websites", function(stopwords){
                 var graph = []
-                var tabs = win.tabs;
+                // var tabs = win.tabs;
                 var urls = [];
                 for(var i = 0; i<tabs.length; i++){
                     if(textLog[tabs[i].url]){
                         urls.push(tabs[i].url);
                     }
                 }
-                console.log(tabs);
+                // console.log(tabs);
                 graph = jaccardTable(urls, textLog, stopwords["Stopwords for websites"]);
-                console.log(graph);
+                // console.log(graph);
                 function compare(a,b) {
                     if (a["weight"] < b["weight"])
                         return -1;
@@ -103,10 +103,19 @@ function clusterTabs(){
                     return 0;
                 }
                 var sortedGraphs = graph.sort(compare);
-                console.log(sortedGraphs);
+                // console.log(sortedGraphs);
                 var clusters = jLouvain().nodes(urls).edges(graph);
                 var result = clusters();
                 console.log(result);
+                var set = new Set(Object.values(result))
+                for(var k = 0; k<set.size; k++){
+                  console.log(k);
+                  for(var t =0; t<Object.keys(result).length; t++){
+                    if(result[Object.keys(result)[t]] == k){
+                      console.log(Object.keys(result)[t]);
+                    }
+                  }
+                }
                 var sortedResults = Object.keys(result).sort(function(a,b){return result[a]-result[b]});
                 console.log(sortedResults);
             });
@@ -124,14 +133,14 @@ function jaccardTable(urls, textLog, stopwords){
         for(var j = 0; j<urls.length; j++){
             if(i != j){
                 if(textLog[urls[i]] && textLog[urls[j]]){
-                    console.log("Url 1:" + urls[i]);
-                    console.log("Url 2:" + urls[j]);
-                    if(getDomainFromURL(urls[i]) == getDomainFromURL(urls[j]) && Boolean(stopwords[getDomainFromURL(urls[i])])){
+                    if(Boolean(stopwords[getDomainFromURL(urls[i])]) && Boolean(stopwords[getDomainFromURL(urls[j])])){
+                            // console.log(Object.keys(textLog[urls[i]]));
+                            // console.log(Object.keys(textLog[urls[j]]));
+                            var jScore = getJaccardScores(_.difference(Object.keys(textLog[urls[i]]), stopwords[getDomainFromURL(urls[i])]["tags"]), _.difference(Object.keys(textLog[urls[j]]), stopwords[getDomainFromURL(urls[j])]["tags"]))*10000;
+                            console.log("Url 1:" + urls[i]+ "Url 2:" + urls[j] + " score:" + jScore);
                             console.log(_.intersection(_.difference(Object.keys(textLog[urls[i]]), stopwords[getDomainFromURL(urls[i])]["tags"]),  _.difference(Object.keys(textLog[urls[j]]), stopwords[getDomainFromURL(urls[j])]["tags"])));
-                            var jScore = getJaccardScores(_.difference(Object.keys(textLog[urls[i]]), stopwords[getDomainFromURL(urls[i])]["tags"]), _.difference(Object.keys(textLog[urls[j]]), stopwords[getDomainFromURL(urls[j])]["tags"]));
-                            console.log(jScore);
-                            console.log("STOPWORDS");
-                            console.log(stopwords[getDomainFromURL(urls[i])]["tags"]);
+                            // console.log("STOPWORDS");
+                            // console.log(stopwords[getDomainFromURL(urls[i])]["tags"]);
                     }
                     else{
                         console.log(_.intersection(Object.keys(textLog[urls[i]]), Object.keys(textLog[urls[j]])));
