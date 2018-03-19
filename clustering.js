@@ -1,123 +1,14 @@
-var HTML_TAGS_TO_LOG = ["div", "span", "a", "h1", "h2", "th", "td"];
-
-
-function logContent(url, logDict) {
-    var logObject = logDict;
-    var tagsToLog = HTML_TAGS_TO_LOG;
-
-    var texts = {};
-
-    for (var j = 0; j < tagsToLog.length; j++) {
-        var logTag = tagsToLog[j];
-        var elems = document.getElementsByTagName(logTag);
-        for (var i = 0; i < elems.length; i++) {
-            var currentElem = elems[i];
-            var elemText = currentElem.innerText;
-            elemText = cleanTag(elemText);
-            if (isValidTag(elemText)) {
-                elemText = elemText.toLowerCase();
-                if (texts[elemText]) {
-                    // console.log(texts[elemText]);
-                    // console.log(texts[elemText]["frequency"]);
-                    if (texts[elemText]["frequency"][logTag]) {
-                        texts[elemText]["frequency"][logTag]++;
-                    } else {
-                        texts[elemText]["frequency"][logTag] = 1;
-                    }
-                } else {
-                    var tempobj = {};
-                    tempobj["frequency"] = {};
-                    tempobj["frequency"][logTag] = 1;
-                    texts[elemText] = tempobj;
-                }
-            }
-        }
-    }
-    logObject[url] = texts;
-    // console.log(logObject);
-    return logObject;
-}
-
-function cleanTag(str) {
-
-    if (str == null) {
-        return str;
-    }
-
-    str.replace(/\r?\n|\r/g, "");
-
-    // Replaces spaces at the beginning
-    str = str.replace(/^\s+/g, '');
-    // Replaces spaces at the end
-    str = str.replace(/\s+$/g, '');
-
-    // Replaces " at the beginning
-    str = str.replace(/^"+/g, '');
-    // Replaces " at the end
-    str = str.replace(/"+$/g, '');
-
-    return str;
-}
-
-// Checks if a tag should be indexed. Add more conditions here if required.
-function isValidTag(tag) {
-    return tag.length < 20 && tag.length > 3 && /.*[a-zA-Z].*/g.test(tag);
-}
-
-function getJaccardScores(urlTags1, urlTags2){
-    var intersection = _.intersection(urlTags1, urlTags2);
-    var union = _.union(urlTags1, urlTags2);
-    var jaccardScore = (intersection.length)/(union.length);
-    return jaccardScore;
-}
-
-// function clusterTabs(tabs){
-//     chrome.windows.getCurrent({"populate": true}, function(tabs){
-//         for(var i = 0; i<tabs.length; i++){
-//
-//         }
-//     });
-// }
-
 function clusterTabs(){
     chrome.tabs.query({}, function(tabs){
         chrome.storage.local.get("Text Log", function(textLog){
             textLog = textLog["Text Log"];
             chrome.storage.local.get("Stopwords for websites", function(stopwords){
-                var graph = []
-                // var tabs = win.tabs;
-                var urls = [];
-                for(var i = 0; i<tabs.length; i++){
-                    if(textLog[tabs[i].url]){
-                        urls.push(tabs[i].url);
-                    }
-                }
-                // console.log(tabs);
-                graph = jaccardTable(urls, textLog, stopwords["Stopwords for websites"]);
-                // console.log(graph);
-                function compare(a,b) {
-                    if (a["weight"] < b["weight"])
-                        return -1;
-                    if (a["weight"] > b["weight"])
-                        return 1;
-                    return 0;
-                }
-                var sortedGraphs = graph.sort(compare);
-                // console.log(sortedGraphs);
-                var clusters = jLouvain().nodes(urls).edges(graph);
-                var result = clusters();
-                console.log(result);
-                var set = new Set(Object.values(result))
-                for(var k = 0; k<set.size; k++){
-                  console.log(k);
-                  for(var t =0; t<Object.keys(result).length; t++){
-                    if(result[Object.keys(result)[t]] == k){
-                      console.log(Object.keys(result)[t]);
-                    }
-                  }
-                }
-                // var sortedResults = Object.keys(result).sort(function(a,b){return result[a]-result[b]});
-                // console.log(sortedResults);
+              var stopwords = stopwords["Stopwords for websites"];
+              var urls = [];
+              for(var i = 0; i<tabs.length; i++){
+                urls.push(tabs[i].url);
+              }
+              clusterUrls(urls, textLog, stopwords, function(clusters){clusterPrinter(clusters);});
             });
 
         });
@@ -125,7 +16,31 @@ function clusterTabs(){
     });
 }
 
+function clusterUrls(urls, tagsDict, stopWords, callback){
+  var weightsTable = []
+  var urlsToCluster = [];
+  for(var i = 0; i<urls.length; i++){
+      if(tagsDict[urls[i]]){
+          urlsToCluster.push(urls[i]);
+      }
+  }
+  weightsTable = jaccardTable(urlsToCluster, tagsDict, stopWords);
+  var clusters = jLouvain().nodes(urlsToCluster).edges(weightsTable);
+  var result = clusters();
+  callback(result);
+}
 
+function clusterPrinter(clusters){
+  var clusterNumbers = new Set(Object.values(clusters));
+  for(var i = 0 ; i<clusterNumbers.size; i++){
+    console.log("Cluster Number " + i);
+    for(var j = 0; j<Object.keys(clusters).length; j++){
+      if(clusters[Object.keys(clusters)[j]] == i){
+        console.log(Object.keys(clusters)[j]);
+      }
+    }
+  }
+}
 
 function jaccardTable(urls, textLog, stopwords){
     var table = [];

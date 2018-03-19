@@ -1,7 +1,7 @@
 function returnDuration(startingTime, endingTime) {
     var startingTime = new Date(startingTime);
     var endingTime = new Date(endingTime);
-    var duration = endingTime - startingTime 
+    var duration = endingTime - startingTime
     return duration;
 }
 
@@ -24,4 +24,19 @@ function isEmpty(obj) {
     }
 
     return JSON.stringify(obj) === JSON.stringify({});
+}
+
+function getJaccardScores(urlTags1, urlTags2){
+    var intersection = _.intersection(urlTags1, urlTags2);
+    var union = _.union(urlTags1, urlTags2);
+    var jaccardScore = (intersection.length)/(union.length);
+    return jaccardScore;
+}
+
+function compare(a,b) {
+    if (a["weight"] < b["weight"])
+        return -1;
+    if (a["weight"] > b["weight"])
+        return 1;
+    return 0;
 }

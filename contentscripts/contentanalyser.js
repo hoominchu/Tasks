@@ -2,23 +2,40 @@ $(document).ready(function () {
     chrome.storage.local.get("TASKS", function (tasksDict) {
         var tasksObject = tasksDict["TASKS"];
         chrome.storage.local.get("Text Log", function (textLogDict) {
-            var logDict = textLogDict["Text Log"];
-
-            newTaskDetector(tasksObject, logDict);
-            chrome.storage.local.get("Stopwords for websites", function(stopwords){
-                if(stopwords["Stopwords for websites"]){
-                    logTags(window.location.href, logDict, stopwords["Stopwords for websites"]);
-                }
-                else{
-                    logTags(window.location.href, logDict, {});
-                }
-            });
-            storePageContent(window.location.href, document.documentElement.innerText);
-            console.log(getCommonTagsInNTasks(2, tasksObject, logDict));
+              if(isEmpty(textLogDict)){
+                  chrome.storage.local.set({"Text Log": {}}, function(){
+                    var logDict = {};
+                    newTaskDetector(tasksObject, logDict);
+                    chrome.storage.local.get("Stopwords for websites", function(stopwords){
+                        if(stopwords["Stopwords for websites"]){
+                            logTags(window.location.href, logDict, stopwords["Stopwords for websites"]);
+                        }
+                        else{
+                            logTags(window.location.href, logDict, {});
+                        }
+                    });
+                    storePageContent(window.location.href, document.documentElement.innerText);
+                    console.log(getCommonTagsInNTasks(2, tasksObject, logDict));
+                  });
+              }
+              else{
+                  var logDict = textLogDict["Text Log"];
+                  newTaskDetector(tasksObject, logDict);
+                  chrome.storage.local.get("Stopwords for websites", function(stopwords){
+                      if(stopwords["Stopwords for websites"]){
+                          logTags(window.location.href, logDict, stopwords["Stopwords for websites"]);
+                      }
+                      else{
+                          logTags(window.location.href, logDict, {});
+                      }
+                  });
+                  storePageContent(window.location.href, document.documentElement.innerText);
+                  console.log(getCommonTagsInNTasks(2, tasksObject, logDict));
+              }
         });
-        //newTaskDetector(logDict);
     });
 });
+        //newTaskDetector(logDict);
 
 var HTML_TAGS_TO_LOG = ["div", "span", "a", "h1", "h2", "th", "td"];
 var DOMAINS_TO_BE_IGNORED = ["www.google.com", "www.google.co.in", "www.facebook.com"];
@@ -321,6 +338,16 @@ function removeDuplicatesInArray(arr) {
         return index === self.indexOf(elem);
     });
     return unique_array
+}
+
+
+function isEmpty(obj) {
+    for(var prop in obj) {
+        if(obj.hasOwnProperty(prop))
+            return false;
+    }
+
+    return JSON.stringify(obj) === JSON.stringify({});
 }
 
 // Updates chrome.storage.local with key and object.

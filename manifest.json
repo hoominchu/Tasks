@@ -37,6 +37,7 @@
       ],
       "js": [
         "js/jquery/jquery-3.2.1.min.js",
+        "util.js",
         "web-util.js",
         "lodash.js",
         "contentscripts/like.js",
