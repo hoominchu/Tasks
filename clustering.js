@@ -67,7 +67,7 @@ function isValidTag(tag) {
 function getJaccardScores(urlTags1, urlTags2){
     var intersection = _.intersection(urlTags1, urlTags2);
     var union = _.union(urlTags1, urlTags2);
-    var jaccardScore = intersection.length;
+    var jaccardScore = (intersection.length)/(union.length);
     return jaccardScore;
 }
 
@@ -80,17 +80,20 @@ function getJaccardScores(urlTags1, urlTags2){
 // }
 
 function clusterTabs(){
-    chrome.windows.getCurrent({"populate": true}, function(window){
-        var graph = []
-        var tabs = window.tabs;
-        var urls = [];
-        for(var i = 0; i<tabs.length; i++){
-            urls.push(tabs[i].url);
-        }
-        console.log(tabs);
+    chrome.windows.getCurrent({"populate": true}, function(win){
         chrome.storage.local.get("Text Log", function(textLog){
+            textLog = textLog["Text Log"];
             chrome.storage.local.get("Stopwords for websites", function(stopwords){
-                graph = jaccardTable(urls, textLog["Text Log"], stopwords["Stopwords for websites"]);
+                var graph = []
+                var tabs = win.tabs;
+                var urls = [];
+                for(var i = 0; i<tabs.length; i++){
+                    if(textLog[tabs[i].url]){
+                        urls.push(tabs[i].url);
+                    }
+                }
+                console.log(tabs);
+                graph = jaccardTable(urls, textLog, stopwords["Stopwords for websites"]);
                 console.log(graph);
                 function compare(a,b) {
                     if (a["weight"] < b["weight"])
@@ -125,12 +128,15 @@ function jaccardTable(urls, textLog, stopwords){
                     console.log("Url 2:" + urls[j]);
                     if(getDomainFromURL(urls[i]) == getDomainFromURL(urls[j]) && Boolean(stopwords[getDomainFromURL(urls[i])])){
                             console.log(_.intersection(_.difference(Object.keys(textLog[urls[i]]), stopwords[getDomainFromURL(urls[i])]["tags"]),  _.difference(Object.keys(textLog[urls[j]]), stopwords[getDomainFromURL(urls[j])]["tags"])));
-                            var jScore = getJaccardScores(_.difference(Object.keys(textLog[urls[i]]), stopwords[getDomainFromURL(urls[i])]["tags"]), _.difference(Object.keys(textLog[urls[j]]), stopwords[getDomainFromURL(urls[j])]["tags"]))*1000;
+                            var jScore = getJaccardScores(_.difference(Object.keys(textLog[urls[i]]), stopwords[getDomainFromURL(urls[i])]["tags"]), _.difference(Object.keys(textLog[urls[j]]), stopwords[getDomainFromURL(urls[j])]["tags"]));
+                            console.log(jScore);
                             console.log("STOPWORDS");
                             console.log(stopwords[getDomainFromURL(urls[i])]["tags"]);
                     }
                     else{
-                        var jScore = getJaccardScores(Object.keys(textLog[urls[i]]), Object.keys(textLog[urls[j]]))*1000;
+                        console.log(_.intersection(Object.keys(textLog[urls[i]]), Object.keys(textLog[urls[j]])));
+                        var jScore = getJaccardScores(Object.keys(textLog[urls[i]]), Object.keys(textLog[urls[j]]));
+                        console.log(jScore);
                     }
                     var temp = {
                         "source": urls[i],
@@ -140,13 +146,15 @@ function jaccardTable(urls, textLog, stopwords){
                     table.push(temp);
                 }
                 else{
-
+                    console.log("Url 1:" + urls[i]);
+                    console.log("Url 2:" + urls[j]);
                     var temp = {
                         "source": urls[i],
                         "target": urls[j],
                         "weight": 0
                     }
-                    table.push(temp);
+                    console.log("URLs not in textLog.");
+                    //table.push(temp);
                 }
             }
         }
