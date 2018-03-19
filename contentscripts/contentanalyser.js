@@ -7,6 +7,7 @@ $(document).ready(function () {
             newTaskDetector(tasksObject, logDict);
             logTags(window.location.href, logDict);
             storePageContent(window.location.href, document.documentElement.innerText);
+            console.log(getCommonTagsInNTasks(2, tasksObject, logDict));
         });
     });
 });
@@ -18,6 +19,8 @@ var TAGS_NOT_TO_COMPARE = [];
 var DOMAIN_WISE_TAGS_TO_BE_IGNORED = {"www.google.com": ["search"]};
 var URL_ENDINGS_TO_BE_IGNORED = [".pdf"];
 var TAGS_TO_BE_IGNORED = ["like", "privacy policy", "help", "share"];
+
+var give_suggestions_by = "tabs";
 
 function shouldDetectTaskForPage(url) {
     var page_URL = url;
@@ -111,7 +114,7 @@ function getTaskTags(task, tagLog) {
     for (var i = 0; i < taskURLs.length; i++) {
         var url = taskURLs[i];
         if (tagLog.hasOwnProperty(url)) {
-            allTags.concat(Object.keys(tagLog(url)));
+            allTags.concat(Object.keys(tagLog[url]));
         }
     }
     return removeDuplicatesInArray(allTags);
@@ -250,7 +253,7 @@ function suggestProbableTask(taskWiseCommonTags, currentTaskID, tasks) {
 // Shows chrome notification.
 function loadSuggestion(tab, mostProbableTaskID, tasks) {
 
-    var mostProbableTaskName = tasks[mostProbableTaskID[0][0]]["name"];
+    var mostProbableTaskName = tasks[mostProbableTaskID]["name"];
     chrome.runtime.sendMessage({
         "type": "task suggestion",
         "probable task": mostProbableTaskName,
