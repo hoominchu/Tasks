@@ -19,7 +19,10 @@
       "domain.js",
       "author.js",
       "search.js",
-      "background.js"
+      "background.js",
+      "lodash.js",
+      "jLouvain.js",
+      "clustering.js"
     ]
   },
   "content_scripts": [
@@ -34,12 +37,12 @@
       ],
       "js": [
         "js/jquery/jquery-3.2.1.min.js",
+        "web-util.js",
+        "lodash.js",
         "contentscripts/like.js",
         "contentscripts/time.js",
         "contentscripts/contentscript.js",
-        "contentscripts/contentanalyser.js",
-        "js/lodash.js",
-        "web-util.js"
+        "contentscripts/contentanalyser.js"
       ],
       "run_at": "document_end"
     }

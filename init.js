@@ -33,6 +33,11 @@ var defaultTaskId = 0;
 //Suggestion log dictionary
 chrome.storage.local.set({"Suggestions Log": {"Correct suggestions":0,"Incorrect suggestions":0}});
 chrome.storage.local.set({"Text Log": {}});
+chrome.storage.local.get("Text Log", function(e){
+    if(isEmpty(e)){
+        chrome.storage.local.set({"Text Log": {}});
+    }
+});
 
 
 console.log(CTASKID);

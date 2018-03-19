@@ -91,6 +91,10 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
           });
       });
     }
+
+    if(request.type == "cluster"){
+        clusterTabs();
+    }
 });
 
 chrome.runtime.onMessage.addListener(function (request, sender) {

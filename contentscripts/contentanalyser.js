@@ -5,15 +5,22 @@ $(document).ready(function () {
             var logDict = textLogDict["Text Log"];
 
             newTaskDetector(tasksObject, logDict);
-            logTags(window.location.href, logDict);
+            chrome.storage.local.get("Stopwords for websites", function(stopwords){
+                if(stopwords["Stopwords for websites"]){
+                    logTags(window.location.href, logDict, stopwords["Stopwords for websites"]);
+                }
+                else{
+                    logTags(window.location.href, logDict, {});
+                }
+            });
             storePageContent(window.location.href, document.documentElement.innerText);
             console.log(getCommonTagsInNTasks(2, tasksObject, logDict));
         });
+        //newTaskDetector(logDict);
     });
 });
 
 var HTML_TAGS_TO_LOG = ["div", "span", "a", "h1", "h2", "th", "td"];
-
 var DOMAINS_TO_BE_IGNORED = ["www.google.com", "www.google.co.in", "www.facebook.com"];
 var TAGS_NOT_TO_COMPARE = [];
 var DOMAIN_WISE_TAGS_TO_BE_IGNORED = {"www.google.com": ["search"]};
@@ -36,7 +43,7 @@ function shouldDetectTaskForPage(url) {
     return true;
 }
 
-function logTags(url, logDict) {
+function logTags(url, logDict, stopwords) {
     var logObject = logDict;
 
     var current_page_URL = location.href;
@@ -76,11 +83,28 @@ function logTags(url, logDict) {
             }
         }
         logObject[url] = texts;
-        // console.log(logObject);
+
+        var tempObject = {};
+        tempObject[getDomainFromURL(url)] = texts;
+
+        if(stopwords[getDomainFromURL(url)]){
+                stopwords[getDomainFromURL(url)]["tags"] = _.intersection(Object.keys(texts), stopwords[getDomainFromURL(url)]["tags"]);
+                stopwords[getDomainFromURL(url)]["iteration"] = stopwords[getDomainFromURL(url)]["iteration"] + 1;
+
+            updateStorage("Stopwords for websites", stopwords);
+        }
+        else {
+            stopwords[getDomainFromURL(url)] = {};
+            stopwords[getDomainFromURL(url)]["tags"] = Object.keys(texts);
+            stopwords[getDomainFromURL(url)]["iteration"] = 1;
+            updateStorage("Stopwords for websites", stopwords);
+        }
+        console.log(stopwords);
         updateStorage("Text Log", logObject);
     }
+  }
 
-}
+
 
 function getTagsOnCurrentPage() {
 
@@ -297,4 +321,10 @@ function updateStorage(key, obj) {
     var tempObj = {};
     tempObj[key] = obj;
     chrome.storage.local.set(tempObj);
+}
+
+function getJaccardScores(urlTags1, urlTags2){
+    var intersection = _.intersection(urlTags1, urlTags2);
+    var union = _.union(urlTags1, urlTags2);
+    var jaccardScore = intersection.length / union.length;
 }
