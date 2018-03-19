@@ -6,9 +6,16 @@ $(document).ready(function () {
             var tasksObject = tasksDict["TASKS"];
             newTaskDetector(tasksObject, logDict);
         });
+        chrome.storage.local.get("Stopwords for websites", function(stopwords){
+            if(stopwords["Stopwords for websites"]){
+                logContent(window.location.href, logDict, stopwords["Stopwords for websites"]);
+            }
+            else{
+                logContent(window.location.href, logDict, {});
+            }
+        });
 
         // newTaskDetector(logDict);
-        logContent(window.location.href, logDict);
     });
 
 });
@@ -16,15 +23,13 @@ $(document).ready(function () {
 var DOMAINS_TO_BE_IGNORED = ["www.google.com", "www.google.co.in", "www.facebook.com"];
 var TAGS_NOT_TO_COMPARE = [];
 var HTML_TAGS_TO_LOG = ["div", "span", "a", "h1", "h2", "th", "td"];
-
 function getCommonTagsFromAllTasks(tasks) {
 
 }
 
-function logContent(url, logDict) {
+function logContent(url, logDict, stopwords) {
     var logObject = logDict;
     var tagsToLog = HTML_TAGS_TO_LOG;
-
     var texts = {};
 
     for (var j = 0; j < tagsToLog.length; j++) {
@@ -53,8 +58,25 @@ function logContent(url, logDict) {
             }
         }
     }
+
     logObject[url] = texts;
-    // console.log(logObject);
+    var tempObject = {};
+    tempObject[getDomainFromURL(url)] = texts;
+
+
+    if(stopwords[getDomainFromURL(url)]){
+            stopwords[getDomainFromURL(url)]["tags"] = _.intersection(Object.keys(texts), stopwords[getDomainFromURL(url)]["tags"]);
+            stopwords[getDomainFromURL(url)]["iteration"] = stopwords[getDomainFromURL(url)]["iteration"] + 1;
+
+        updateStorage("Stopwords for websites", stopwords);
+    }
+    else {
+        stopwords[getDomainFromURL(url)] = {};
+        stopwords[getDomainFromURL(url)]["tags"] = Object.keys(texts);
+        stopwords[getDomainFromURL(url)]["iteration"] = 1;
+        updateStorage("Stopwords for websites", stopwords);
+    }
+    console.log(stopwords);
     updateStorage("Text Log", logObject);
 }
 
@@ -285,4 +307,10 @@ function updateStorage(key, obj) {
     var tempObj = {};
     tempObj[key] = obj;
     chrome.storage.local.set(tempObj);
+}
+
+function getJaccardScores(urlTags1, urlTags2){
+    var intersection = _.intersection(urlTags1, urlTags2);
+    var union = _.union(urlTags1, urlTags2);
+    var jaccardScore = intersection.length / union.length;
 }
