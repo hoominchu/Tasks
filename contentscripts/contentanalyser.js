@@ -70,11 +70,11 @@ function logTags(url, logDict, stopwords) {
         tags_to_be_ignored = DOMAIN_WISE_TAGS_TO_BE_IGNORED[current_page_domain];
     }
 
-    var texts = {};
+    var tags = {};
 
     for (var j = 0; j < HTML_TAGS_TO_LOG.length; j++) {
-        var logTag = HTML_TAGS_TO_LOG[j];
-        var elems = document.getElementsByTagName(logTag);
+        var htmlTag = HTML_TAGS_TO_LOG[j];
+        var elems = document.getElementsByTagName(htmlTag);
         for (var i = 0; i < elems.length; i++) {
             var currentElem = elems[i];
             var elemText = currentElem.innerText;
@@ -82,35 +82,30 @@ function logTags(url, logDict, stopwords) {
             if (tags_to_be_ignored.indexOf(elemText) < 0) {
                 if (isValidTag(elemText)) {
                     elemText = elemText.toLowerCase();
-                    if (texts[elemText]) {
-                        // console.log(texts[elemText]);
-                        // console.log(texts[elemText]["frequency"]);
-                        if (texts[elemText]["frequency"][logTag]) {
-                            texts[elemText]["frequency"][logTag]++;
-                        } else {
-                            texts[elemText]["frequency"][logTag] = 1;
-                        }
+                    if (tags[elemText]) {
+                        var tag = tags[elemText];
+                        tag.increaseFrequency(htmlTag);
+                        // Do something here with weights if needed.
                     } else {
-                        var tempobj = {};
-                        tempobj["frequency"] = {};
-                        tempobj["frequency"][logTag] = 1;
-                        texts[elemText] = tempobj;
+                        var tag = new Tag(elemText);
+                        tag.increaseFrequency(htmlTag);
+                        tags[elemText] = tag;
                     }
                 }
             }
         }
-        logObject[url] = texts;
+        logObject[url] = tags;
 
-        var tempObject = {};
-        tempObject[getDomainFromURL(url)] = texts;
+        // var tempObject = {};
+        // tempObject[getDomainFromURL(url)] = tags;
     }
 
     if(stopwords[getDomainFromURL(url)]){
         if(stopwords[getDomainFromURL(url)]["tags"]){
           if(stopwords[getDomainFromURL(url)]["iteration"]<3){
-            stopwords[getDomainFromURL(url)]["tags"] = _.intersection(Object.keys(texts), stopwords[getDomainFromURL(url)]["tags"]);
-            console.log(Object.keys(texts));
-            console.log(_.intersection(Object.keys(texts), stopwords[getDomainFromURL(url)]["tags"]));
+            stopwords[getDomainFromURL(url)]["tags"] = _.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]);
+            console.log(Object.keys(tags));
+            console.log(_.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]));
             stopwords[getDomainFromURL(url)]["iteration"] = stopwords[getDomainFromURL(url)]["iteration"] + 1;
             updateStorage("Stopwords for websites", stopwords);
           }
@@ -119,11 +114,15 @@ function logTags(url, logDict, stopwords) {
     }
     else {
         stopwords[getDomainFromURL(url)] = {};
-        stopwords[getDomainFromURL(url)]["tags"] = Object.keys(texts);
+        stopwords[getDomainFromURL(url)]["tags"] = Object.keys(tags);
         stopwords[getDomainFromURL(url)]["iteration"] = 1;
         updateStorage("Stopwords for websites", stopwords);
     }
+    console.log("Stop words");
     console.log(stopwords);
+    console.log("--------------");
+    console.log("Text log");
+    console.log(logObject);
     updateStorage("Text Log", logObject);
 
   }
