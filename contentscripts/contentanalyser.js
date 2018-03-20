@@ -84,14 +84,16 @@ function logTags(url, logDict, stopwords) {
     var tags = {};
 
     // Logging meta elements
-    // var metaElements = document.getElementsByTagName("meta");
-    // for (var q = 0; q < metaElements.length; q++) {
-    //     var element = metaElements[q];
-    //     var metaContent = element.getAttribute("content");
-    //     var tag = new Tag(metaContent);
-    //     tag.increaseFrequency("meta");
-    //     tags[metaContent] = tag;
-    // }
+    var metaElements = document.getElementsByTagName("meta");
+    for (var q = 0; q < metaElements.length; q++) {
+        var element = metaElements[q];
+        var metaContent = element.getAttribute("content");
+        if (isValidTag(metaContent)){
+            var tag = new Tag(metaContent);
+            tag.increaseFrequency("meta");
+            tags[metaContent] = tag;
+        }
+    }
 
     for (var j = 0; j < HTML_TAGS_TO_LOG.length; j++) {
         var htmlTag = HTML_TAGS_TO_LOG[j];
@@ -102,15 +104,17 @@ function logTags(url, logDict, stopwords) {
             elemText = cleanTag(elemText);
             if (tags_to_be_ignored.indexOf(elemText) < 0) {
                 if (isValidTag(elemText)) {
-                    if (tags[elemText]) {
-                        var tag = tags[elemText];
+                    var elemTextLowerCase = elemText.toLowerCase();
+                    if (tags[elemTextLowerCase]) {
+                        var tag = tags[elemTextLowerCase];
                         tag.increaseFrequency(htmlTag); // Functions to calculate weight are in the constructor.
                         tag.addPosition(currentElem);
+                        tags[elemTextLowerCase] = tag;
                     } else {
                         var tag = new Tag(elemText);
                         tag.increaseFrequency(htmlTag);
                         tag.addPosition(currentElem);
-                        tags[elemText] = tag;
+                        tags[elemTextLowerCase] = tag;
                     }
                 }
             }
@@ -160,15 +164,17 @@ function getTagsOnDocument(htmlDocument) {
             var text = elem.innerText;
             text = cleanTag(text);
             if (isValidTag(text)) {
-                if (tags[text]) {
-                    var tag = tags[text];
+                var textLowerCase = text.toLowerCase();
+                if (tags[textLowerCase]) {
+                    var tag = tags[textLowerCase];
                     tag.increaseFrequency(htmlTag); // Functions to calculate weight are in the constructor.
                     tag.addPosition(elem);
+                    tags[textLowerCase] = tag;
                 } else {
                     var tag = new Tag(text);
                     tag.increaseFrequency(htmlTag);
                     tag.addPosition(elem);
-                    tags[text] = tag;
+                    tags[textLowerCase] = tag;
                 }
             }
         }
@@ -380,6 +386,9 @@ function cleanTag(str) {
 
 // Checks if a tag should be indexed. Add more conditions here if required.
 function isValidTag(tag) {
+    if (tag == null) {
+        return false;
+    }
     return tag.length < 20 && tag.length > 3 && /.*[a-zA-Z].*/g.test(tag) && /^([^0-9]*)$/g.test(tag) && TAGS_TO_BE_IGNORED.indexOf(tag) < 0;
 }
 

@@ -18,6 +18,7 @@ function Tag(str) {
     for (var i = 0; i < HTML_TAGS_TO_LOG.length; i++) {
         this.htmlTagFrequencies[HTML_TAGS_TO_LOG[i]] = 0;
     }
+    this.htmlTagFrequencies["meta"] = 0;
 
     this.positiveWeight = 0.0;
     this.negativeWeight = 0.0;
