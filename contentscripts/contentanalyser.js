@@ -1,16 +1,15 @@
 $(document).ready(function () {
 
-
-    chrome.storage.local.get("readableDict", function(readableDict){
-        if(isEmpty((readableDict))){
-            chrome.storage.local.set({"readableDict": {} });
-            var readableDict = {};
-            logReadableVersion(readableDict);
-        }
-        else{
-            logReadableVersion(readableDict["readableDict"]);
-        }
-    })
+    // chrome.storage.local.get("readableDict", function(readableDict){
+    //     if(isEmpty((readableDict))){
+    //         chrome.storage.local.set({"readableDict": {} });
+    //         var readableDict = {};
+    //         logReadableVersion(readableDict);
+    //     }
+    //     else{
+    //         logReadableVersion(readableDict["readableDict"]);
+    //     }
+    // });
 
     chrome.storage.local.get("TASKS", function (tasksDict) {
         var tasksObject = tasksDict["TASKS"];
@@ -117,17 +116,14 @@ function logTags(url, logDict, stopwords) {
             }
         }
         logObject[url] = tags;
-
-        var tempObject = {};
-        tempObject[domain] = texts;
     }
 
     if(stopwords[domain]){
           if(stopwords[domain]["urlsRead"].indexOf(url) < 0) {
-            stopwords[domain]["stopwords"] = _.intersection(Object.keys(texts), stopwords[domain]["tags"]);
-            stopwords[domain]["tags"] = _.intersection(Object.keys(texts), stopwords[domain]["tags"]);
-            console.log(Object.keys(texts));
-            // console.log(_.intersection(Object.keys(texts), stopwords[getDomainFromURL(url)]["tags"]));
+            stopwords[domain]["stopwords"] = _.intersection(Object.keys(tags), stopwords[domain]["tags"]);
+            stopwords[domain]["tags"] = _.intersection(Object.keys(tags), stopwords[domain]["tags"]);
+            console.log(Object.keys(tags));
+            // console.log(_.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]));
             stopwords[domain]["urlsRead"].push(url)
             updateStorage("Stopwords for websites", stopwords);
           }
@@ -135,7 +131,7 @@ function logTags(url, logDict, stopwords) {
     else {
         stopwords[domain] = {};
         stopwords[domain]["stopwords"] = [];
-        stopwords[domain]["tags"] = Object.keys(texts);
+        stopwords[domain]["tags"] = Object.keys(tags);
         // stopwords[domain]["uniqueUrlsRead"] = 1;
         stopwords[domain]["urlsRead"] = [];
         stopwords[domain]["urlsRead"].push(url);
