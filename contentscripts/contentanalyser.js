@@ -72,6 +72,16 @@ function logTags(url, logDict, stopwords) {
 
     var tags = {};
 
+    // Logging meta elements
+    // var metaElements = document.getElementsByTagName("meta");
+    // for (var q = 0; q < metaElements.length; q++) {
+    //     var element = metaElements[q];
+    //     var metaContent = element.getAttribute("content");
+    //     var tag = new Tag(metaContent);
+    //     tag.increaseFrequency("meta");
+    //     tags[metaContent] = tag;
+    // }
+
     for (var j = 0; j < HTML_TAGS_TO_LOG.length; j++) {
         var htmlTag = HTML_TAGS_TO_LOG[j];
         var elems = document.getElementsByTagName(htmlTag);
