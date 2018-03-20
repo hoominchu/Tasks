@@ -1,15 +1,15 @@
 $(document).ready(function () {
 
-    // chrome.storage.local.get("readableDict", function(readableDict){
-    //     if(isEmpty((readableDict))){
-    //         chrome.storage.local.set({"readableDict": {} });
-    //         var readableDict = {};
-    //         logReadableVersion(readableDict);
-    //     }
-    //     else{
-    //         logReadableVersion(readableDict["readableDict"]);
-    //     }
-    // });
+    chrome.storage.local.get("readableDict", function(readableDict){
+        if(isEmpty((readableDict))){
+            chrome.storage.local.set({"readableDict": {} });
+            var readableDict = {};
+            logReadableVersion(readableDict);
+        }
+        else{
+            logReadableVersion(readableDict["readableDict"]);
+        }
+    });
 
     chrome.storage.local.get("TASKS", function (tasksDict) {
         var tasksObject = tasksDict["TASKS"];
@@ -409,6 +409,7 @@ function updateStorage(key, obj) {
 
 function logReadableVersion(dict){
     var loc = document.location;
+    var documentClone = document.cloneNode(true);
     var uri = {
         spec: loc.href,
         host: loc.host,
@@ -416,7 +417,8 @@ function logReadableVersion(dict){
         scheme: loc.protocol.substr(0, loc.protocol.indexOf(":")),
         pathBase: loc.protocol + "//" + loc.host + loc.pathname.substr(0, loc.pathname.lastIndexOf("/") + 1)
     };
-    var article = new Readability(uri, document).parse();
+    // var article = new Readability(uri, document).parse();
+    var article = new Readability(uri, documentClone).parse();
     console.log(article);
     dict[loc] = article;
     updateStorage("readableDict", dict);
