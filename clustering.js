@@ -1,3 +1,6 @@
+var globalStopwords = ["like", "search", "privacy policy", "contact us", "log in", "facebook", "twitter"];
+
+
 function clusterTabs(){
     chrome.tabs.query({}, function(tabs){
         chrome.storage.local.get("Text Log", function(textLog){
@@ -42,26 +45,22 @@ function clusterPrinter(clusters){
   }
 }
 
-function jaccardTable(urls, textLog, stopwords){
+function jaccardTable(urls, textLog, stopwords) {
     var table = [];
-    for(var i = 0; i<urls.length; i++){
-        for(var j = 0; j<urls.length; j++){
-            if(i != j){
-                if(textLog[urls[i]] && textLog[urls[j]]){
-                    if(Boolean(stopwords[getDomainFromURL(urls[i])]) && Boolean(stopwords[getDomainFromURL(urls[j])])){
-                            // console.log(Object.keys(textLog[urls[i]]));
-                            // console.log(Object.keys(textLog[urls[j]]));
-                            var jScore = getJaccardScores(_.difference(Object.keys(textLog[urls[i]]), stopwords[getDomainFromURL(urls[i])]["tags"]), _.difference(Object.keys(textLog[urls[j]]), stopwords[getDomainFromURL(urls[j])]["tags"]))*10000;
-                            console.log("Url 1:" + urls[i]+ "Url 2:" + urls[j] + " score:" + jScore);
-                            console.log(_.intersection(_.difference(Object.keys(textLog[urls[i]]), stopwords[getDomainFromURL(urls[i])]["tags"]),  _.difference(Object.keys(textLog[urls[j]]), stopwords[getDomainFromURL(urls[j])]["tags"])));
-                            // console.log("STOPWORDS");
-                            // console.log(stopwords[getDomainFromURL(urls[i])]["tags"]);
-                    }
-                    else{
-                        console.log(_.intersection(Object.keys(textLog[urls[i]]), Object.keys(textLog[urls[j]])));
-                        var jScore = getJaccardScores(Object.keys(textLog[urls[i]]), Object.keys(textLog[urls[j]]));
-                        console.log(jScore);
-                    }
+    for (var i = 0; i < urls.length; i++) {
+        for (var j = 0; j < urls.length; j++) {
+            if (i != j) {
+                var firstUrlDomain = getDomainFromURL(urls[i]);
+                var secondUrlDomain = getDomainFromURL(urls[j]);
+                if (textLog[urls[i]] && textLog[urls[j]]) {
+                    var firstUrlTags = (stopwords[firstUrlDomain]["urlsRead"].length > 1) ? (_.difference((_.difference(Object.keys(textLog[urls[i]]), globalStopwords)), stopwords[firstUrlDomain]["stopwords"])) : (_.difference(Object.keys(textLog[urls[i]]), globalStopwords));
+                    var secondUrlTags = (stopwords[secondUrlDomain]["urlsRead"].length > 1) ? (_.difference((_.difference(Object.keys(textLog[urls[j]]), globalStopwords)), stopwords[secondUrlDomain]["stopwords"])) : (_.difference(Object.keys(textLog[urls[j]]), globalStopwords));
+                    var jScore = getJaccardScores(firstUrlTags, secondUrlTags);
+                    console.log("-------------------------------------------------------------------------------------------------");
+                    console.log("URL1: " + urls[i] + " URL2: " + urls[j] + " score: " + jScore);
+                    console.log("");
+                    console.log(_.intersection(firstUrlTags, secondUrlTags));
+                    console.log("-------------------------------------------------------------------------------------------------")
                     var temp = {
                         "source": urls[i],
                         "target": urls[j],
@@ -69,18 +68,17 @@ function jaccardTable(urls, textLog, stopwords){
                     }
                     table.push(temp);
                 }
-                else{
-                    console.log("Url 1:" + urls[i]);
-                    console.log("Url 2:" + urls[j]);
+                else {
                     var temp = {
                         "source": urls[i],
                         "target": urls[j],
                         "weight": 0
                     }
-                    console.log("URLs not in textLog.");
+                    // console.log("URLs not in textLog.");
                     //table.push(temp);
                 }
             }
+
         }
     }
     return table;

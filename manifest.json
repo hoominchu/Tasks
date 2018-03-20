@@ -10,6 +10,7 @@
   },
   "background": {
     "scripts": [
+      "Readability.js",
       "init.js",
       "util.js",
       "web-util.js",
@@ -40,6 +41,7 @@
         "util.js",
         "web-util.js",
         "lodash.js",
+        "Readability.js",
         "contentscripts/like.js",
         "contentscripts/time.js",
         "contentscripts/contentscript.js",
