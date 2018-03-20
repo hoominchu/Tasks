@@ -147,13 +147,13 @@ function logTags(url, logDict, stopwords) {
 }
 
 
-function getTagsOnCurrentPage() {
+function getTagsOnDocument(htmlDocument) {
 
     var tags = {};
 
     for (var i = 0; i < HTML_TAGS_TO_LOG.length; i++) {
         var htmlTag = HTML_TAGS_TO_LOG[i];
-        var elements = document.getElementsByTagName(htmlTag);
+        var elements = htmlDocument.getElementsByTagName(htmlTag);
 
         for (var j = 0; j < elements.length; j++) {
             var elem = elements[j];
@@ -296,7 +296,7 @@ function newTaskDetector(tasks, textLog) {
 
         console.log("Executing detector");
 
-        var tagsOfCurrentPage = getTagsOnCurrentPage();
+        var tagsOfCurrentPage = getTagsOnDocument(document);
 
         var taskwiseCommonTags = getTaskWiseCommonTags(tagsOfCurrentPage, tasks, textLog);
 
