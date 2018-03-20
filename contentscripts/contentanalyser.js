@@ -2,40 +2,40 @@ $(document).ready(function () {
     chrome.storage.local.get("TASKS", function (tasksDict) {
         var tasksObject = tasksDict["TASKS"];
         chrome.storage.local.get("Text Log", function (textLogDict) {
-              if(isEmpty(textLogDict)){
-                  chrome.storage.local.set({"Text Log": {}}, function(){
+            if (isEmpty(textLogDict)) {
+                chrome.storage.local.set({"Text Log": {}}, function () {
                     var logDict = {};
                     newTaskDetector(tasksObject, logDict);
-                    chrome.storage.local.get("Stopwords for websites", function(stopwords){
-                        if(stopwords["Stopwords for websites"]){
+                    chrome.storage.local.get("Stopwords for websites", function (stopwords) {
+                        if (stopwords["Stopwords for websites"]) {
                             logTags(window.location.href, logDict, stopwords["Stopwords for websites"]);
                         }
-                        else{
+                        else {
                             logTags(window.location.href, logDict, {});
                         }
                     });
                     storePageContent(window.location.href, document.documentElement.innerText);
                     console.log(getCommonTagsInNTasks(2, tasksObject, logDict));
-                  });
-              }
-              else{
-                  var logDict = textLogDict["Text Log"];
-                  newTaskDetector(tasksObject, logDict);
-                  chrome.storage.local.get("Stopwords for websites", function(stopwords){
-                      if(stopwords["Stopwords for websites"]){
-                          logTags(window.location.href, logDict, stopwords["Stopwords for websites"]);
-                      }
-                      else{
-                          logTags(window.location.href, logDict, {});
-                      }
-                  });
-                  storePageContent(window.location.href, document.documentElement.innerText);
-                  console.log(getCommonTagsInNTasks(2, tasksObject, logDict));
-              }
+                });
+            }
+            else {
+                var logDict = textLogDict["Text Log"];
+                newTaskDetector(tasksObject, logDict);
+                chrome.storage.local.get("Stopwords for websites", function (stopwords) {
+                    if (stopwords["Stopwords for websites"]) {
+                        logTags(window.location.href, logDict, stopwords["Stopwords for websites"]);
+                    }
+                    else {
+                        logTags(window.location.href, logDict, {});
+                    }
+                });
+                storePageContent(window.location.href, document.documentElement.innerText);
+                console.log(getCommonTagsInNTasks(2, tasksObject, logDict));
+            }
         });
     });
 });
-        //newTaskDetector(logDict);
+//newTaskDetector(logDict);
 
 var HTML_TAGS_TO_LOG = ["div", "span", "a", "h1", "h2", "th", "td"];
 var DOMAINS_TO_BE_IGNORED = ["www.google.com", "www.google.co.in", "www.facebook.com"];
@@ -81,14 +81,14 @@ function logTags(url, logDict, stopwords) {
             elemText = cleanTag(elemText);
             if (tags_to_be_ignored.indexOf(elemText) < 0) {
                 if (isValidTag(elemText)) {
-                    elemText = elemText.toLowerCase();
                     if (tags[elemText]) {
                         var tag = tags[elemText];
-                        tag.increaseFrequency(htmlTag);
-                        // Do something here with weights if needed.
+                        tag.increaseFrequency(htmlTag); // Functions to calculate weight are in the constructor.
+                        tag.addPosition(currentElem);
                     } else {
                         var tag = new Tag(elemText);
                         tag.increaseFrequency(htmlTag);
+                        tag.addPosition(currentElem);
                         tags[elemText] = tag;
                     }
                 }
@@ -100,15 +100,15 @@ function logTags(url, logDict, stopwords) {
         // tempObject[getDomainFromURL(url)] = tags;
     }
 
-    if(stopwords[getDomainFromURL(url)]){
-        if(stopwords[getDomainFromURL(url)]["tags"]){
-          if(stopwords[getDomainFromURL(url)]["iteration"]<3){
-            stopwords[getDomainFromURL(url)]["tags"] = _.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]);
-            console.log(Object.keys(tags));
-            console.log(_.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]));
-            stopwords[getDomainFromURL(url)]["iteration"] = stopwords[getDomainFromURL(url)]["iteration"] + 1;
-            updateStorage("Stopwords for websites", stopwords);
-          }
+    if (stopwords[getDomainFromURL(url)]) {
+        if (stopwords[getDomainFromURL(url)]["tags"]) {
+            if (stopwords[getDomainFromURL(url)]["iteration"] < 3) {
+                stopwords[getDomainFromURL(url)]["tags"] = _.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]);
+                console.log(Object.keys(tags));
+                console.log(_.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]));
+                stopwords[getDomainFromURL(url)]["iteration"] = stopwords[getDomainFromURL(url)]["iteration"] + 1;
+                updateStorage("Stopwords for websites", stopwords);
+            }
         }
 
     }
@@ -125,28 +125,35 @@ function logTags(url, logDict, stopwords) {
     console.log(logObject);
     updateStorage("Text Log", logObject);
 
-  }
-
+}
 
 
 function getTagsOnCurrentPage() {
 
-    var tags = [];
+    var tags = {};
 
     for (var i = 0; i < HTML_TAGS_TO_LOG.length; i++) {
-        var logTag = HTML_TAGS_TO_LOG[i];
-        var elems = document.getElementsByTagName(logTag);
+        var htmlTag = HTML_TAGS_TO_LOG[i];
+        var elements = document.getElementsByTagName(htmlTag);
 
-        for (var count = 0; count < elems.length; count++) {
-            var it = elems[count].innerText;
-            it = cleanTag(it);
-            if (isValidTag(it) && tags.indexOf(it) < 0) {
-                tags.push(it.toLowerCase());
+        for (var j = 0; j < elements.length; j++) {
+            var elem = elements[j];
+            var text = elem.innerText;
+            text = cleanTag(text);
+            if (isValidTag(text)) {
+                if (tags[text]) {
+                    var tag = tags[text];
+                    tag.increaseFrequency(htmlTag); // Functions to calculate weight are in the constructor.
+                    tag.addPosition(elem);
+                } else {
+                    var tag = new Tag(text);
+                    tag.increaseFrequency(htmlTag);
+                    tag.addPosition(elem);
+                    tags[text] = tag;
+                }
             }
         }
     }
-
-    tags = removeDuplicatesInArray(tags);
 
     return tags;
 }
@@ -201,44 +208,65 @@ function getCommonTagsInNTasks(n, tasks, tagLog) {
     return filteredTags;
 }
 
-function getCommonTags(tags, task, tagLog) {
-    var commonTags = [];
+function getCommonTagScores(tags, task, tagLog) {
+    var commonTagScores = {};
     var taskURLs = [];
 
+    // Use for suggestions based on open tabs.
     for (var tab in task["tabs"]) {
         taskURLs.push(task["tabs"][tab]["url"]);
     }
+
+    // Use for suggestions based on liked pages. To be edited.
+    // for (var tab in task["tabs"]) {
+    //     taskURLs.push(task["tabs"][tab]["url"]);
+    // }
 
     for (var i = 0; i < taskURLs.length; i++) {
         var url = taskURLs[i];
         if (tagLog.hasOwnProperty(url)) {
             var tagsInURL = tagLog[url];
 
-            for (var j = 0; j < tags.length; j++) {
-                var tag = tags[j];
-                if (tagsInURL.hasOwnProperty(tag)) {
-                    if (commonTags.indexOf(tag) < 0) {
-                        commonTags.push(tag);
-                    }
+            for (var text in tags) {
+                var tag1 = tags[text];
+                if (tagsInURL.hasOwnProperty(text)) {
+                    var tag2 = tagsInURL[text];
+                    commonTagScores[text] = getMatchScore(tag1, tag2);
                 }
             }
         }
     }
 
-    return commonTags;
+    return commonTagScores;
 }
 
 function getTaskWiseCommonTags(tags, tasks, tagLog) {
-    var taskwiseCommonTags = {};
+    var taskwiseCommonTagScores = {};
 
     for (var taskID in tasks) {
         if (taskID !== 'lastAssignedId' && taskID > 0 && tasks[taskID]["archived"] === false) {
-            var commonTags = getCommonTags(tags, tasks[taskID], tagLog);
-            taskwiseCommonTags[taskID] = commonTags;
+            var commonTagScores = getCommonTagScores(tags, tasks[taskID], tagLog);
+            taskwiseCommonTagScores[taskID] = commonTagScores;
         }
     }
 
-    return taskwiseCommonTags;
+    return taskwiseCommonTagScores;
+}
+
+function getTaskwiseTotalScores(taskwiseCommonTagScores) {
+    var taskwiseTotalScores = {};
+
+    for (var taskID in taskwiseCommonTagScores) {
+        var totalTaskScore = 0;
+        var taskScores = taskwiseCommonTagScores[taskID];
+        for (var key in taskScores) {
+            totalTaskScore = totalTaskScore + taskScores[key];
+        }
+
+        taskwiseTotalScores[taskID] = totalTaskScore;
+    }
+
+    return taskwiseTotalScores;
 }
 
 function newTaskDetector(tasks, textLog) {
@@ -253,22 +281,24 @@ function newTaskDetector(tasks, textLog) {
 
         var taskwiseCommonTags = getTaskWiseCommonTags(tagsOfCurrentPage, tasks, textLog);
 
+        var taskWiseTotalScores = getTaskwiseTotalScores(taskwiseCommonTags);
+
         // Create probableTasks array
-        var taskWiseCommonTagsArray = Object.keys(taskwiseCommonTags).map(function (key) {
-            return [key, taskwiseCommonTags[key]];
+        var taskWiseTotalScoresArray = Object.keys(taskWiseTotalScores).map(function (key) {
+            return [key, taskWiseTotalScores[key]];
         });
 
         // Sorting probableTasks array
-        taskWiseCommonTagsArray.sort(function (o1, o2) {
-            return o2[1].length - o1[1].length;
+        taskWiseTotalScoresArray.sort(function (o1, o2) {
+            return o2[1] - o1[1];
         });
 
         console.log("Common tags in tasks in descending order");
-        console.log(taskWiseCommonTagsArray);
+        console.log(taskWiseTotalScoresArray);
 
         chrome.storage.local.get("CTASKID", function (resp) {
             var ctaskid = resp["CTASKID"];
-            suggestProbableTask(taskWiseCommonTagsArray, ctaskid, tasks);
+            suggestProbableTask(taskWiseTotalScoresArray, ctaskid, tasks);
         });
 
     } else {
@@ -277,22 +307,24 @@ function newTaskDetector(tasks, textLog) {
 }
 
 
-function suggestProbableTask(taskWiseCommonTags, currentTaskID, tasks) {
+function suggestProbableTask(taskWiseTotalScoresArray, currentTaskID, tasks) {
+    if (taskWiseTotalScoresArray.length > 1) {
+        var mostProbableTaskID = taskWiseTotalScoresArray[0][0];
 
-    var mostProbableTaskID = taskWiseCommonTags[0][0];
-    var secondMostProbableTaskID = taskWiseCommonTags[1][0];
+        var secondMostProbableTaskID = taskWiseTotalScoresArray[1][0];
 
-    var diff = 0;
-    diff = taskWiseCommonTags[0][1].length - taskWiseCommonTags[1][1].length;
+        var diff = 0;
+        diff = taskWiseTotalScoresArray[0][1] - taskWiseTotalScoresArray[1][1];
 
-    console.log(diff / taskWiseCommonTags[0][1].length);
+        console.log(diff / taskWiseTotalScoresArray[0][1]);
 
-    if ((diff / taskWiseCommonTags[0][1].length) > 0.25) {
-        if (currentTaskID !== mostProbableTaskID) {
-            var mostProbableTask = tasks[taskWiseCommonTags[0][0]];
-            console.log("This page looks like it belongs to task " + mostProbableTask["name"]);
-            // alert("Change task!");
-            loadSuggestion(1, mostProbableTaskID, tasks)
+        if ((diff / taskWiseTotalScoresArray[0][1]) > 0.25) {
+            if (currentTaskID !== mostProbableTaskID) {
+                var mostProbableTask = tasks[mostProbableTaskID];
+                console.log("This page looks like it belongs to task " + mostProbableTask["name"]);
+                // alert("Change task!");
+                loadSuggestion(1, mostProbableTaskID, tasks)
+            }
         }
     }
 }
@@ -312,7 +344,7 @@ function loadSuggestion(tab, mostProbableTaskID, tasks) {
 // Takes an uncleaned tag and cleans it. Add any required condition in this condition.
 function cleanTag(str) {
 
-    str.replace(/\r?\n|\r/g, " ");
+    str.replace(/(\r\n\t|\n|\r\t)/gm, " ");
 
     // Replaces spaces at the beginning
     str = str.replace(/^\s+/g, '');
@@ -329,7 +361,7 @@ function cleanTag(str) {
 
 // Checks if a tag should be indexed. Add more conditions here if required.
 function isValidTag(tag) {
-    return tag.length < 20 && tag.length > 3 && /.*[a-zA-Z].*/g.test(tag) && TAGS_TO_BE_IGNORED.indexOf(tag) < 0;
+    return tag.length < 20 && tag.length > 3 && /.*[a-zA-Z].*/g.test(tag) && /^([^0-9]*)$/g.test(tag) && TAGS_TO_BE_IGNORED.indexOf(tag) < 0;
 }
 
 function removeDuplicatesInArray(arr) {
@@ -341,8 +373,8 @@ function removeDuplicatesInArray(arr) {
 
 
 function isEmpty(obj) {
-    for(var prop in obj) {
-        if(obj.hasOwnProperty(prop))
+    for (var prop in obj) {
+        if (obj.hasOwnProperty(prop))
             return false;
     }
 
@@ -356,7 +388,7 @@ function updateStorage(key, obj) {
     chrome.storage.local.set(tempObj);
 }
 
-function getJaccardScores(urlTags1, urlTags2){
+function getJaccardScores(urlTags1, urlTags2) {
     var intersection = _.intersection(urlTags1, urlTags2);
     var union = _.union(urlTags1, urlTags2);
     var jaccardScore = intersection.length / union.length;
