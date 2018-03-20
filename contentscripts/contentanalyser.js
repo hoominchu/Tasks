@@ -1,4 +1,17 @@
 $(document).ready(function () {
+
+
+    chrome.storage.local.get("readableDict", function(readableDict){
+        if(isEmpty((readableDict))){
+            chrome.storage.local.set({"readableDict": {} });
+            var readableDict = {};
+            logReadableVersion(readableDict);
+        }
+        else{
+            logReadableVersion(readableDict["readableDict"]);
+        }
+    })
+
     chrome.storage.local.get("TASKS", function (tasksDict) {
         var tasksObject = tasksDict["TASKS"];
         chrome.storage.local.get("Text Log", function (textLogDict) {
@@ -35,7 +48,7 @@ $(document).ready(function () {
         });
     });
 });
-//newTaskDetector(logDict);
+        //newTaskDetector(logDict);
 
 var HTML_TAGS_TO_LOG = ["div", "span", "a", "h1", "h2", "th", "td"];
 var DOMAINS_TO_BE_IGNORED = ["www.google.com", "www.google.co.in", "www.facebook.com"];
@@ -43,6 +56,7 @@ var TAGS_NOT_TO_COMPARE = [];
 var DOMAIN_WISE_TAGS_TO_BE_IGNORED = {"www.google.com": ["search"]};
 var URL_ENDINGS_TO_BE_IGNORED = [".pdf"];
 var TAGS_TO_BE_IGNORED = ["like", "privacy policy", "help", "share"];
+var stopWordsDict = [];
 
 var give_suggestions_by = "tabs";
 
@@ -62,12 +76,10 @@ function shouldDetectTaskForPage(url) {
 
 function logTags(url, logDict, stopwords) {
     var logObject = logDict;
-
-    var current_page_URL = location.href;
-    var current_page_domain = getDomainFromURL(current_page_URL);
+    var domain = getDomainFromURL(url);
     var tags_to_be_ignored = [];
-    if (DOMAIN_WISE_TAGS_TO_BE_IGNORED.hasOwnProperty(current_page_domain)) {
-        tags_to_be_ignored = DOMAIN_WISE_TAGS_TO_BE_IGNORED[current_page_domain];
+    if (DOMAIN_WISE_TAGS_TO_BE_IGNORED.hasOwnProperty(domain)) {
+        tags_to_be_ignored = DOMAIN_WISE_TAGS_TO_BE_IGNORED[domain];
     }
 
     var tags = {};
@@ -106,26 +118,27 @@ function logTags(url, logDict, stopwords) {
         }
         logObject[url] = tags;
 
-        // var tempObject = {};
-        // tempObject[getDomainFromURL(url)] = tags;
+        var tempObject = {};
+        tempObject[domain] = texts;
     }
 
-    if (stopwords[getDomainFromURL(url)]) {
-        if (stopwords[getDomainFromURL(url)]["tags"]) {
-            if (stopwords[getDomainFromURL(url)]["iteration"] < 3) {
-                stopwords[getDomainFromURL(url)]["tags"] = _.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]);
-                console.log(Object.keys(tags));
-                console.log(_.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]));
-                stopwords[getDomainFromURL(url)]["iteration"] = stopwords[getDomainFromURL(url)]["iteration"] + 1;
-                updateStorage("Stopwords for websites", stopwords);
-            }
-        }
-
+    if(stopwords[domain]){
+          if(stopwords[domain]["urlsRead"].indexOf(url) < 0) {
+            stopwords[domain]["stopwords"] = _.intersection(Object.keys(texts), stopwords[domain]["tags"]);
+            stopwords[domain]["tags"] = _.intersection(Object.keys(texts), stopwords[domain]["tags"]);
+            console.log(Object.keys(texts));
+            // console.log(_.intersection(Object.keys(texts), stopwords[getDomainFromURL(url)]["tags"]));
+            stopwords[domain]["urlsRead"].push(url)
+            updateStorage("Stopwords for websites", stopwords);
+          }
     }
     else {
-        stopwords[getDomainFromURL(url)] = {};
-        stopwords[getDomainFromURL(url)]["tags"] = Object.keys(tags);
-        stopwords[getDomainFromURL(url)]["iteration"] = 1;
+        stopwords[domain] = {};
+        stopwords[domain]["stopwords"] = [];
+        stopwords[domain]["tags"] = Object.keys(texts);
+        // stopwords[domain]["uniqueUrlsRead"] = 1;
+        stopwords[domain]["urlsRead"] = [];
+        stopwords[domain]["urlsRead"].push(url);
         updateStorage("Stopwords for websites", stopwords);
     }
     console.log("Stop words");
@@ -398,7 +411,23 @@ function updateStorage(key, obj) {
     chrome.storage.local.set(tempObj);
 }
 
-function getJaccardScores(urlTags1, urlTags2) {
+function logReadableVersion(dict){
+    var loc = document.location;
+    var uri = {
+        spec: loc.href,
+        host: loc.host,
+        prePath: loc.protocol + "//" + loc.host,
+        scheme: loc.protocol.substr(0, loc.protocol.indexOf(":")),
+        pathBase: loc.protocol + "//" + loc.host + loc.pathname.substr(0, loc.pathname.lastIndexOf("/") + 1)
+    };
+    var article = new Readability(uri, document).parse();
+    console.log(article);
+    dict[loc] = article;
+    updateStorage("readableDict", dict);
+
+}
+
+function getJaccardScores(urlTags1, urlTags2){
     var intersection = _.intersection(urlTags1, urlTags2);
     var union = _.union(urlTags1, urlTags2);
     var jaccardScore = intersection.length / union.length;
