@@ -52,25 +52,19 @@ window.onload = function () {
 
 
         document.getElementById("createTask").addEventListener("click", function () {
-            sendCreateTaskMessage(function(tasks){
-                appendTask(tasks["lastAssignedId"], tasks);
-
-            });
+            sendCreateTaskMessage()
         });
         });
 
         $('#taskName').keypress(function (event) {
             if (event.which == '13' && !event.shiftKey) {
-                sendCreateTaskMessage(function(tasks){
-                    appendTask(tasks["lastAssignedId"], tasks);
-
-                });
+                sendCreateTaskMessage();
             }
         });
 
 }
 
-function sendCreateTaskMessage(callback) {
+function sendCreateTaskMessage() {
     chrome.windows.getCurrent({"populate": true}, function (window) {
         var tabs = [];
         for (var i = 0; i < window.tabs.length; i++) {
@@ -84,10 +78,8 @@ function sendCreateTaskMessage(callback) {
                 "taskName": document.getElementById("taskName").value,
                 "tabs": tabs,
                 "activated": document.getElementById("closeCurrent").checked
-            },
-            function () {
-                location.reload();
             });
+        location.reload();
     });
 }
 
