@@ -1,13 +1,13 @@
 $(document).ready(function () {
 
-    chrome.storage.local.get("readableTagsDict", function(readableTagsDict){
-        if(isEmpty((readableTagsDict))){
-            chrome.storage.local.set({"readableTagsDict": {} });
+    chrome.storage.local.get("readableTagsDict", function (readableTagsDict) {
+        if (isEmpty((readableTagsDict))) {
+            chrome.storage.local.set({"readableTagsDict": {}});
             var readableTagsDict = {};
             var stopwordsReadable = {};
             logReadableTags(readableTagsDict, stopwordsReadable);
         }
-        else{
+        else {
             chrome.storage.local.get("Stopwords for readable websites", function (stopwords) {
                 if (stopwords["Stopwords for readable websites"]) {
                     logReadableTags(readableTagsDict["readableTagsDict"], stopwords["Stopwords for readable websites"]);
@@ -56,9 +56,9 @@ $(document).ready(function () {
         });
     });
 });
-        //newTaskDetector(logDict);
+//newTaskDetector(logDict);
 
-var HTML_TAGS_TO_LOG = ["div", "a", "h1", "h2", "th", "td"];
+var HTML_TAGS_TO_LOG = ["div", "a", "h1", "h2", "h3", "h4", "h5", "h6", "th", "td", "code"];
 var DOMAINS_TO_BE_IGNORED = ["www.google.com", "www.google.co.in", "www.facebook.com"];
 var TAGS_NOT_TO_COMPARE = [];
 var DOMAIN_WISE_TAGS_TO_BE_IGNORED = {"www.google.com": ["search"]};
@@ -97,7 +97,7 @@ function logTags(url, logDict, stopwords) {
     for (var q = 0; q < metaElements.length; q++) {
         var element = metaElements[q];
         var metaContent = element.getAttribute("content");
-        if (isValidTag(metaContent)){
+        if (isValidTag(metaContent)) {
             var tag = new Tag(metaContent);
             tag.increaseFrequency("meta");
             tags[metaContent] = tag;
@@ -131,15 +131,15 @@ function logTags(url, logDict, stopwords) {
         logObject[url] = tags;
     }
 
-    if(stopwords[domain]){
-          if(stopwords[domain]["urlsRead"].indexOf(url) < 0) {
+    if (stopwords[domain]) {
+        if (stopwords[domain]["urlsRead"].indexOf(url) < 0) {
             stopwords[domain]["stopwords"] = _.intersection(Object.keys(tags), stopwords[domain]["tags"]);
             stopwords[domain]["tags"] = _.intersection(Object.keys(tags), stopwords[domain]["tags"]);
             console.log(Object.keys(tags));
             // console.log(_.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]));
             stopwords[domain]["urlsRead"].push(url);
             updateStorage("Stopwords for websites", stopwords);
-          }
+        }
     }
     else {
         stopwords[domain] = {};
@@ -195,7 +195,7 @@ function getTaskTags(task, tagLog) {
     var allTags = [];
     var taskURLs = [];
 
-    if (give_suggestions_by == "tabs"){
+    if (give_suggestions_by == "tabs") {
         for (var tab in task["tabs"]) {
             taskURLs.push(task["tabs"][tab]["url"]);
         }
@@ -334,6 +334,9 @@ function newTaskDetector(tasks, textLog) {
         console.log("Common tags in tasks in descending order");
         console.log(taskWiseTotalScoresArray);
 
+        console.log("Matched tags with current page and most similar task.");
+        console.log(taskwiseCommonTags[taskWiseTotalScoresArray[0][0]]);
+
         chrome.storage.local.get("CTASKID", function (resp) {
             var ctaskid = resp["CTASKID"];
             suggestProbableTask(taskWiseTotalScoresArray, ctaskid, tasks);
@@ -427,7 +430,7 @@ function updateStorage(key, obj) {
     chrome.storage.local.set(tempObj);
 }
 
-function logReadableTags(readableTagsDict, stopwords){
+function logReadableTags(readableTagsDict, stopwords) {
     var loc = document.location;
     var url = window.location.href;
     var domain = getDomainFromURL(window.location.href);
@@ -443,8 +446,8 @@ function logReadableTags(readableTagsDict, stopwords){
     readableTagsDict[url] = getTagsOnDocument(htmlToElement(article.content));
     updateStorage("readableTagsDict", readableTagsDict);
 
-    if(stopwords[domain]){
-        if(stopwords[domain]["urlsRead"].indexOf(url) < 0) {
+    if (stopwords[domain]) {
+        if (stopwords[domain]["urlsRead"].indexOf(url) < 0) {
             stopwords[domain]["stopwords"] = _.intersection(Object.keys(readableTagsDict[url]), stopwords[domain]["tags"]);
             stopwords[domain]["tags"] = _.intersection(Object.keys(readableTagsDict[url]), stopwords[domain]["tags"]);
             console.log(Object.keys(readableTagsDict[url]));
@@ -466,7 +469,7 @@ function logReadableTags(readableTagsDict, stopwords){
 
 }
 
-function getJaccardScores(urlTags1, urlTags2){
+function getJaccardScores(urlTags1, urlTags2) {
     var intersection = _.intersection(urlTags1, urlTags2);
     var union = _.union(urlTags1, urlTags2);
     var jaccardScore = intersection.length / union.length;
