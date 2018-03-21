@@ -177,9 +177,11 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
     });
   }
   else{
-      deactivateTaskInWindow(getKeyByValue(taskToWindow, newWindowId));
-      CTASKID = 0;
-      chrome.storage.local.set({"CTASKID": 0});
+      if(getKeyByValue(taskToWindow, newWindowId)){
+          deactivateTaskInWindow(getKeyByValue(taskToWindow, newWindowId));
+          CTASKID = 0;
+          chrome.storage.local.set({"CTASKID": 0});
+      }
   }
 
 });

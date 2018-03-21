@@ -1,17 +1,17 @@
-var globalStopwords = ["like", "search", "privacy policy", "contact us", "log in", "facebook", "twitter"];
+var globalStopwords = ["like", "search", "privacy policy", "contact us", "log in", "facebook", "twitter", "Youtube"];
 
 
 function clusterTabs(){
     chrome.tabs.query({}, function(tabs){
-        chrome.storage.local.get("Text Log", function(textLog){
-            textLog = textLog["Text Log"];
-            chrome.storage.local.get("Stopwords for websites", function(stopwords){
-              var stopwords = stopwords["Stopwords for websites"];
+        chrome.storage.local.get("readableTagsDict", function(readableTagsDict){
+            readableTagsDict = readableTagsDict["readableTagsDict"];
+            chrome.storage.local.get("Stopwords for readable websites", function(stopwords){
+              var stopwords = stopwords["Stopwords for readable websites"];
               var urls = [];
               for(var i = 0; i<tabs.length; i++){
                 urls.push(tabs[i].url);
               }
-              clusterUrls(urls, textLog, stopwords, function(clusters){clusterPrinter(clusters);});
+              clusterUrls(urls, readableTagsDict, stopwords, function(clusters){clusterPrinter(clusters);});
             });
 
         });
@@ -55,9 +55,9 @@ function jaccardTable(urls, textLog, stopwords) {
                 if (textLog[urls[i]] && textLog[urls[j]]) {
                     var firstUrlTags = (stopwords[firstUrlDomain]["urlsRead"].length > 1) ? (_.difference((_.difference(Object.keys(textLog[urls[i]]), globalStopwords)), stopwords[firstUrlDomain]["stopwords"])) : (_.difference(Object.keys(textLog[urls[i]]), globalStopwords));
                     var secondUrlTags = (stopwords[secondUrlDomain]["urlsRead"].length > 1) ? (_.difference((_.difference(Object.keys(textLog[urls[j]]), globalStopwords)), stopwords[secondUrlDomain]["stopwords"])) : (_.difference(Object.keys(textLog[urls[j]]), globalStopwords));
-                    var jScore = getJaccardScores(firstUrlTags, secondUrlTags);
+                    var jScore = getJaccardScores(firstUrlTags, secondUrlTags)*100000;
                     console.log("-------------------------------------------------------------------------------------------------");
-                    console.log("URL1: " + urls[i] + " URL2: " + urls[j] + " score: " + jScore);
+                    console.log(urls[i] + "&" + urls[j] + " score: " + jScore);
                     console.log("");
                     console.log(_.intersection(firstUrlTags, secondUrlTags));
                     console.log("-------------------------------------------------------------------------------------------------")

@@ -1,13 +1,22 @@
 $(document).ready(function () {
 
-    chrome.storage.local.get("readableDict", function(readableDict){
-        if(isEmpty((readableDict))){
-            chrome.storage.local.set({"readableDict": {} });
-            var readableDict = {};
-            logReadableVersion(readableDict);
+    chrome.storage.local.get("readableTagsDict", function(readableTagsDict){
+        if(isEmpty((readableTagsDict))){
+            chrome.storage.local.set({"readableTagsDict": {} });
+            var readableTagsDict = {};
+            var stopwordsReadable = {};
+            logReadableTags(readableTagsDict, stopwordsReadable);
         }
         else{
-            logReadableVersion(readableDict["readableDict"]);
+            chrome.storage.local.get("Stopwords for readable websites", function (stopwords) {
+                if (stopwords["Stopwords for readable websites"]) {
+                    logReadableTags(readableTagsDict["readableTagsDict"], stopwords["Stopwords for readable websites"]);
+                }
+                else {
+                    var stopwordsReadable = {};
+                    logReadableTags(readableTagsDict["readableTagsDict"], stopwordsReadable);
+                }
+            });
         }
     });
 
@@ -145,7 +154,6 @@ function logTags(url, logDict, stopwords) {
     updateStorage("Text Log", logObject);
 
 }
-
 
 function getTagsOnDocument(htmlDocument) {
 
@@ -325,7 +333,6 @@ function newTaskDetector(tasks, textLog) {
     }
 }
 
-
 function suggestProbableTask(taskWiseTotalScoresArray, currentTaskID, tasks) {
     if (taskWiseTotalScoresArray.length > 1) {
         var mostProbableTaskID = taskWiseTotalScoresArray[0][0];
@@ -390,7 +397,6 @@ function removeDuplicatesInArray(arr) {
     return unique_array
 }
 
-
 function isEmpty(obj) {
     for (var prop in obj) {
         if (obj.hasOwnProperty(prop))
@@ -407,8 +413,10 @@ function updateStorage(key, obj) {
     chrome.storage.local.set(tempObj);
 }
 
-function logReadableVersion(dict){
+function logReadableTags(readableTagsDict, stopwords){
     var loc = document.location;
+    var url = window.location.href;
+    var domain = getDomainFromURL(window.location.href);
     var documentClone = document.cloneNode(true);
     var uri = {
         spec: loc.href,
@@ -417,11 +425,30 @@ function logReadableVersion(dict){
         scheme: loc.protocol.substr(0, loc.protocol.indexOf(":")),
         pathBase: loc.protocol + "//" + loc.host + loc.pathname.substr(0, loc.pathname.lastIndexOf("/") + 1)
     };
-    // var article = new Readability(uri, document).parse();
     var article = new Readability(uri, documentClone).parse();
-    console.log(article);
-    dict[loc] = article;
-    updateStorage("readableDict", dict);
+    readableTagsDict[url] = getTagsOnDocument(htmlToElement(article.content));
+    updateStorage("readableTagsDict", readableTagsDict);
+
+    if(stopwords[domain]){
+        if(stopwords[domain]["urlsRead"].indexOf(url) < 0) {
+            stopwords[domain]["stopwords"] = _.intersection(Object.keys(readableTagsDict[url]), stopwords[domain]["tags"]);
+            stopwords[domain]["tags"] = _.intersection(Object.keys(readableTagsDict[url]), stopwords[domain]["tags"]);
+            console.log(Object.keys(readableTagsDict[url]));
+            // console.log(_.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]));
+            stopwords[domain]["urlsRead"].push(url)
+            updateStorage("Stopwords for readable websites", stopwords);
+        }
+    }
+    else {
+        stopwords[domain] = {};
+        stopwords[domain]["stopwords"] = [];
+        stopwords[domain]["tags"] = Object.keys(readableTagsDict[url]);
+        // stopwords[domain]["uniqueUrlsRead"] = 1;
+        stopwords[domain]["urlsRead"] = [];
+        stopwords[domain]["urlsRead"].push(url);
+        updateStorage("Stopwords for readable websites", stopwords);
+    }
+
 
 }
 
@@ -429,4 +456,11 @@ function getJaccardScores(urlTags1, urlTags2){
     var intersection = _.intersection(urlTags1, urlTags2);
     var union = _.union(urlTags1, urlTags2);
     var jaccardScore = intersection.length / union.length;
+}
+
+function htmlToElement(html) {
+    var template = document.createElement('template');
+    html = html.trim(); // Never return a text node of whitespace as the result
+    template.innerHTML = html;
+    return template.content.firstChild;
 }
