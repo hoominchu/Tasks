@@ -137,7 +137,7 @@ function logTags(url, logDict, stopwords) {
             stopwords[domain]["tags"] = _.intersection(Object.keys(tags), stopwords[domain]["tags"]);
             console.log(Object.keys(tags));
             // console.log(_.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]));
-            stopwords[domain]["urlsRead"].push(url)
+            stopwords[domain]["urlsRead"].push(url);
             updateStorage("Stopwords for websites", stopwords);
           }
     }
@@ -195,9 +195,14 @@ function getTaskTags(task, tagLog) {
     var allTags = [];
     var taskURLs = [];
 
-    for (var tab in task["tabs"]) {
-        taskURLs.push(task["tabs"][tab]["url"]);
+    if (give_suggestions_by == "tabs"){
+        for (var tab in task["tabs"]) {
+            taskURLs.push(task["tabs"][tab]["url"]);
+        }
+    } else if (give_suggestions_by == "likes") {
+        taskURLs = task["likedPages"];
     }
+
     for (var i = 0; i < taskURLs.length; i++) {
         var url = taskURLs[i];
         if (tagLog.hasOwnProperty(url)) {
