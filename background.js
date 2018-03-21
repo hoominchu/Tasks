@@ -57,7 +57,8 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
     }
 
     if(request.type == "like-page"){
-      likePage(request.url, CTASKID);
+        TASKS[CTASKID].likedPages.push(request.url);
+        likePage(request.url, CTASKID);
     }
 
     // if(request.type == "idle-time"){

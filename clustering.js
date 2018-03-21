@@ -55,7 +55,7 @@ function jaccardTable(urls, textLog, stopwords) {
                 if (textLog[urls[i]] && textLog[urls[j]]) {
                     var firstUrlTags = (stopwords[firstUrlDomain]["urlsRead"].length > 1) ? (_.difference((_.difference(Object.keys(textLog[urls[i]]), globalStopwords)), stopwords[firstUrlDomain]["stopwords"])) : (_.difference(Object.keys(textLog[urls[i]]), globalStopwords));
                     var secondUrlTags = (stopwords[secondUrlDomain]["urlsRead"].length > 1) ? (_.difference((_.difference(Object.keys(textLog[urls[j]]), globalStopwords)), stopwords[secondUrlDomain]["stopwords"])) : (_.difference(Object.keys(textLog[urls[j]]), globalStopwords));
-                    var jScore = getJaccardScores(firstUrlTags, secondUrlTags)*100000;
+                    var jScore = getJaccardScores(firstUrlTags, secondUrlTags)*100;
                     console.log("-------------------------------------------------------------------------------------------------");
                     console.log(urls[i] + "&" + urls[j] + " score: " + jScore);
                     console.log("");

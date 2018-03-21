@@ -58,7 +58,7 @@ $(document).ready(function () {
 });
         //newTaskDetector(logDict);
 
-var HTML_TAGS_TO_LOG = ["div", "span", "a", "h1", "h2", "th", "td"];
+var HTML_TAGS_TO_LOG = ["div", "a", "h1", "h2", "th", "td"];
 var DOMAINS_TO_BE_IGNORED = ["www.google.com", "www.google.co.in", "www.facebook.com"];
 var TAGS_NOT_TO_COMPARE = [];
 var DOMAIN_WISE_TAGS_TO_BE_IGNORED = {"www.google.com": ["search"]};
