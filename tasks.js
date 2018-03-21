@@ -15,6 +15,9 @@ function Task(task_id, task_name, tabs, bookmarks, isActive) {
 function createDefaultTask(){
   var task = new Task(0, "Default", {}, {}, true);
   TASKS[task.id] = task;
+  chrome.windows.getCurrent(function(window){
+      taskToWindow[0] = window.id;
+  });
 }
 
 createDefaultTask();
@@ -163,8 +166,15 @@ function deleteTask(task_id) {
             alert("This is the current task. Please switch before deleting.");
         }
         else{
-            delete TASKS[task_id];
-            updateStorage("TASKS",TASKS);
+            var confirmation = confirm("Deleting a task will remove all the history and liked pages of the task. Are you sure you want to delete it ?");
+            if(confirmation){
+                delete TASKS[task_id];
+                if(taskToWindow[task_id]){
+                    chrome.windows.remove(taskToWindow[task_id]);
+                    delete taskToWindow[task_id];
+                }
+                updateStorage("TASKS",TASKS);
+            }
         }
     }
 }
