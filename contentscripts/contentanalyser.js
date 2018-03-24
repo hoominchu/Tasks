@@ -334,7 +334,7 @@ function getMatchedTagsForTask(tags, task, pageContent) {
             for (var text in tags) {
                 var tag = tags[text]; // Can use tag.text if case should be considered
 
-                if (contentString.indexOf(text) > 0) {
+                if (contentString.toLowerCase().indexOf(text) > 0) { // text is lower case already
                     matchedTags[text] = tag;
                 }
             }
