@@ -22,11 +22,11 @@ $(document).ready(function () {
 
     chrome.storage.local.get("TASKS", function (tasksDict) {
         var tasksObject = tasksDict["TASKS"];
-        chrome.storage.local.get("Text Log", function (textLogDict) {
+        chrome.storage.local.get("Page Content", function (textLogDict) {
             if (isEmpty(textLogDict)) {
-                chrome.storage.local.set({"Text Log": {}}, function () {
+                chrome.storage.local.set({"Page Content": {}}, function () {
                     var logDict = {};
-                    newTaskDetector(tasksObject, logDict);
+                    newTaskDetectorContent(tasksObject, logDict);
                     chrome.storage.local.get("Stopwords for websites", function (stopwords) {
                         if (stopwords["Stopwords for websites"]) {
                             logTags(window.location.href, logDict, stopwords["Stopwords for websites"]);
@@ -40,8 +40,8 @@ $(document).ready(function () {
                 });
             }
             else {
-                var logDict = textLogDict["Text Log"];
-                newTaskDetector(tasksObject, logDict);
+                var logDict = textLogDict["Page Content"];
+                newTaskDetectorContent(tasksObject, logDict);
                 chrome.storage.local.get("Stopwords for websites", function (stopwords) {
                     if (stopwords["Stopwords for websites"]) {
                         logTags(window.location.href, logDict, stopwords["Stopwords for websites"]);
@@ -58,7 +58,7 @@ $(document).ready(function () {
 });
 //newTaskDetector(logDict);
 
-var HTML_TAGS_TO_LOG = ["div", "a", "h1", "h2", "h3", "h4", "h5", "h6", "th", "td", "code"];
+var HTML_TAGS_TO_LOG = ["div", "a", "h1", "h2", "h3", "h4", "h5", "h6", "th", "td", "code", "b", "strong", "i"];
 var DOMAINS_TO_BE_IGNORED = ["www.google.com", "www.google.co.in", "www.facebook.com"];
 var TAGS_NOT_TO_COMPARE = [];
 var DOMAIN_WISE_TAGS_TO_BE_IGNORED = {"www.google.com": ["search"]};
@@ -161,6 +161,13 @@ function logTags(url, logDict, stopwords) {
 
 function getTagsOnDocument(htmlDocument) {
 
+    // var t = window.nlp("five-hundred and twenty");
+    // console.log(t.values().toNumber())
+    // console.log(
+    //     "The past tense of make is " +
+    //     nlp.verb("make").conjugate().past
+    // );
+
     var tags = {};
 
     for (var i = 0; i < HTML_TAGS_TO_LOG.length; i++) {
@@ -251,14 +258,13 @@ function getCommonTagScores(tags, task, tagLog) {
     var taskURLs = [];
 
     // Use for suggestions based on open tabs.
-    for (var tab in task["tabs"]) {
-        taskURLs.push(task["tabs"][tab]["url"]);
+    if (give_suggestions_by == "tabs") {
+        for (var tab in task["tabs"]) {
+            taskURLs.push(task["tabs"][tab]["url"]);
+        }
+    } else if (give_suggestions_by == "likes") {
+        taskURLs = task["likedPages"];
     }
-
-    // Use for suggestions based on liked pages. To be edited.
-    // for (var tab in task["tabs"]) {
-    //     taskURLs.push(task["tabs"][tab]["url"]);
-    // }
 
     for (var i = 0; i < taskURLs.length; i++) {
         var url = taskURLs[i];
@@ -307,13 +313,107 @@ function getTaskwiseTotalScores(taskwiseCommonTagScores) {
     return taskwiseTotalScores;
 }
 
+function getMatchedTagsForTask(tags, task, pageContent) {
+    var matchedTags = {};
+    var taskURLs = [];
+
+    // Use for suggestions based on open tabs.
+    if (give_suggestions_by == "tabs") {
+        for (var tab in task["tabs"]) {
+            taskURLs.push(task["tabs"][tab]["url"]);
+        }
+    } else if (give_suggestions_by == "likes") {
+        taskURLs = task["likedPages"];
+    }
+
+    for (var i = 0; i < taskURLs.length; i++) {
+        var url = taskURLs[i];
+        if (pageContent.hasOwnProperty(url)) {
+            var contentString = pageContent[url];
+
+            for (var text in tags) {
+                var tag = tags[text]; // Can use tag.text if case should be considered
+
+                if (contentString.indexOf(text) > 0) {
+                    matchedTags[text] = tag;
+                }
+            }
+        }
+    }
+
+    return matchedTags;
+}
+
+function getTaskWiseContentTagMatches(tags, tasks, pageContent) {
+    var taskWiseTagsMatched = {};
+
+    for (var taskID in tasks) {
+        if (taskID !== 'lastAssignedId' && taskID > 0 && tasks[taskID]["archived"] === false) {
+            var matchedTags = getMatchedTagsForTask(tags, tasks[taskID], pageContent);
+            taskWiseTagsMatched[taskID] = matchedTags;
+        }
+    }
+
+    return taskWiseTagsMatched;
+}
+
+function getTaskWiseMatchScores(taskWiseMatches) {
+    var taskScores = {};
+
+    for (var taskID in taskWiseMatches) {
+        var matches = taskWiseMatches[taskID];
+        taskScores[taskID] = Object.keys(matches).length;
+    }
+    return taskScores;
+}
+
+function newTaskDetectorContent(tasks, pageContent) {
+    var current_page_URL = location.href;
+    var current_page_domain = getDomainFromURL(current_page_URL);
+
+    if (shouldDetectTaskForPage(current_page_URL)) {
+        console.log("Executing detector based on tags and page content");
+
+        var tagsOfCurrentPage = getTagsOnDocument(document);
+
+        var taskWiseMatches = getTaskWiseContentTagMatches(tagsOfCurrentPage, tasks, pageContent);
+
+        var taskWiseMatchScores = getTaskWiseMatchScores(taskWiseMatches);
+
+        // Create probableTasks array
+        var taskWiseTotalScoresArray = Object.keys(taskWiseMatchScores).map(function (key) {
+            return [key, taskWiseMatchScores[key]];
+        });
+
+        // Sorting probableTasks array
+        taskWiseTotalScoresArray.sort(function (o1, o2) {
+            return o2[1] - o1[1];
+        });
+
+        console.log("Common tags in tasks in descending order");
+        console.log(taskWiseTotalScoresArray);
+
+        console.log("Matched tags with current page and most similar task.");
+        console.log(taskWiseMatches[taskWiseTotalScoresArray[0][0]]);
+
+        chrome.storage.local.get("CTASKID", function (resp) {
+            var ctaskid = resp["CTASKID"];
+            suggestProbableTask(taskWiseTotalScoresArray, ctaskid, tasks);
+        });
+
+    } else {
+        console.log("Domain is to be ignored. Did not execute detector.");
+    }
+
+}
+
 function newTaskDetector(tasks, textLog) {
     var current_page_URL = location.href;
     var current_page_domain = getDomainFromURL(current_page_URL);
 
     if (shouldDetectTaskForPage(current_page_URL)) {
 
-        console.log("Executing detector");
+        console.log("Executing detector based on tag comparison");
 
         var tagsOfCurrentPage = getTagsOnDocument(document);
 

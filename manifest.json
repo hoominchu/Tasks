@@ -41,6 +41,7 @@
         "util.js",
         "web-util.js",
         "lodash.js",
+        "contentscripts/compromise.js",
         "contentscripts/tag.js",
         "Readability.js",
         "contentscripts/tag.js",
