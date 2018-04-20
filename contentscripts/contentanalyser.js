@@ -22,32 +22,32 @@ $(document).ready(function () {
 
     chrome.storage.local.get("TASKS", function (tasksDict) {
         var tasksObject = tasksDict["TASKS"];
-        chrome.storage.local.get("Page Content", function (textLogDict) {
+        chrome.storage.local.get("Text Log", function (textLogDict) {
             if (isEmpty(textLogDict)) {
-                chrome.storage.local.set({"Page Content": {}}, function () {
+                chrome.storage.local.set({"Text Log": {}}, function () {
                     var logDict = {};
-                    newTaskDetectorContent(tasksObject, logDict);
+                    newTaskDetector(tasksObject, logDict);
                     chrome.storage.local.get("Stopwords for websites", function (stopwords) {
+                        var stopWords = {}; // Rename this variable
                         if (stopwords["Stopwords for websites"]) {
-                            logTags(window.location.href, logDict, stopwords["Stopwords for websites"]);
+                            stopWords = stopwords["Stopwords for websites"];
                         }
-                        else {
-                            logTags(window.location.href, logDict, {});
-                        }
+                        // logTags(window.location.href, logDict, stopWords);
+                        newLogTags(window.location.href, logDict);
                     });
                     storePageContent(window.location.href, document.documentElement.innerText);
                     // console.log(getCommonTagsInNTasks(2, tasksObject, logDict));
                 });
             }
             else {
-                var logDict = textLogDict["Page Content"];
-                newTaskDetectorContent(tasksObject, logDict);
+                var logDict = textLogDict["Text Log"];
+                newTaskDetector(tasksObject, logDict);
                 chrome.storage.local.get("Stopwords for websites", function (stopwords) {
                     if (stopwords["Stopwords for websites"]) {
-                        logTags(window.location.href, logDict, stopwords["Stopwords for websites"]);
+                        newLogTags(window.location.href, logDict);
                     }
                     else {
-                        logTags(window.location.href, logDict, {});
+                        newLogTags(window.location.href, logDict);
                     }
                 });
                 storePageContent(window.location.href, document.documentElement.innerText);
@@ -130,42 +130,31 @@ function logTags(url, logDict, stopwords) {
         }
         logObject[url] = tags;
     }
-
-    if (stopwords[domain]) {
-        if (stopwords[domain]["urlsRead"].indexOf(url) < 0) {
-            stopwords[domain]["stopwords"] = _.intersection(Object.keys(tags), stopwords[domain]["tags"]);
-            stopwords[domain]["tags"] = _.intersection(Object.keys(tags), stopwords[domain]["tags"]);
-            // console.log(Object.keys(tags));
-            // console.log(_.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]));
-            stopwords[domain]["urlsRead"].push(url);
-            updateStorage("Stopwords for websites", stopwords);
-        }
-    }
-    else {
-        stopwords[domain] = {};
-        stopwords[domain]["stopwords"] = [];
-        stopwords[domain]["tags"] = Object.keys(tags);
-        // stopwords[domain]["uniqueUrlsRead"] = 1;
-        stopwords[domain]["urlsRead"] = [];
-        stopwords[domain]["urlsRead"].push(url);
-        updateStorage("Stopwords for websites", stopwords);
-    }
-    // console.log("Stop words");
-    // console.log(stopwords);
-    // console.log("--------------");
-    // console.log("Text log");
-    // console.log(logObject);
     updateStorage("Text Log", logObject);
-
-    console.log("NER working");
-    getNamedEntitiesOnDocument(100);
-
 }
 
-function getNamedEntitiesOnDocument(htmlDocument) {
-    var t = window.nlp('five-hundred and twenty');
-    t.values().toNumber();
-    console.log(t);
+function getNamedEntityTagsOnCurrentDocument() {
+    console.log("TOPICS");
+    var tags = {};
+    var contentString = document.documentElement.innerText;
+    contentString = cleanTag(contentString);
+    var doc = window.nlp(contentString);
+    var topics = doc.nouns().data();
+    for (var i = 0; i < topics.length; i++) {
+        var topic = topics[i]["text"];
+        topic = cleanTag(topic);
+        if (isValidTag(topic)) {
+            if (tags.hasOwnProperty(topic.toLowerCase())) {
+                tags[topic.toLowerCase()].increaseFrequency();
+            }
+            else {
+                var tag = new Tag(topic);
+                tags[topic.toLowerCase()] = tag;
+            }
+        }
+    }
+
+    return tags;
 }
 
 function getTagsOnDocument(htmlDocument) {
@@ -229,11 +218,13 @@ function getTaskTags(task, tagLog) {
 }
 
 function storePageContent(url, content) {
-    chrome.storage.local.get("Page Content", function (response) {
-        var cont = response["Page Content"];
-        cont[url] = cleanTag(content);
-        chrome.storage.local.set({"Page Content": cont});
-    });
+    if (DOMAINS_TO_BE_IGNORED.indexOf(getDomainFromURL(url)) < 0) {
+        chrome.storage.local.get("Page Content", function (response) {
+            var cont = response["Page Content"];
+            cont[url] = cleanTag(content);
+            chrome.storage.local.set({"Page Content": cont});
+        });
+    }
 }
 
 function getCommonTagsInNTasks(n, tasks, tagLog) {
@@ -383,7 +374,7 @@ function newTaskDetectorContent(tasks, pageContent) {
     if (shouldDetectTaskForPage(current_page_URL)) {
         console.log("Executing detector based on tags and page content");
 
-        var tagsOfCurrentPage = getTagsOnDocument(document);
+        var tagsOfCurrentPage = getNamedEntityTagsOnCurrentDocument(document);
 
         var taskWiseMatches = getTaskWiseContentTagMatches(tagsOfCurrentPage, tasks, pageContent);
 
@@ -458,15 +449,22 @@ function newTaskDetector(tasks, textLog) {
     }
 }
 
+function newLogTags(url, logDict) {
+    if (DOMAINS_TO_BE_IGNORED.indexOf(getDomainFromURL(url)) < 0) {
+        logDict[url] = getNamedEntityTagsOnCurrentDocument();
+        updateStorage("Text Log", logDict);
+    }
+}
+
 function sortTagsByFrequency(tags) {
     // Create items array
-    var items = Object.keys(tags).map(function(key) {
+    var items = Object.keys(tags).map(function (key) {
         return [key, tags[key]];
     });
 
 // Sort the array based on the second element
-    items.sort(function(first, second) {
-        return second[1]["frequency"] - first[1]["frequency"];
+    items.sort(function (first, second) {
+        return second[1] - first[1];
     });
 
     return items;
@@ -512,7 +510,9 @@ function loadSuggestion(tab, mostProbableTaskID, matchedTags, tasks) {
 // Takes an uncleaned tag and cleans it. Add any required condition in this condition.
 function cleanTag(str) {
 
-    str.replace(/(\r\n\t|\n|\r\t)/gm, " ");
+    str = str.replace(/(\r\n\t|\n|\r\t)/gm, ". ");
+
+    str = str.replace(/\u21b5/g, ". ");
 
     // Replaces spaces at the beginning
     str = str.replace(/^\s+/g, '');
@@ -524,6 +524,49 @@ function cleanTag(str) {
     // Replaces " at the end
     str = str.replace(/"+$/g, '');
 
+    // Replaces , at the beginning
+    str = str.replace(/^,+/g, '');
+    // Replaces , at the end
+    str = str.replace(/,+$/g, '');
+
+    // Replaces - at the beginning
+    str = str.replace(/^-+/g, '');
+    // Replaces - at the end
+    str = str.replace(/-+$/g, '');
+
+    // Replaces ; at the beginning
+    str = str.replace(/^;+/g, '');
+    // Replaces ; at the end
+    str = str.replace(/;+$/g, '');
+
+    // Replaces ' at the beginning
+    str = str.replace(/^'+/g, '');
+    // Replaces ' at the end
+    str = str.replace(/'+$/g, '');
+
+    // Replaces . at the beginning
+    str = str.replace(/^\.+/g, '');
+    // Replaces . at the end
+    str = str.replace(/\.+$/g, '');
+
+    // // Replaces ( at the beginning
+    // str = str.replace(/^\(+/g, '');
+    // // Replaces ( at the end
+    // str = str.replace(/\('+$/g, '');
+    //
+    // // Replaces ) at the beginning
+    // str = str.replace(/^\)+/g, '');
+    // // Replaces ) at the end
+    // str = str.replace(/\)+$/g, '');
+
+    // Replaces ? at the beginning
+    str = str.replace(/^\?+/g, '');
+    // Replaces ? at the end
+    str = str.replace(/\?+$/g, '');
+
+    // Replaces 's at the end
+    str = str.replace(/'s+$/g, '');
+
     return str;
 }
 
@@ -532,7 +575,7 @@ function isValidTag(tag) {
     if (tag == null) {
         return false;
     }
-    return tag.length < 20 && tag.length > 3 && /.*[a-zA-Z].*/g.test(tag) && /^([^0-9]*)$/g.test(tag) && TAGS_TO_BE_IGNORED.indexOf(tag) < 0;
+    return tag.length > 3 && tag.length < 25 && /.*[a-zA-Z].*/g.test(tag) && /^([^0-9]*)$/g.test(tag) && TAGS_TO_BE_IGNORED.indexOf(tag) < 0;
 }
 
 function removeDuplicatesInArray(arr) {

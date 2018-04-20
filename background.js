@@ -196,7 +196,7 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
         var matchedTags = response["matched tags"];
         var matchedTagsString = "";
         for (var i = 0; i < matchedTags.length; i++) {
-            matchedTagsString = matchedTagsString + matchedTags[i][1]["text"]+", ";
+            matchedTagsString = matchedTagsString + matchedTags[i][0]+", ";
         }
         chrome.notifications.create({"type" : "basic",
             "iconUrl" : "images/logo_white_sails_no_text.png",
