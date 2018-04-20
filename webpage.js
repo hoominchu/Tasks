@@ -8,6 +8,7 @@ function Page(url, title, isLiked, isBookmarked){
   this.exitTimes = [];
   this.totalTimeSpent = 0;
   this.idleTime = 0;
+  this.parentTabs = [];
 }
 
 function addIdleTime(url, idleTime){

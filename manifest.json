@@ -10,10 +10,13 @@
   },
   "background": {
     "scripts": [
-      "Readability.js",
+      "lib/jquery-3.2.1.min.js",
+      "lib/compromise.min.js",
+      "lib/lodash.js",
+      "lib/jLouvain.js",
       "init.js",
-      "util.js",
-      "web-util.js",
+      "utils/util.js",
+      "utils/web-util.js",
       "tasks.js",
       "webpage.js",
       "contextmenu.js",
@@ -21,9 +24,7 @@
       "author.js",
       "search.js",
       "background.js",
-      "lodash.js",
-      "jLouvain.js",
-      "clustering.js"
+      "tag.js"
     ]
   },
   "content_scripts": [
@@ -37,12 +38,12 @@
         "contentscripts/contentscript.css"
       ],
       "js": [
-        "js/jquery/jquery-3.2.1.min.js",
-        "util.js",
-        "web-util.js",
-        "lodash.js",
+        "lib/jquery-3.2.1.min.js",
+        "lib/compromise.min.js",
+        "lib/lodash.js",
+        "utils/util.js",
+        "utils/web-util.js",
         "contentscripts/tag.js",
-        "Readability.js",
         "contentscripts/tag.js",
         "contentscripts/like.js",
         "contentscripts/time.js",
