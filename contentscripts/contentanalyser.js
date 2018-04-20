@@ -378,8 +378,8 @@ function newTaskDetectorContent(tasks, pageContent) {
             return o2[1] - o1[1];
         });
 
-        // console.log("Common tags in tasks in descending order");
-        // console.log(taskWiseTotalScoresArray);
+        console.log("Common tags in tasks in descending order. [Task ID : Number of matches]");
+        console.log(taskWiseTotalScoresArray);
 
         console.log("Matched tags with current page and most similar task.");
         var matchedTags = taskWiseMatches[taskWiseTotalScoresArray[0][0]];
@@ -483,14 +483,9 @@ function suggestProbableTask(taskWiseTotalScoresArray, matchedTags, currentTaskI
 
         var secondMostProbableTaskID = taskWiseTotalScoresArray[1][0];
 
-        var diff = 0;
-        diff = taskWiseTotalScoresArray[0][1] - taskWiseTotalScoresArray[1][1];
-
-        console.log(diff / taskWiseTotalScoresArray[0][1]);
-
         var matchedTagsSorted = sortTagsByFrequency(matchedTags);
 
-        if ((diff / taskWiseTotalScoresArray[0][1]) > 0.35) {
+        if (shouldShowSuggestion(taskWiseTotalScoresArray[0][1], taskWiseTotalScoresArray[1][1], matchedTags)) {
             if (currentTaskID !== mostProbableTaskID) {
                 var mostProbableTask = tasks[mostProbableTaskID];
                 console.log("This page looks like it belongs to task " + mostProbableTask["name"]);
@@ -499,6 +494,18 @@ function suggestProbableTask(taskWiseTotalScoresArray, matchedTags, currentTaskI
             }
         }
     }
+}
+
+function shouldShowSuggestion(matchesWithMostProbableTask, matchesWithSecondMostProbableTask, matchedTags) {
+    var diff = 0;
+    diff = matchesWithMostProbableTask - matchesWithSecondMostProbableTask;
+    console.log(diff / matchesWithMostProbableTask);
+    if ((diff / matchesWithMostProbableTask) > 0.35) {
+        if ((Object.keys(matchedTags).length) > 10) {
+            return true;
+        }
+    }
+    return false;
 }
 
 // Shows chrome notification.
