@@ -13,20 +13,30 @@ function Tag(str) {
     this.text = str;
     this.textLowerCase = str.toLowerCase();
 
-    this.frequency = 0;
-    this.htmlTagFrequencies = {};
-    for (var i = 0; i < HTML_TAGS_TO_LOG.length; i++) {
-        this.htmlTagFrequencies[HTML_TAGS_TO_LOG[i]] = 0;
-    }
-    this.htmlTagFrequencies["meta"] = 0;
+    this.frequency = 1;
+    // this.htmlTagFrequencies = {};
+    // for (var i = 0; i < HTML_TAGS_TO_LOG.length; i++) {
+    //     this.htmlTagFrequencies[HTML_TAGS_TO_LOG[i]] = 0;
+    // }
+    // this.htmlTagFrequencies["meta"] = 0;
 
     this.positiveWeight = 0.0;
-    this.negativeWeight = 0.0;
+    // this.negativeWeight = 0.0;
 
     this.positions = [];
 
-    this.increaseFrequency = function (htmlTag) {
-        this.htmlTagFrequencies[htmlTag]++;
+    // Use this if separate count for html tags
+    // this.increaseFrequency = function (htmlTag) {
+    //     this.htmlTagFrequencies[htmlTag]++;
+    //     this.frequency++;
+    //
+    //     // Increase weights as needed.
+    //     this.positiveWeight = this.frequency;
+    //
+    // };
+
+    // Use this if separate frequency of html tags is not needed. Using this for now as we are extracting "topics" from a page.
+    this.increaseFrequency = function () {
         this.frequency++;
 
         // Increase weights as needed.

@@ -193,15 +193,23 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
 
 });
 
+
 // Creates notification for suggested task.
 chrome.runtime.onMessage.addListener(function (response, sender) {
     if (response.type == "task suggestion") {
         var probableTaskID = response["probable task id"];
+        console.log("Notification should fire");
+        var matchedTags = response["matched tags"];
+        var matchedTagsString = "";
+        for (var i = 0; i < matchedTags.length; i++) {
+            matchedTagsString = matchedTagsString + matchedTags[i][0]+", ";
+        }
         chrome.notifications.create({"type" : "basic",
             "iconUrl" : "images/logo_white_sails_no_text.png",
             "title" : "Task Suggestion : " + response["probable task"],
-            "message" : "Looks like this page belongs to task " + response["probable task"],
+            "message" : matchedTagsString,
             "buttons" : [{"title":"Add to task " + response["probable task"] + " and go to that task"},{"title":"Add to task " + response["probable task"] + " and stay on the current task"}],
+            // "items":[{"title":"sdfs","message":"sdfawefar"},{"title":"erwq","message":"qweqwer"},{"title":"zxz","message":"vbcxvbx"}],
             "isClickable" : true,
             "requireInteraction" : false}, function (notificationID) {
             // Respond to the user's clicking one of the buttons
