@@ -1,16 +1,8 @@
 $(document).ready(function () {
-<<<<<<< HEAD
-    var compromiseScript = $("<script src=\"https://unpkg.com/compromise@latest/builds/compromise.min.js\"></script>");
-    $("body").append(compromiseScript);
-    chrome.storage.local.get("readableTagsDict", function(readableTagsDict){
-        if(isEmpty((readableTagsDict))){
-            chrome.storage.local.set({"readableTagsDict": {} });
-=======
 
-    chrome.storage.local.get("readableTagsDict", function (readableTagsDict) {
+  chrome.storage.local.get("readableTagsDict", function (readableTagsDict) {
         if (isEmpty((readableTagsDict))) {
             chrome.storage.local.set({"readableTagsDict": {}});
->>>>>>> c8fdde1fed6e1e0addf7f1467a215caf36320b94
             var readableTagsDict = {};
             var stopwordsReadable = {};
             logReadableTags(readableTagsDict, stopwordsReadable);
