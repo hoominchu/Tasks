@@ -81,3 +81,4 @@ chrome.storage.local.get(preferredDomainsFieldName, function (prefDomainsObj) {
         chrome.storage.local.set(o, function(){"init"});
     }
 });
+

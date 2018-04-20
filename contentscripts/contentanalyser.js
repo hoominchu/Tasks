@@ -1,58 +1,53 @@
 $(document).ready(function () {
 
-  chrome.storage.local.get("readableTagsDict", function (readableTagsDict) {
-        if (isEmpty((readableTagsDict))) {
-            chrome.storage.local.set({"readableTagsDict": {}});
-            var readableTagsDict = {};
-            var stopwordsReadable = {};
-            logReadableTags(readableTagsDict, stopwordsReadable);
-        }
-        else {
-            chrome.storage.local.get("Stopwords for readable websites", function (stopwords) {
-                if (stopwords["Stopwords for readable websites"]) {
-                    logReadableTags(readableTagsDict["readableTagsDict"], stopwords["Stopwords for readable websites"]);
-                }
-                else {
-                    var stopwordsReadable = {};
-                    logReadableTags(readableTagsDict["readableTagsDict"], stopwordsReadable);
-                }
-            });
-        }
-    });
+    // chrome.storage.local.get("readableTagsDict", function (readableTagsDict) {
+    //       if (isEmpty((readableTagsDict))) {
+    //           chrome.storage.local.set({"readableTagsDict": {}});
+    //           var readableTagsDict = {};
+    //           var stopwordsReadable = {};
+    //           logReadableTags(readableTagsDict, stopwordsReadable);
+    //       }
+    //       else {
+    //           chrome.storage.local.get("Stopwords for readable websites", function (stopwords) {
+    //               if (stopwords["Stopwords for readable websites"]) {
+    //                   logReadableTags(readableTagsDict["readableTagsDict"], stopwords["Stopwords for readable websites"]);
+    //               }
+    //               else {
+    //                   var stopwordsReadable = {};
+    //                   logReadableTags(readableTagsDict["readableTagsDict"], stopwordsReadable);
+    //               }
+    //           });
+    //       }
+    //   });
 
     chrome.storage.local.get("TASKS", function (tasksDict) {
         var tasksObject = tasksDict["TASKS"];
-        chrome.storage.local.get("Text Log", function (textLogDict) {
-            if (isEmpty(textLogDict)) {
-                chrome.storage.local.set({"Text Log": {}}, function () {
-                    var logDict = {};
-                    newTaskDetector(tasksObject, logDict);
-                    chrome.storage.local.get("Stopwords for websites", function (stopwords) {
-                        var stopWords = {}; // Rename this variable
-                        if (stopwords["Stopwords for websites"]) {
-                            stopWords = stopwords["Stopwords for websites"];
-                        }
-                        // logTags(window.location.href, logDict, stopWords);
-                        newLogTags(window.location.href, logDict);
+        chrome.storage.local.get("Page Content", function (pageContent) {
+            chrome.storage.local.get("Text Log", function (textLog) {
+
+
+                if (isEmpty(pageContent)) {
+                    chrome.storage.local.set({"Page Content": {}}, function () {
+                        storePageContent(window.location.href, document.documentElement.innerText);
                     });
+                }
+
+                if (isEmpty(textLog)) {
+                    chrome.storage.local.set({"Text Log": {}}, function () {
+                        newLogTags(window.location.href);
+                    });
+                }
+
+                else if (!isEmpty(pageContent) && !isEmpty(textLog)) {
+                    pageContent = pageContent["Page Content"];
+                    // textLog = textLog["Text Log"];
+                    newTaskDetectorContent(tasksObject, pageContent);
                     storePageContent(window.location.href, document.documentElement.innerText);
-                    // console.log(getCommonTagsInNTasks(2, tasksObject, logDict));
-                });
-            }
-            else {
-                var logDict = textLogDict["Text Log"];
-                newTaskDetector(tasksObject, logDict);
-                chrome.storage.local.get("Stopwords for websites", function (stopwords) {
-                    if (stopwords["Stopwords for websites"]) {
-                        newLogTags(window.location.href, logDict);
-                    }
-                    else {
-                        newLogTags(window.location.href, logDict);
-                    }
-                });
-                storePageContent(window.location.href, document.documentElement.innerText);
-                // console.log(getCommonTagsInNTasks(2, tasksObject, logDict));
-            }
+                    console.log("Page content stored.");
+                    newLogTags(window.location.href);
+                    console.log("Tags of current page logged");
+                }
+            });
         });
     });
 });
@@ -64,7 +59,8 @@ var TAGS_NOT_TO_COMPARE = [];
 var DOMAIN_WISE_TAGS_TO_BE_IGNORED = {"www.google.com": ["search"]};
 var URL_ENDINGS_TO_BE_IGNORED = [".pdf"];
 var TAGS_TO_BE_IGNORED = ["like", "privacy policy", "help", "share"];
-var stopWordsDict = [];
+var stopwords = ["privacy", "policy", "login"];
+var prepositionStopwords = [];
 
 var give_suggestions_by = "tabs";
 
@@ -158,13 +154,6 @@ function getNamedEntityTagsOnCurrentDocument() {
 }
 
 function getTagsOnDocument(htmlDocument) {
-
-    // var t = window.nlp("five-hundred and twenty");
-    // console.log(t.values().toNumber())
-    // console.log(
-    //     "The past tense of make is " +
-    //     nlp.verb("make").conjugate().past
-    // );
 
     var tags = {};
 
@@ -449,11 +438,14 @@ function newTaskDetector(tasks, textLog) {
     }
 }
 
-function newLogTags(url, logDict) {
-    if (DOMAINS_TO_BE_IGNORED.indexOf(getDomainFromURL(url)) < 0) {
-        logDict[url] = getNamedEntityTagsOnCurrentDocument();
-        updateStorage("Text Log", logDict);
-    }
+function newLogTags(url) {
+    chrome.storage.local.get("Text Log", function (textLog) {
+        textLog = textLog["Text Log"];
+        if (DOMAINS_TO_BE_IGNORED.indexOf(getDomainFromURL(url)) < 0) {
+            textLog[url] = getNamedEntityTagsOnCurrentDocument();
+            updateStorage("Text Log", textLog);
+        }
+    });
 }
 
 function sortTagsByFrequency(tags) {
@@ -601,7 +593,7 @@ function updateStorage(key, obj) {
     chrome.storage.local.set(tempObj);
 }
 
-function logReadableTags(readableTagsDict, stopwords){
+function logReadableTags(readableTagsDict, stopwords) {
     // var loc = document.location;
     // var url = window.location.href;
     // var domain = getDomainFromURL(window.location.href);
@@ -644,10 +636,10 @@ function getJaccardScores(urlTags1, urlTags2) {
     var intersection = _.intersection(urlTags1, urlTags2);
     var union = _.union(urlTags1, urlTags2);
     var jaccardScore = intersection.length / union.length;
-    if(!isNaN(jaccardScore)){
+    if (!isNaN(jaccardScore)) {
         return jaccardScore
     }
-    else{
+    else {
         return 0;
     }
 
