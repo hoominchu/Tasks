@@ -1,6 +1,6 @@
 $(document).ready(function () {
 
-    chrome.storage.local.get("readableTagsDict", function (readableTagsDict) {
+  chrome.storage.local.get("readableTagsDict", function (readableTagsDict) {
         if (isEmpty((readableTagsDict))) {
             chrome.storage.local.set({"readableTagsDict": {}});
             var readableTagsDict = {};
@@ -601,41 +601,41 @@ function updateStorage(key, obj) {
     chrome.storage.local.set(tempObj);
 }
 
-function logReadableTags(readableTagsDict, stopwords) {
-    var loc = document.location;
-    var url = window.location.href;
-    var domain = getDomainFromURL(window.location.href);
-    var documentClone = document.cloneNode(true);
-    var uri = {
-        spec: loc.href,
-        host: loc.host,
-        prePath: loc.protocol + "//" + loc.host,
-        scheme: loc.protocol.substr(0, loc.protocol.indexOf(":")),
-        pathBase: loc.protocol + "//" + loc.host + loc.pathname.substr(0, loc.pathname.lastIndexOf("/") + 1)
-    };
-    var article = new Readability(uri, documentClone).parse();
-    readableTagsDict[url] = getTagsOnDocument(htmlToElement(article.content));
-    updateStorage("readableTagsDict", readableTagsDict);
-
-    if (stopwords[domain]) {
-        if (stopwords[domain]["urlsRead"].indexOf(url) < 0) {
-            stopwords[domain]["stopwords"] = _.intersection(Object.keys(readableTagsDict[url]), stopwords[domain]["tags"]);
-            stopwords[domain]["tags"] = _.intersection(Object.keys(readableTagsDict[url]), stopwords[domain]["tags"]);
-            // console.log(Object.keys(readableTagsDict[url]));
-            // console.log(_.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]));
-            stopwords[domain]["urlsRead"].push(url)
-            updateStorage("Stopwords for readable websites", stopwords);
-        }
-    }
-    else {
-        stopwords[domain] = {};
-        stopwords[domain]["stopwords"] = [];
-        stopwords[domain]["tags"] = Object.keys(readableTagsDict[url]);
-        // stopwords[domain]["uniqueUrlsRead"] = 1;
-        stopwords[domain]["urlsRead"] = [];
-        stopwords[domain]["urlsRead"].push(url);
-        updateStorage("Stopwords for readable websites", stopwords);
-    }
+function logReadableTags(readableTagsDict, stopwords){
+    // var loc = document.location;
+    // var url = window.location.href;
+    // var domain = getDomainFromURL(window.location.href);
+    // var documentClone = document.cloneNode(true);
+    // var uri = {
+    //     spec: loc.href,
+    //     host: loc.host,
+    //     prePath: loc.protocol + "//" + loc.host,
+    //     scheme: loc.protocol.substr(0, loc.protocol.indexOf(":")),
+    //     pathBase: loc.protocol + "//" + loc.host + loc.pathname.substr(0, loc.pathname.lastIndexOf("/") + 1)
+    // };
+    // var article = new Readability(uri, documentClone).parse();
+    // readableTagsDict[url] = getTagsOnDocument(htmlToElement(article.content));
+    // updateStorage("readableTagsDict", readableTagsDict);
+    //
+    // if(stopwords[domain]){
+    //     if(stopwords[domain]["urlsRead"].indexOf(url) < 0) {
+    //         stopwords[domain]["stopwords"] = _.intersection(Object.keys(readableTagsDict[url]), stopwords[domain]["tags"]);
+    //         stopwords[domain]["tags"] = _.intersection(Object.keys(readableTagsDict[url]), stopwords[domain]["tags"]);
+    //         console.log(Object.keys(readableTagsDict[url]));
+    //         // console.log(_.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]));
+    //         stopwords[domain]["urlsRead"].push(url)
+    //         updateStorage("Stopwords for readable websites", stopwords);
+    //     }
+    // }
+    // else {
+    //     stopwords[domain] = {};
+    //     stopwords[domain]["stopwords"] = [];
+    //     stopwords[domain]["tags"] = Object.keys(readableTagsDict[url]);
+    //     // stopwords[domain]["uniqueUrlsRead"] = 1;
+    //     stopwords[domain]["urlsRead"] = [];
+    //     stopwords[domain]["urlsRead"].push(url);
+    //     updateStorage("Stopwords for readable websites", stopwords);
+    // }
 
 
 }
@@ -644,6 +644,13 @@ function getJaccardScores(urlTags1, urlTags2) {
     var intersection = _.intersection(urlTags1, urlTags2);
     var union = _.union(urlTags1, urlTags2);
     var jaccardScore = intersection.length / union.length;
+    if(!isNaN(jaccardScore)){
+        return jaccardScore
+    }
+    else{
+        return 0;
+    }
+
 }
 
 function htmlToElement(html) {
