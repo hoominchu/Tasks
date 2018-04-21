@@ -21,12 +21,16 @@ $(document).ready(function () {
 
                     var results = searchArchivedPages(query, currentTask, pageContent);
 
-
-
                     if (results.length > 0) {
                         for (var i = 0; i < results.length; i++) {
                             var resultElement = document.createElement("p");
-                            resultElement.innerText = results[i]["url"];
+                            var urlString = results[i]["url"];
+                            var matchedTermsString = "";
+                            var matchedTerms = results[i]["matched terms"];
+                            for (var j = 0; j < matchedTerms.length; j++) {
+                                matchedTermsString = matchedTermsString + matchedTerms[j] + " | ";
+                            }
+                            resultElement.innerHTML = urlString + "<br>" + matchedTermsString + "<br><br>";
                             resultsElement.appendChild(resultElement);
                         }
                     }
@@ -65,7 +69,7 @@ function searchArchivedPages(query, task, pageContent) {
             };
 
             for (var j = 0; j < queryTerms.length; j++) {
-                if (content.indexOf(queryTerms[j].toLowerCase()) > -1) {
+                if (content.indexOf(" " + queryTerms[j].toLowerCase() + " ") > -1) {
                     result["matched terms"].push(queryTerms[j]);
                 }
             }
