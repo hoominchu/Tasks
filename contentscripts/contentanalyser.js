@@ -1,5 +1,5 @@
 var HTML_TAGS_TO_LOG = ["div", "a", "h1", "h2", "h3", "h4", "h5", "h6", "th", "td", "code", "b", "strong", "i"];
-var DOMAINS_TO_BE_IGNORED = ["www.google.com", "www.google.co.in", "www.facebook.com"];
+var DOMAINS_TO_BE_IGNORED = []; //"www.google.com", "www.google.co.in", "www.facebook.com"
 var TAGS_NOT_TO_COMPARE = [];
 var DOMAIN_WISE_TAGS_TO_BE_IGNORED = {"www.google.com": ["search"]};
 var URL_ENDINGS_TO_BE_IGNORED = [".pdf"];
@@ -74,9 +74,10 @@ chrome.storage.local.get("Settings", function (settings) {
 
 
 function shouldDetectTaskForPage(url) {
+    var ignore_domains = ["www.google.com", "www.google.co.in", "www.facebook.com"];
     var page_URL = url;
     var page_domain = getDomainFromURL(page_URL);
-    if (DOMAINS_TO_BE_IGNORED.indexOf(page_domain) > 0) {
+    if (ignore_domains.indexOf(page_domain) > 0) {
         return false;
     }
     for (var ending in URL_ENDINGS_TO_BE_IGNORED) {
@@ -516,7 +517,7 @@ function suggestProbableTask(taskWiseTotalScoresArray, matchedTags, currentTaskI
     }
 }
 
-function shouldShowSuggestion(matchesWithMostProbableTask, matchesWithSecondMostProbableTask, matchedTags) {
+function shouldShowSuggestion(matchesWithMostProbableTask, matchesWithSecondMostProbableTask, matchedTags, settings) {
     var threshold = 0.0;
     if (settings["suggestions threshold"] == "Low") {
         threshold = 0.3;
@@ -525,7 +526,7 @@ function shouldShowSuggestion(matchesWithMostProbableTask, matchesWithSecondMost
     } else if (settings["suggestions threshold"] == "High") {
         threshold = 0.7;
     }
-    // var diff = 0;
+    var diff = 0;
     diff = matchesWithMostProbableTask - matchesWithSecondMostProbableTask;
     console.log(diff / matchesWithMostProbableTask);
 

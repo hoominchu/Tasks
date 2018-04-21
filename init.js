@@ -23,7 +23,7 @@ var CTASKID = 0;
 
 var taskToWindow = {};
 
-var tabIdToURL={};
+var tabIdToURL = {};
 var activeTabId = 0;
 
 //
@@ -31,9 +31,9 @@ var backgroundPageId = -1;
 var defaultTaskId = 0;
 
 //Suggestion log dictionary
-chrome.storage.local.get("Suggestions Log", function(e){
-    if(isEmpty(e)){
-        chrome.storage.local.set({"Suggestions Log": {"Correct suggestions":0,"Incorrect suggestions":0}});
+chrome.storage.local.get("Suggestions Log", function (e) {
+    if (isEmpty(e)) {
+        chrome.storage.local.set({"Suggestions Log": {"Correct suggestions": 0, "Incorrect suggestions": 0}});
     }
 });
 
@@ -46,20 +46,20 @@ chrome.storage.local.get("TASKS", function (taskObject) {
     }
 });
 
-chrome.storage.local.get("Page Content", function(e){
-    if(isEmpty(e)){
+chrome.storage.local.get("Page Content", function (e) {
+    if (isEmpty(e)) {
         chrome.storage.local.set({"Page Content": {}});
     }
 });
 
-chrome.storage.local.get("Text Log", function(e){
-    if(isEmpty(e)){
+chrome.storage.local.get("Text Log", function (e) {
+    if (isEmpty(e)) {
         chrome.storage.local.set({"Text Log": {}});
     }
 });
 
-chrome.storage.local.get("Settings", function(e){
-    if(isEmpty(e)){
+chrome.storage.local.get("Settings", function (e) {
+    if (isEmpty(e)) {
         var DEFAULT_SETTINGS = {
             "notifications": "Enabled",
             "suggestions based on": "Open tabs",
@@ -69,6 +69,17 @@ chrome.storage.local.get("Settings", function(e){
         // Setting default settings in local storage.
         chrome.storage.local.set({"Settings": DEFAULT_SETTINGS}, function () {
             console.log("Settings object initialised in local storage.");
+        })
+    }
+});
+
+chrome.storage.local.get("Advanced Search Settings", function (e) {
+    if (isEmpty(e)) {
+        var defaultAdvSearchSettings = {
+            "search in": "Open tabs"
+        };
+        chrome.storage.local.set({"Advanced Search Settings": defaultAdvSearchSettings}, function () {
+            console.log("Advanced search settings initialised.");
         })
     }
 });
@@ -87,7 +98,9 @@ chrome.storage.local.get(preferredAuthorsFieldName, function (prefAuthObj) {
         o[preferredAuthorsFieldName]["metadata"] = {};
         o[preferredAuthorsFieldName]["metadata"][totalFrequencyFieldName] = 0;
         console.log(o);
-        chrome.storage.local.set(o, function(){"init"});
+        chrome.storage.local.set(o, function () {
+            "init"
+        });
     }
 });
 
@@ -99,7 +112,9 @@ chrome.storage.local.get(preferredDomainsFieldName, function (prefDomainsObj) {
         o[preferredDomainsFieldName]["metadata"] = {};
         o[preferredDomainsFieldName]["metadata"][totalFrequencyFieldName] = 0;
         console.log(o);
-        chrome.storage.local.set(o, function(){"init"});
+        chrome.storage.local.set(o, function () {
+            "init"
+        });
     }
 });
 
