@@ -98,6 +98,7 @@ function sendCreateTaskMessage(closeCurrentTask, tabs) {
                     "activated": true
                 }
             );
+            location.reload();
         }
         else{
             chrome.runtime.sendMessage(
@@ -108,6 +109,7 @@ function sendCreateTaskMessage(closeCurrentTask, tabs) {
                     "activated": false
                 }
             );
+            location.reload();
         }
 }
 
