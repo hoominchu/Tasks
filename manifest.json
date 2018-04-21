@@ -90,6 +90,9 @@
   "icons": {
     "16": "images/SailBoat.png"
   },
+  "chrome_url_overrides" : {
+    "newtab": "html/index.html"
+  },
   "commands": {
     "like-page": {
       "suggested-key": {
