@@ -12,7 +12,8 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#" style="padding-left: 1.5em"><img src="../images/logo_white_sails_no_text.png" width="40em"></a>
+    <a class="navbar-brand" href="#" style="padding-left: 1.5em"><img src="../images/logo_white_sails_no_text.png"
+                                                                      width="40em"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
             aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -46,14 +47,33 @@
 </nav>
 
 <div class="container-fluid">
+    <div class="row" style="height: 2em; margin-top: 1em; margin-bottom: 1em">
+        <div class="col-lg-2"></div>
+        <p class="col-lg-8" id="currentTaskMessage"></p>
+        <div class="col-lg-2"></div>
+    </div>
+    <div class="row">
 
-    <div class="form-group">
-        <input type="search" class="form-control round-corner" id="searchArchive" placeholder="Search through the content of your archived pages">
+
+        <div class="col-lg-2"></div>
+        <div class="form-group col-lg-8 input-group">
+            <input type="search" class="form-control round-corner" style="" id="searchArchiveInput"
+                   placeholder="Search through the content of your archived pages">
+            <div class="input-group-append">
+                <button id="submitSearchArchiveQuery" type="submit" class="btn btn-primary round-corner-right">Search</button>
+            </div>
+        </div>
+        <div class="col-lg-2"></div>
+    </div>
+    <div class="row" style="height: 2em;"></div>
+    <div class="row">
+        <div class="col-lg-2"></div>
+        <div id="archiveSearchResults" class="col-lg-8">
+
+        </div>
+        <div class="col-lg-2"></div>
     </div>
 
-    <div id="archiveSearchResults">
-
-    </div>
 </div>
 
 <script src="searchArchive.js"></script>

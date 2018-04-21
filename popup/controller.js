@@ -87,8 +87,8 @@ $("#history").click(function () {
     chrome.tabs.create({"url": "html/history.html"});
 });
 
-$("#search").click(function () {
-    chrome.tabs.create({"url": "html/search.html"});
+$("#search_archive").click(function () {
+    chrome.tabs.create({"url": "html/searchArchive.html"});
 });
 
 $("#index").click(function () {
