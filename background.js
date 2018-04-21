@@ -97,6 +97,15 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
         clusterTabs();
     }
 });
+//if someone asks for open tasks give it to them
+chrome.runtime.onMessage.addListener(function (request, sender) {
+    if(request.type == "give me open tasks"){
+        chrome.runtime.sendMessage({
+          "type": "array of open tasks",
+          "openTasks": Object.keys(taskToWindow)
+        });
+    }
+  });
 
 chrome.runtime.onMessage.addListener(function (request, sender) {
     if(request.type == "likePages"){
