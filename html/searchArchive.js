@@ -42,7 +42,15 @@ $(document).ready(function () {
                         else {
                             resultsElement.innerText = "No matches found. Archive more pages!";
                         }
-                    }
+                    };
+
+                    document.getElementById("searchArchiveInput").addEventListener("keyup", function (event) {
+                        event.preventDefault();
+                        if (event.keyCode === 13) {
+                            document.getElementById("submitSearchArchiveQuery").click();
+                        }
+                    });
+
                 });
             });
         });
