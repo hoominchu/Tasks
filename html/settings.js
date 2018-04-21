@@ -18,12 +18,21 @@ chrome.storage.local.get("Settings", function (settings) {
 
     settings = settings["Settings"];
 
+    // Template
 // <div class="btn-group" role="group" aria-label="Basic example">
 //         <button type="button" class="btn btn-secondary">Left</button>
 //         <button type="button" class="btn btn-secondary">Middle</button>
 //         <button type="button" class="btn btn-secondary">Right</button>
 //         </div>
 
+    showNotificationOptions(settings, settingsOptions);
+
+    showSuggestionsBasedOnOptions(settings, settingsOptions);
+
+    showSuggestionThresholdOptions(settings, settingsOptions);
+});
+
+function showNotificationOptions(settings, settingsOptions) {
     // Displaying notification options
     var notification_set_to = settings["notifications"];
 
@@ -61,15 +70,17 @@ chrome.storage.local.get("Settings", function (settings) {
 
         notifications_options_element.appendChild(option);
     }
+}
 
+function showSuggestionsBasedOnOptions(settings, settingsOptions) {
     // Displaying options for suggestions
     var suggestions_based_on_options_element = document.getElementById("suggestion_options");
     var suggestions_based_on_set_to = settings["suggestions based on"];
     var suggestions_based_on_options = settingsOptions["suggestions based on"];
 
     for (var i = 0; i < suggestions_based_on_options.length; i++) {
-        option = document.createElement("button");
-        classString = "btn";
+        var option = document.createElement("button");
+        var classString = "btn";
         if (suggestions_based_on_options[i] == suggestions_based_on_set_to) {
             classString = classString + " " + "btn-primary";
         }
@@ -95,15 +106,17 @@ chrome.storage.local.get("Settings", function (settings) {
 
         suggestions_based_on_options_element.appendChild(option);
     }
+}
 
+function showSuggestionThresholdOptions(settings, settingsOptions) {
     // Threshold for suggestions
     var suggestions_threshold_element = document.getElementById("suggestion_threshold");
     var suggestions_threshold_set_to = settings["suggestions threshold"];
     var suggestions_threshold_options = settingsOptions["suggestions threshold"];
 
     for (var i = 0; i < suggestions_threshold_options.length; i++) {
-        option = document.createElement("button");
-        classString = "btn";
+        var option = document.createElement("button");
+        var classString = "btn";
         if (suggestions_threshold_options[i] == suggestions_threshold_set_to) {
             classString = classString + " " + "btn-primary";
         }
@@ -129,8 +142,7 @@ chrome.storage.local.get("Settings", function (settings) {
 
         suggestions_threshold_element.appendChild(option);
     }
-
-});
+}
 
 function updateStorage(key, obj) {
     var tempObj = {};
