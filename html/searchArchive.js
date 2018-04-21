@@ -24,13 +24,14 @@ $(document).ready(function () {
                     if (results.length > 0) {
                         for (var i = 0; i < results.length; i++) {
                             var resultElement = document.createElement("p");
-                            var urlString = results[i]["url"];
-                            var matchedTermsString = "";
+                            var urlString = "<p>" + results[i]["url"] + "</p>";
+                            var matchedTermsString = "<p><small>";
                             var matchedTerms = results[i]["matched terms"];
                             for (var j = 0; j < matchedTerms.length; j++) {
                                 matchedTermsString = matchedTermsString + matchedTerms[j] + " | ";
                             }
-                            resultElement.innerHTML = urlString + "<br>" + matchedTermsString + "<br><br>";
+                            matchedTermsString = matchedTermsString + "</p></small>";
+                            resultElement.innerHTML = urlString + matchedTermsString + "<br>";
                             resultsElement.appendChild(resultElement);
                         }
                     }
