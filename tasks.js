@@ -162,8 +162,8 @@ function deactivateTaskInWindow(task_id){
 
 function deleteTask(task_id) {
     if (TASKS[task_id]) {
-        if(CTASKID == task_id){
-            alert("This is the current task. Please switch before deleting.");
+        if(taskToWindow[task_id]){
+            alert("This task is open. Please close it before deleting.");
         }
         else{
             var confirmation = confirm("Deleting a task will remove all the history and liked pages of the task. Are you sure you want to delete it ?");

@@ -14,9 +14,9 @@ window.onload = function () {
                                 "type": "switch-task",
                                 "nextTaskId": $(element.srcElement).closest(".card").attr("id"),
                             }
-                        )(element);
-                }
-
+                        );
+                location.reload();
+                }(element);
             });
 
 
@@ -34,10 +34,6 @@ window.onload = function () {
 
             funcOnClick("deleteTask", "class", function (element) {
                 var Tasks = taskObject["TASKS"];
-                if(Tasks[$(element.srcElement).closest(".card").attr("id")].isActive){
-                    alert("Task is active. Can't delete.");
-                }
-                else{
                     return function (element) {
                         chrome.runtime.sendMessage(
                             {
@@ -47,7 +43,7 @@ window.onload = function () {
                         );
                         location.reload();
                     }(element);
-                }
+
 
             });
 

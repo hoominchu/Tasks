@@ -75,8 +75,8 @@ function setUpArchivedTasks(Tasks, task_id){
     var delete_button = $("<button class='btn btn-outline-danger btn-sm round-corner-right deleteTask' type='button' id='" + Tasks[task_id].id + "'>Delete</button>");
     var archive_button = $("<button class='btn btn-outline-dark btn-sm round-corner archiveTask' type='button' id='" + Tasks[task_id].id + "'>Unarchive</button>");
 
-    card_buttons.append(open_button);
-    card_buttons.append(rename_button);
+    // card_buttons.append(open_button);
+    // card_buttons.append(rename_button);
     card_buttons.append(archive_button);
     card_buttons.append(delete_button);
     card_body.append(card_buttons);
@@ -87,6 +87,3 @@ function setUpArchivedTasks(Tasks, task_id){
     col.append(card);
     $("#archived-tasks").append(col);
 }
-
-
-
