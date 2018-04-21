@@ -82,9 +82,14 @@ function searchArchivedPages(query, task, pageContent) {
         }
     }
 
+    results = sortResults(results);
     return results;
 
     function sortResults(results) {
+        results.sort(function (a, b) {
+            return b["matched terms"].length - a["matched terms"].length;
+        });
 
+        return results;
     }
 }
