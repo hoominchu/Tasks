@@ -25,7 +25,7 @@ $(document).ready(function () {
                         for (var i = 0; i < results.length; i++) {
                             var resultElement = document.createElement("p");
                             var urlString = "<p>" + results[i]["url"] + "</p>";
-                            var matchedTermsString = "<p><small>";
+                            var matchedTermsString = "<p><small>Matched terms : ";
                             var matchedTerms = results[i]["matched terms"];
                             for (var j = 0; j < matchedTerms.length; j++) {
                                 matchedTermsString = matchedTermsString + matchedTerms[j] + " | ";
@@ -47,16 +47,18 @@ $(document).ready(function () {
 function searchArchivedPages(query, task, pageContent) {
     var results = [];
 
-    var queryTerms = query.split(" ");
+    var queryTerms = [];
 
-    // result = {
-    //     url:
-    //     matched terms:[]
-    // }
+    if (query[0] == "\"" && query[query.length - 1] == "\"") {
+        query = query.substring(1, query.length - 1);
+        queryTerms = [query];
+    } else {
+        queryTerms = query.split(" ");
+    }
 
     var archivedPages = task["likedPages"];
     if (archivedPages.length == 0) {
-        return adfsadf;
+        return [];
     }
     else {
         for (var i = 0; i < archivedPages.length; i++) {
