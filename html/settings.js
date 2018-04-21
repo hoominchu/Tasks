@@ -36,6 +36,13 @@ chrome.storage.local.get("Settings", function (settings) {
         else {
             classString = classString + " " + "btn-secondary";
         }
+        if (i == 0) {
+            classString = classString + " round-corner-left";
+        }
+        if (i == notifications_options.length - 1) {
+            classString = classString + " round-corner-right";
+        }
+
         option.className = classString;
         option.innerText = notifications_options[i];
         option.onclick = function (ev) {
@@ -67,6 +74,14 @@ chrome.storage.local.get("Settings", function (settings) {
         else {
             classString = classString + " " + "btn-secondary";
         }
+
+        if (i == 0) {
+            classString = classString + " round-corner-left";
+        }
+        if (i == suggestions_based_on_options.length - 1) {
+            classString = classString + " round-corner-right";
+        }
+
         option.className = classString;
         option.innerText = suggestions_based_on_options[i];
         option.onclick = function (ev) {
