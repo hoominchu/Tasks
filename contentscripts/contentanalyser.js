@@ -505,7 +505,7 @@ function suggestProbableTask(taskWiseTotalScoresArray, matchedTags, currentTaskI
 
         var matchedTagsSorted = sortTagsByFrequency(matchedTags);
 
-        if (shouldShowSuggestion(taskWiseTotalScoresArray[0][1], taskWiseTotalScoresArray[1][1], matchedTags)) {
+        if (shouldShowSuggestion(taskWiseTotalScoresArray[0][1], taskWiseTotalScoresArray[1][1], matchedTags, settings)) {
             if (currentTaskID !== mostProbableTaskID) {
                 var mostProbableTask = tasks[mostProbableTaskID];
                 console.log("This page looks like it belongs to task " + mostProbableTask["name"]);
@@ -517,12 +517,19 @@ function suggestProbableTask(taskWiseTotalScoresArray, matchedTags, currentTaskI
 }
 
 function shouldShowSuggestion(matchesWithMostProbableTask, matchesWithSecondMostProbableTask, matchedTags) {
-
-    var diff = 0;
+    var threshold = 0.0;
+    if (settings["suggestions threshold"] == "Low") {
+        threshold = 0.3;
+    } else if (settings["suggestions threshold"] == "Medium") {
+        threshold = 0.5;
+    } else if (settings["suggestions threshold"] == "High") {
+        threshold = 0.7;
+    }
+    // var diff = 0;
     diff = matchesWithMostProbableTask - matchesWithSecondMostProbableTask;
     console.log(diff / matchesWithMostProbableTask);
 
-    if ((diff / matchesWithMostProbableTask) > 0.35) {
+    if ((diff / matchesWithMostProbableTask) > threshold) {
         if ((Object.keys(matchedTags).length) > 10) {
             return true;
         }

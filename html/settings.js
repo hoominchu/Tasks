@@ -1,7 +1,8 @@
 // If default settings object is changed here, it should be changed in init.js also.
 var DEFAULT_SETTINGS = {
     "notifications": "Enabled",
-    "suggestions based on": "Open tabs"
+    "suggestions based on": "Open tabs",
+    "suggestions threshold": "Medium"
 };
 
 var settings = DEFAULT_SETTINGS;
@@ -11,7 +12,8 @@ chrome.storage.local.get("Settings", function (settings) {
     // This variable contains all the options for each of the settings option.
     var settingsOptions = {
         "notifications": ["Enabled", "Disabled"],
-        "suggestions based on": ["Open tabs", "Liked pages"]
+        "suggestions based on": ["Open tabs", "Liked pages"],
+        "suggestions threshold": ["Low", "Medium", "High"]
     };
 
     settings = settings["Settings"];
@@ -93,6 +95,41 @@ chrome.storage.local.get("Settings", function (settings) {
 
         suggestions_based_on_options_element.appendChild(option);
     }
+
+    // Threshold for suggestions
+    var suggestions_threshold_element = document.getElementById("suggestion_threshold");
+    var suggestions_threshold_set_to = settings["suggestions threshold"];
+    var suggestions_threshold_options = settingsOptions["suggestions threshold"];
+
+    for (var i = 0; i < suggestions_threshold_options.length; i++) {
+        option = document.createElement("button");
+        classString = "btn";
+        if (suggestions_threshold_options[i] == suggestions_threshold_set_to) {
+            classString = classString + " " + "btn-primary";
+        }
+        else {
+            classString = classString + " " + "btn-secondary";
+        }
+
+        if (i == 0) {
+            classString = classString + " round-corner-left";
+        }
+        if (i == suggestions_threshold_options.length - 1) {
+            classString = classString + " round-corner-right";
+        }
+
+        option.className = classString;
+        option.innerText = suggestions_threshold_options[i];
+        option.onclick = function (ev) {
+            console.log(ev);
+            settings["suggestions threshold"] = this.innerText;
+            updateStorage("Settings", settings);
+            location.reload();
+        };
+
+        suggestions_threshold_element.appendChild(option);
+    }
+
 });
 
 function updateStorage(key, obj) {

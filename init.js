@@ -62,7 +62,8 @@ chrome.storage.local.get("Settings", function(e){
     if(isEmpty(e)){
         var DEFAULT_SETTINGS = {
             "notifications": "Enabled",
-            "suggestions based on": "Open tabs"
+            "suggestions based on": "Open tabs",
+            "suggestions threshold": "Medium"
         };
 
         // Setting default settings in local storage.
