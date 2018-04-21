@@ -1,58 +1,3 @@
-$(document).ready(function () {
-
-    // chrome.storage.local.get("readableTagsDict", function (readableTagsDict) {
-    //       if (isEmpty((readableTagsDict))) {
-    //           chrome.storage.local.set({"readableTagsDict": {}});
-    //           var readableTagsDict = {};
-    //           var stopwordsReadable = {};
-    //           logReadableTags(readableTagsDict, stopwordsReadable);
-    //       }
-    //       else {
-    //           chrome.storage.local.get("Stopwords for readable websites", function (stopwords) {
-    //               if (stopwords["Stopwords for readable websites"]) {
-    //                   logReadableTags(readableTagsDict["readableTagsDict"], stopwords["Stopwords for readable websites"]);
-    //               }
-    //               else {
-    //                   var stopwordsReadable = {};
-    //                   logReadableTags(readableTagsDict["readableTagsDict"], stopwordsReadable);
-    //               }
-    //           });
-    //       }
-    //   });
-
-    chrome.storage.local.get("TASKS", function (tasksDict) {
-        var tasksObject = tasksDict["TASKS"];
-        chrome.storage.local.get("Page Content", function (pageContent) {
-            chrome.storage.local.get("Text Log", function (textLog) {
-
-
-                if (isEmpty(pageContent)) {
-                    chrome.storage.local.set({"Page Content": {}}, function () {
-                        storePageContent(window.location.href, document.documentElement.innerText);
-                    });
-                }
-
-                if (isEmpty(textLog)) {
-                    chrome.storage.local.set({"Text Log": {}}, function () {
-                        newLogTags(window.location.href);
-                    });
-                }
-
-                else if (!isEmpty(pageContent) && !isEmpty(textLog)) {
-                    pageContent = pageContent["Page Content"];
-                    // textLog = textLog["Text Log"];
-                    newTaskDetectorContent(tasksObject, pageContent);
-                    storePageContent(window.location.href, document.documentElement.innerText);
-                    console.log("Page content stored.");
-                    newLogTags(window.location.href);
-                    console.log("Tags of current page logged");
-                }
-            });
-        });
-    });
-});
-//newTaskDetector(logDict);
-
 var HTML_TAGS_TO_LOG = ["div", "a", "h1", "h2", "h3", "h4", "h5", "h6", "th", "td", "code", "b", "strong", "i"];
 var DOMAINS_TO_BE_IGNORED = ["www.google.com", "www.google.co.in", "www.facebook.com"];
 var TAGS_NOT_TO_COMPARE = [];
@@ -62,7 +7,71 @@ var TAGS_TO_BE_IGNORED = ["like", "privacy", "policy", "user", "time", "title", 
 var stopwords = ["privacy", "policy", "login", "a", "able", "about", "above", "abst", "accordance", "according", "accordingly", "across", "act", "actually", "added", "adj", "affected", "affecting", "affects", "after", "afterwards", "again", "against", "ah", "all", "almost", "alone", "along", "already", "also", "although", "always", "am", "among", "amongst", "an", "and", "announce", "another", "any", "anybody", "anyhow", "anymore", "anyone", "anything", "anyway", "anyways", "anywhere", "apparently", "approximately", "are", "aren", "arent", "arise", "around", "as", "aside", "ask", "asking", "at", "auth", "available", "away", "awfully", "b", "back", "be", "became", "because", "become", "becomes", "becoming", "been", "before", "beforehand", "begin", "beginning", "beginnings", "begins", "behind", "being", "believe", "below", "beside", "besides", "between", "beyond", "biol", "both", "brief", "briefly", "but", "by", "c", "ca", "came", "can", "cannot", "can't", "cause", "causes", "certain", "certainly", "co", "com", "come", "comes", "contain", "containing", "contains", "could", "couldnt", "d", "date", "did", "didn't", "different", "do", "does", "doesn't", "doing", "done", "don't", "down", "downwards", "due", "during", "e", "each", "ed", "edu", "effect", "eg", "eight", "eighty", "either", "else", "elsewhere", "end", "ending", "enough", "especially", "et", "et-al", "etc", "even", "ever", "every", "everybody", "everyone", "everything", "everywhere", "ex", "except", "f", "far", "few", "ff", "fifth", "first", "five", "fix", "followed", "following", "follows", "for", "former", "formerly", "forth", "found", "four", "from", "further", "furthermore", "g", "gave", "get", "gets", "getting", "give", "given", "gives", "giving", "go", "goes", "gone", "got", "gotten", "h", "had", "happens", "hardly", "has", "hasn't", "have", "haven't", "having", "he", "hed", "hence", "her", "here", "hereafter", "hereby", "herein", "heres", "hereupon", "hers", "herself", "hes", "hi", "hid", "him", "himself", "his", "hither", "home", "how", "howbeit", "however", "hundred", "i", "id", "ie", "if", "i'll", "im", "immediate", "immediately", "importance", "important", "in", "inc", "indeed", "index", "information", "instead", "into", "invention", "inward", "is", "isn't", "it", "itd", "it'll", "its", "itself", "i've", "j", "just", "k", "keep	keeps", "kept", "kg", "km", "know", "known", "knows", "l", "largely", "last", "lately", "later", "latter", "latterly", "least", "less", "lest", "let", "lets", "like", "liked", "likely", "line", "little", "'ll", "look", "looking", "looks", "ltd", "m", "made", "mainly", "make", "makes", "many", "may", "maybe", "me", "mean", "means", "meantime", "meanwhile", "merely", "mg", "might", "million", "miss", "ml", "more", "moreover", "most", "mostly", "mr", "mrs", "much", "mug", "must", "my", "myself", "n", "na", "name", "namely", "nay", "nd", "near", "nearly", "necessarily", "necessary", "need", "needs", "neither", "never", "nevertheless", "new", "next", "nine", "ninety", "no", "nobody", "non", "none", "nonetheless", "noone", "nor", "normally", "nos", "not", "noted", "nothing", "now", "nowhere", "o", "obtain", "obtained", "obviously", "of", "off", "often", "oh", "ok", "okay", "old", "omitted", "on", "once", "one", "ones", "only", "onto", "or", "ord", "other", "others", "otherwise", "ought", "our", "ours", "ourselves", "out", "outside", "over", "overall", "owing", "own", "p", "page", "pages", "part", "particular", "particularly", "past", "per", "perhaps", "placed", "please", "plus", "poorly", "possible", "possibly", "potentially", "pp", "predominantly", "present", "previously", "primarily", "probably", "promptly", "proud", "provides", "put", "q", "que", "quickly", "quite", "qv", "r", "ran", "rather", "rd", "re", "readily", "really", "recent", "recently", "ref", "refs", "regarding", "regardless", "regards", "related", "relatively", "research", "respectively", "resulted", "resulting", "results", "right", "run", "s", "said", "same", "saw", "say", "saying", "says", "sec", "section", "see", "seeing", "seem", "seemed", "seeming", "seems", "seen", "self", "selves", "sent", "seven", "several", "shall", "she", "shed", "she'll", "shes", "should", "shouldn't", "show", "showed", "shown", "showns", "shows", "significant", "significantly", "similar", "similarly", "since", "six", "slightly", "so", "some", "somebody", "somehow", "someone", "somethan", "something", "sometime", "sometimes", "somewhat", "somewhere", "soon", "sorry", "specifically", "specified", "specify", "specifying", "still", "stop", "strongly", "sub", "substantially", "successfully", "such", "sufficiently", "suggest", "sup", "sure	t", "take", "taken", "taking", "tell", "tends", "th", "than", "thank", "thanks", "thanx", "that", "that'll", "thats", "that've", "the", "their", "theirs", "them", "themselves", "then", "thence", "there", "thereafter", "thereby", "thered", "therefore", "therein", "there'll", "thereof", "therere", "theres", "thereto", "thereupon", "there've", "these", "they", "theyd", "they'll", "theyre", "they've", "think", "this", "those", "thou", "though", "thoughh", "thousand", "throug", "through", "throughout", "thru", "thus", "til", "tip", "to", "together", "too", "took", "toward", "towards", "tried", "tries", "truly", "try", "trying", "ts", "twice", "two", "u", "un", "under", "unfortunately", "unless", "unlike", "unlikely", "until", "unto", "up", "upon", "ups", "us", "use", "used", "useful", "usefully", "usefulness", "uses", "using", "usually", "v", "value", "various", "'ve", "very", "via", "viz", "vol", "vols", "vs", "w", "want", "wants", "was", "wasnt", "way", "we", "wed", "welcome", "we'll", "went", "were", "werent", "we've", "what", "whatever", "what'll", "whats", "when", "whence", "whenever", "where", "whereafter", "whereas", "whereby", "wherein", "wheres", "whereupon", "wherever", "whether", "which", "while", "whim", "whither", "who", "whod", "whoever", "whole", "who'll", "whom", "whomever", "whos", "whose", "why", "widely", "willing", "wish", "with", "within", "without", "wont", "words", "world", "would", "wouldnt", "www", "x", "y", "yes", "yet", "you", "youd", "you'll", "your", "youre", "yours", "yourself", "yourselves", "you've", "z", "zero"];
 var prepositionStopwords = [];
 
-var give_suggestions_by = "tabs";
+
+// Setting up variables from settings
+
+var SETTINGS = null;
+
+chrome.storage.local.get("Settings", function (settings) {
+    SETTINGS = settings["Settings"];
+
+    console.log(SETTINGS);
+
+    $(document).ready(function () {
+
+        // chrome.storage.local.get("readableTagsDict", function (readableTagsDict) {
+        //       if (isEmpty((readableTagsDict))) {
+        //           chrome.storage.local.set({"readableTagsDict": {}});
+        //           var readableTagsDict = {};
+        //           var stopwordsReadable = {};
+        //           logReadableTags(readableTagsDict, stopwordsReadable);
+        //       }
+        //       else {
+        //           chrome.storage.local.get("Stopwords for readable websites", function (stopwords) {
+        //               if (stopwords["Stopwords for readable websites"]) {
+        //                   logReadableTags(readableTagsDict["readableTagsDict"], stopwords["Stopwords for readable websites"]);
+        //               }
+        //               else {
+        //                   var stopwordsReadable = {};
+        //                   logReadableTags(readableTagsDict["readableTagsDict"], stopwordsReadable);
+        //               }
+        //           });
+        //       }
+        //   });
+
+        chrome.storage.local.get("TASKS", function (tasksDict) {
+            var tasksObject = tasksDict["TASKS"];
+            chrome.storage.local.get("Page Content", function (pageContent) {
+                chrome.storage.local.get("Text Log", function (textLog) {
+
+
+                    if (isEmpty(pageContent)) {
+                        chrome.storage.local.set({"Page Content": {}}, function () {
+                            storePageContent(window.location.href, document.documentElement.innerText);
+                        });
+                    }
+
+                    if (isEmpty(textLog)) {
+                        chrome.storage.local.set({"Text Log": {}}, function () {
+                            newLogTags(window.location.href);
+                        });
+                    }
+
+                    else if (!isEmpty(pageContent) && !isEmpty(textLog)) {
+                        pageContent = pageContent["Page Content"];
+                        // textLog = textLog["Text Log"];
+                        newTaskDetectorContent(tasksObject, pageContent, SETTINGS);
+                        storePageContent(window.location.href, document.documentElement.innerText);
+                        console.log("Page content stored.");
+                        newLogTags(window.location.href);
+                        console.log("Tags of current page logged");
+                    }
+                });
+            });
+        });
+    });
+});
+
 
 function shouldDetectTaskForPage(url) {
     var page_URL = url;
@@ -188,11 +197,11 @@ function getTaskTags(task, tagLog) {
     var allTags = [];
     var taskURLs = [];
 
-    if (give_suggestions_by == "tabs") {
+    if (SUGGESTIONS_BASED_ON == "tabs") {
         for (var tab in task["tabs"]) {
             taskURLs.push(task["tabs"][tab]["url"]);
         }
-    } else if (give_suggestions_by == "likes") {
+    } else if (SUGGESTIONS_BASED_ON == "likes") {
         taskURLs = task["likedPages"];
     }
 
@@ -246,11 +255,11 @@ function getCommonTagScores(tags, task, tagLog) {
     var taskURLs = [];
 
     // Use for suggestions based on open tabs.
-    if (give_suggestions_by == "tabs") {
+    if (SUGGESTIONS_BASED_ON == "tabs") {
         for (var tab in task["tabs"]) {
             taskURLs.push(task["tabs"][tab]["url"]);
         }
-    } else if (give_suggestions_by == "likes") {
+    } else if (SUGGESTIONS_BASED_ON == "likes") {
         taskURLs = task["likedPages"];
     }
 
@@ -302,15 +311,17 @@ function getTaskwiseTotalScores(taskwiseCommonTagScores) {
 }
 
 function getMatchedTagsForTask(tags, task, pageContent) {
+
+    var SUGGESTIONS_BASED_ON = SETTINGS["suggestions based on"];
     var matchedTags = {};
     var taskURLs = [];
 
     // Use for suggestions based on open tabs.
-    if (give_suggestions_by == "tabs") {
+    if (SUGGESTIONS_BASED_ON == "Open tabs") {
         for (var tab in task["tabs"]) {
             taskURLs.push(task["tabs"][tab]["url"]);
         }
-    } else if (give_suggestions_by == "likes") {
+    } else if (SUGGESTIONS_BASED_ON == "Liked pages") {
         taskURLs = task["likedPages"];
     }
 
@@ -332,12 +343,12 @@ function getMatchedTagsForTask(tags, task, pageContent) {
     return matchedTags;
 }
 
-function getTaskWiseContentTagMatches(tags, tasks, pageContent) {
+function getTaskWiseContentTagMatches(tags, tasks, pageContent, settings) {
     var taskWiseTagsMatched = {};
 
     for (var taskID in tasks) {
         if (taskID !== 'lastAssignedId' && taskID > 0 && tasks[taskID]["archived"] === false) {
-            var matchedTags = getMatchedTagsForTask(tags, tasks[taskID], pageContent);
+            var matchedTags = getMatchedTagsForTask(tags, tasks[taskID], pageContent, settings);
             taskWiseTagsMatched[taskID] = matchedTags;
         }
     }
@@ -355,7 +366,14 @@ function getTaskWiseMatchScores(taskWiseMatches) {
     return taskScores;
 }
 
-function newTaskDetectorContent(tasks, pageContent) {
+function newTaskDetectorContent(tasks, pageContent, settings) {
+
+    var IS_SHOW_NOTIFICATIONS = true;
+    if (settings["notifications"] == "Disabled") {
+        IS_SHOW_NOTIFICATIONS = false;
+    }
+    var SUGGESTIONS_BASED_ON = settings["suggestions based on"];
+
     var current_page_URL = location.href;
     var current_page_domain = getDomainFromURL(current_page_URL);
 
@@ -364,7 +382,7 @@ function newTaskDetectorContent(tasks, pageContent) {
 
         var tagsOfCurrentPage = getNamedEntityTagsOnCurrentDocument();
 
-        var taskWiseMatches = getTaskWiseContentTagMatches(tagsOfCurrentPage, tasks, pageContent);
+        var taskWiseMatches = getTaskWiseContentTagMatches(tagsOfCurrentPage, tasks, pageContent, settings);
 
         var taskWiseMatchScores = getTaskWiseMatchScores(taskWiseMatches);
 
@@ -391,10 +409,12 @@ function newTaskDetectorContent(tasks, pageContent) {
         // }
         // console.log(tempStringToAddToStopwords);
 
-        chrome.storage.local.get("CTASKID", function (resp) {
-            var ctaskid = resp["CTASKID"];
-            suggestProbableTask(taskWiseTotalScoresArray, matchedTags, ctaskid, tasks);
-        });
+        if (IS_SHOW_NOTIFICATIONS) {
+            chrome.storage.local.get("CTASKID", function (resp) {
+                var ctaskid = resp["CTASKID"];
+                suggestProbableTask(taskWiseTotalScoresArray, matchedTags, ctaskid, tasks, settings);
+            });
+        }
 
     } else {
         console.log("Domain is to be ignored. Did not execute detector.");
@@ -473,7 +493,7 @@ function sortTagsByFrequency(tags) {
     return items;
 }
 
-function suggestProbableTask(taskWiseTotalScoresArray, matchedTags, currentTaskID, tasks) {
+function suggestProbableTask(taskWiseTotalScoresArray, matchedTags, currentTaskID, tasks, settings) {
     if (taskWiseTotalScoresArray.length > 1) {
         var mostProbableTaskID = taskWiseTotalScoresArray[0][0];
 
@@ -497,14 +517,18 @@ function suggestProbableTask(taskWiseTotalScoresArray, matchedTags, currentTaskI
 }
 
 function shouldShowSuggestion(matchesWithMostProbableTask, matchesWithSecondMostProbableTask, matchedTags) {
+
     var diff = 0;
     diff = matchesWithMostProbableTask - matchesWithSecondMostProbableTask;
     console.log(diff / matchesWithMostProbableTask);
+
     if ((diff / matchesWithMostProbableTask) > 0.35) {
         if ((Object.keys(matchedTags).length) > 10) {
             return true;
         }
+
     }
+
     return false;
 }
 

@@ -52,6 +52,26 @@ chrome.storage.local.get("Page Content", function(e){
     }
 });
 
+chrome.storage.local.get("Text Log", function(e){
+    if(isEmpty(e)){
+        chrome.storage.local.set({"Text Log": {}});
+    }
+});
+
+chrome.storage.local.get("Settings", function(e){
+    if(isEmpty(e)){
+        var DEFAULT_SETTINGS = {
+            "notifications": "Enabled",
+            "suggestions based on": "Open tabs"
+        };
+
+        // Setting default settings in local storage.
+        chrome.storage.local.set({"Settings": DEFAULT_SETTINGS}, function () {
+            console.log("Settings object initialised in local storage.");
+        })
+    }
+});
+
 // chrome.storage.local.get("CTASKID", function (cTaskIdObject) {
 //     if (cTaskIdObject["CTASKID"]>0) {
 //         CTASKID = cTaskIdObject["CTASKID"];

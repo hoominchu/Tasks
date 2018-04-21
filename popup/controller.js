@@ -95,6 +95,10 @@ $("#index").click(function () {
     chrome.tabs.create({"url": "html/index.html"});
 });
 
+$("#settings").click(function () {
+    chrome.tabs.create({"url": "html/settings.html"});
+});
+
 $("#pauseTasks").click(function(){
     chrome.runtime.sendMessage({
         "type": "switch-task",

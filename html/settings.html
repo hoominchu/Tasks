@@ -1,13 +1,14 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Sail Boat</title>
     <script src="../lib/jquery-3.2.1.min.js"></script>
     <link rel="stylesheet" href="../css/bootstrap.css">
     <link rel="stylesheet" href="../css/index.css">
     <link rel="stylesheet" href="../css/custom.css">
+    <link rel="stylesheet" href="../css/history.css">
     <link rel="stylesheet" href="../css/font-awesome-4.7.0/css/font-awesome.min.css">
-    <script src="../js/fontawesome-all.min.js"></script>
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
@@ -22,7 +23,7 @@
             <li class="nav-item ">
                 <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item active">
                 <a class="nav-link" href="history.html">History</a>
             </li>
             <li class="nav-item">
@@ -35,7 +36,7 @@
                 <a class="nav-link" href="stats.html">Statistics</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link active" href="profile.html">Profile</a>
+                <a class="nav-link" href="profile.html">Profile</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="about.html">About</a>
@@ -45,24 +46,27 @@
 </nav>
 
 <div class="container-fluid">
-<div class="row" style="margin-top: 1.5em">
-    <div class="col-lg-1">
+    <div class="row" style="height: 1em;"></div>
+    <h1>Settings</h1>
+    <hr>
+    <div class="row">
+        <div class="col-lg-4" id="notification_settings">
+            <h4>Notifications</h4>
+            <div id="notification_options" class="btn-group" role="group"></div>
+        </div>
+        <div class="col-lg-4" id="suggestion_settings">
+            <h4>Suggestions based on</h4>
+            <div id="suggestion_options" class="btn-group" role="group"></div>
+        </div>
+        <div class="col-lg-4">
+            <h4>Placeholder</h4>
+        </div>
     </div>
-    <div class="col-lg-4" id="preferredDomains">
-        <h5>Preferred domains</h5>
 
-    </div>
-    <div class="col-lg-1">
-    </div>
-    <div class="col-lg-4">
-        <h5>Preferred authors</h5>
-        <div class="col-lg-3 btn-group-vertical" id="preferredauthors"></div>
-    </div>
-    <div class="col-lg-1">
-    </div>
-</div>
+
 </div>
 
-<script src="profile.js"></script>
+<script src="settings.js"></script>
+
 </body>
 </html>
