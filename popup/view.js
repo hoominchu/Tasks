@@ -9,7 +9,12 @@ function showTasks(Tasks) {
 function appendTask(task_id, Tasks){
     var li = document.createElement("li");
     var taskName = document.createElement("button");
-    taskName.innerText = Tasks[task_id].name;
+    if(Tasks[task_id].name.length<15){
+      taskName.innerText = Tasks[task_id].name;
+    }
+    else{
+      taskName.innerText = Tasks[task_id].name.substr(0,12)+"..";
+    }
     taskName.className = "btn btn-outline-primary round-corner-left task bold-text";
     taskName.id = Tasks[task_id].id;
     taskName.type = "button";
