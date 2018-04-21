@@ -14,6 +14,7 @@ chrome.storage.local.get("TASKS", function (taskObject) {
   function loadLikeButton(){
     var likeButton = $('<div class="float btn-sailboat round-corner" id="sailboat-like-btn">Like</div>');
     $('body').append(likeButton);
+      $("#sailboat-like-btn").draggable();
       $("#sailboat-like-btn").click(function(){
           //$(this).toggleClass("btn-secondary");
           $(this).toggleClass("btn-sailboat-primary");
@@ -53,4 +54,3 @@ chrome.storage.local.get("TASKS", function (taskObject) {
           }
         });
   }
-

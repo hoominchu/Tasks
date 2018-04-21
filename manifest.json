@@ -39,6 +39,7 @@
       ],
       "js": [
         "lib/jquery-3.2.1.min.js",
+        "lib/jquery-ui.min.js",
         "lib/compromise.min.js",
         "lib/lodash.js",
         "utils/util.js",
