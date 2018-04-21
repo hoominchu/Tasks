@@ -19,26 +19,6 @@ chrome.storage.local.get("Settings", function (settings) {
 
     $(document).ready(function () {
 
-        // chrome.storage.local.get("readableTagsDict", function (readableTagsDict) {
-        //       if (isEmpty((readableTagsDict))) {
-        //           chrome.storage.local.set({"readableTagsDict": {}});
-        //           var readableTagsDict = {};
-        //           var stopwordsReadable = {};
-        //           logReadableTags(readableTagsDict, stopwordsReadable);
-        //       }
-        //       else {
-        //           chrome.storage.local.get("Stopwords for readable websites", function (stopwords) {
-        //               if (stopwords["Stopwords for readable websites"]) {
-        //                   logReadableTags(readableTagsDict["readableTagsDict"], stopwords["Stopwords for readable websites"]);
-        //               }
-        //               else {
-        //                   var stopwordsReadable = {};
-        //                   logReadableTags(readableTagsDict["readableTagsDict"], stopwordsReadable);
-        //               }
-        //           });
-        //       }
-        //   });
-
         chrome.storage.local.get("TASKS", function (tasksDict) {
             var tasksObject = tasksDict["TASKS"];
             chrome.storage.local.get("Page Content", function (pageContent) {
@@ -556,6 +536,8 @@ function loadSuggestion(tab, mostProbableTaskID, matchedTags, tasks) {
 // Takes an uncleaned tag and cleans it. Add any required condition in this condition.
 function cleanTag(str) {
 
+    str = str.trim();
+
     str = str.replace(/(\r\n\t|\n|\r\t)/gm, ". ");
 
     str = str.replace(/\u21b5/g, ". ");
@@ -595,16 +577,6 @@ function cleanTag(str) {
     // Replaces . at the end
     str = str.replace(/\.+$/g, '');
 
-    // // Replaces ( at the beginning
-    // str = str.replace(/^\(+/g, '');
-    // // Replaces ( at the end
-    // str = str.replace(/\('+$/g, '');
-    //
-    // // Replaces ) at the beginning
-    // str = str.replace(/^\)+/g, '');
-    // // Replaces ) at the end
-    // str = str.replace(/\)+$/g, '');
-
     // Replaces ? at the beginning
     str = str.replace(/^\?+/g, '');
     // Replaces ? at the end
@@ -612,6 +584,8 @@ function cleanTag(str) {
 
     // Replaces 's at the end
     str = str.replace(/'s+$/g, '');
+
+    str = str.trim();
 
     return str;
 }
@@ -658,45 +632,6 @@ function updateStorage(key, obj) {
     var tempObj = {};
     tempObj[key] = obj;
     chrome.storage.local.set(tempObj);
-}
-
-function logReadableTags(readableTagsDict, stopwords) {
-    // var loc = document.location;
-    // var url = window.location.href;
-    // var domain = getDomainFromURL(window.location.href);
-    // var documentClone = document.cloneNode(true);
-    // var uri = {
-    //     spec: loc.href,
-    //     host: loc.host,
-    //     prePath: loc.protocol + "//" + loc.host,
-    //     scheme: loc.protocol.substr(0, loc.protocol.indexOf(":")),
-    //     pathBase: loc.protocol + "//" + loc.host + loc.pathname.substr(0, loc.pathname.lastIndexOf("/") + 1)
-    // };
-    // var article = new Readability(uri, documentClone).parse();
-    // readableTagsDict[url] = getTagsOnDocument(htmlToElement(article.content));
-    // updateStorage("readableTagsDict", readableTagsDict);
-    //
-    // if(stopwords[domain]){
-    //     if(stopwords[domain]["urlsRead"].indexOf(url) < 0) {
-    //         stopwords[domain]["stopwords"] = _.intersection(Object.keys(readableTagsDict[url]), stopwords[domain]["tags"]);
-    //         stopwords[domain]["tags"] = _.intersection(Object.keys(readableTagsDict[url]), stopwords[domain]["tags"]);
-    //         console.log(Object.keys(readableTagsDict[url]));
-    //         // console.log(_.intersection(Object.keys(tags), stopwords[getDomainFromURL(url)]["tags"]));
-    //         stopwords[domain]["urlsRead"].push(url)
-    //         updateStorage("Stopwords for readable websites", stopwords);
-    //     }
-    // }
-    // else {
-    //     stopwords[domain] = {};
-    //     stopwords[domain]["stopwords"] = [];
-    //     stopwords[domain]["tags"] = Object.keys(readableTagsDict[url]);
-    //     // stopwords[domain]["uniqueUrlsRead"] = 1;
-    //     stopwords[domain]["urlsRead"] = [];
-    //     stopwords[domain]["urlsRead"].push(url);
-    //     updateStorage("Stopwords for readable websites", stopwords);
-    // }
-
-
 }
 
 function getJaccardScores(urlTags1, urlTags2) {
