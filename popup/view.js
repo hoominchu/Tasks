@@ -1,21 +1,38 @@
-function showTasks(Tasks) {
-    for (var task_id in Tasks) {
-        if (task_id != "lastAssignedId" && Tasks[task_id].id!= 0 && !Tasks[task_id].archived) {
-            appendTask(task_id, Tasks);
-        }
+function showTasks(Tasks, openTasks) {
+      for (var task_id in Tasks) {
+          if (task_id != "lastAssignedId" && Tasks[task_id].id!= 0 && !Tasks[task_id].archived) {
+              if(openTasks.indexOf(task_id)>-1){
+                appendTask(task_id, Tasks, true);
+              }
+              else{
+                appendTask(task_id, Tasks, false);
+              }
+          }
+      }
     }
-}
 
-function appendTask(task_id, Tasks){
+function appendTask(task_id, Tasks, isTaskOpen){
     var li = document.createElement("li");
     var taskName = document.createElement("button");
-    if(Tasks[task_id].name.length<15){
-      taskName.innerText = Tasks[task_id].name;
+    taskName.className = "btn btn-outline-primary round-corner-left task bold-text";
+    if(isTaskOpen){
+      if(Tasks[task_id].name.length<15){
+        taskName.innerText = Tasks[task_id].name;
+        taskName.className = taskName.className + " openTask";
+      }
+      else{
+        taskName.innerText = Tasks[task_id].name.substr(0,12)+"..";
+        taskName.className = taskName.className + " openTask";
+      }
     }
     else{
-      taskName.innerText = Tasks[task_id].name.substr(0,12)+"..";
+      if(Tasks[task_id].name.length<15){
+        taskName.innerText = Tasks[task_id].name;
+      }
+      else{
+        taskName.innerText = Tasks[task_id].name.substr(0,12)+"..";
+      }
     }
-    taskName.className = "btn btn-outline-primary round-corner-left task bold-text";
     taskName.id = Tasks[task_id].id;
     taskName.type = "button";
     // var openButton = document.createElement("button");

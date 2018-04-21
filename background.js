@@ -11,7 +11,7 @@ chrome.commands.onCommand.addListener(function(command){
 
 chrome.runtime.onMessage.addListener(function (request, sender) {
 
-    //refreshContextMenu();
+    refreshContextMenu();
 
     if (request.type == "create-task") {
 
@@ -75,7 +75,7 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
     }
 
     if(request.type == "open-liked-pages"){
-      openLikedPages(request.taskId)
+      openLikedPages(request.taskId);
     }
 
     if(request.type == "search"){
@@ -97,6 +97,15 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
         clusterTabs();
     }
 });
+//if someone asks for open tasks give it to them
+chrome.runtime.onMessage.addListener(function (request, sender) {
+    if(request.type == "give me open tasks"){
+        chrome.runtime.sendMessage({
+          "type": "array of open tasks",
+          "openTasks": Object.keys(taskToWindow)
+        });
+    }
+  });
 
 chrome.runtime.onMessage.addListener(function (request, sender) {
     if(request.type == "likePages"){
@@ -178,6 +187,9 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
                 deactivateTaskInWindow(CTASKID);
                 activateTaskInWindow(getKeyByValue(taskToWindow, newWindowId));
             }
+            else{
+              chrome.browserAction.setBadgeText({"text": ""});
+            }
         }
     });
   }
@@ -187,9 +199,19 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
           CTASKID = 0;
           chrome.storage.local.set({"CTASKID": 0});
       }
+      else{
+        chrome.browserAction.setBadgeText({"text": ""});
+      }
   }
 
 });
+
+//If a window is created outside Task context then remove task Badge
+chrome.windows.onCreated.addListener(function(window){
+  if(!getKeyByValue(taskToWindow, window.id)){
+    chrome.browserAction.setBadgeText({"text": ""});
+  }
+})
 
 
 // Creates notification for suggested task.
@@ -250,5 +272,3 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
         });
     }
 });
-
-

@@ -3,9 +3,12 @@ window.onload = function () {
     // changeLoginStatusMessage();
 
     chrome.storage.local.get("TASKS", function (taskObject) {
-        if (taskObject["TASKS"]) {
-            showTasks(taskObject["TASKS"]);
-        }
+      chrome.runtime.sendMessage({"type": "give me open tasks"});
+      chrome.runtime.onMessage.addListener(function (request, sender) {
+        if(request.type == "array of open tasks"){
+          if (taskObject["TASKS"]) {
+              showTasks(taskObject["TASKS"],request.openTasks);
+          }
 
         for (var i = 0; i < document.getElementsByClassName("task").length; i++) {
             document.getElementsByClassName("task")[i].addEventListener("click", function (task) {
@@ -54,7 +57,9 @@ window.onload = function () {
         document.getElementById("createTask").addEventListener("click", function () {
             sendCreateTaskMessage()
         });
+      }
         });
+      });
 
         $('#taskName').keypress(function (event) {
             if (event.which == '13' && !event.shiftKey) {

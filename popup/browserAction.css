@@ -5,3 +5,7 @@ html{
 body{
     height:1024px;
 }
+
+.openTask{
+  color: green;
+}
