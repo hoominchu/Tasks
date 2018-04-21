@@ -1,5 +1,5 @@
 var HTML_TAGS_TO_LOG = ["div", "a", "h1", "h2", "h3", "h4", "h5", "h6", "th", "td", "code", "b", "strong", "i"];
-var DOMAINS_TO_BE_IGNORED = ["www.google.com", "www.google.co.in", "www.facebook.com"];
+var DOMAINS_TO_BE_IGNORED = []; //"www.google.com", "www.google.co.in", "www.facebook.com"
 var TAGS_NOT_TO_COMPARE = [];
 var DOMAIN_WISE_TAGS_TO_BE_IGNORED = {"www.google.com": ["search"]};
 var URL_ENDINGS_TO_BE_IGNORED = [".pdf"];

@@ -18,7 +18,7 @@ chrome.storage.local.get("Settings", function (settings) {
 
     settings = settings["Settings"];
 
-    // Template
+    //Template
 // <div class="btn-group" role="group" aria-label="Basic example">
 //         <button type="button" class="btn btn-secondary">Left</button>
 //         <button type="button" class="btn btn-secondary">Middle</button>
