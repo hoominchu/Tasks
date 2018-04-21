@@ -57,7 +57,6 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
     }
 
     if(request.type == "like-page"){
-        TASKS[CTASKID].likedPages.push(request.url);
         likePage(request.url, CTASKID);
     }
 
