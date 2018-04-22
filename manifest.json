@@ -66,6 +66,7 @@
     "identity",
     "identity.email",
     "storage",
+    "history",
     "bookmarks",
     "unlimitedStorage",
     "contextMenus",
