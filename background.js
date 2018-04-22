@@ -166,11 +166,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
   if(removeInfo.isWindowClosing){
-    //
-    // var date = new Date();
-    // if(tabIdToURL!= {}){
-    //   updateExitTime(tabIdToURL[tabId], date.toString());
-    // }
+    CTASKID = 0;
   }
   else {
         saveTaskInWindow(CTASKID);
