@@ -155,14 +155,52 @@ function showNoNotificationDomains(settings, settingsOptions) {
     var addButton = document.getElementById("submit_block_notifications_on");
 
     addButton.onclick = function (ev) {
-        var enteredDomain = inputElement.value;
-        enteredDomain = enteredDomain.trim();
-        settings["block notifications on"].push(enteredDomain);
-        updateStorage("Settings", settings);
-        location.reload();
+        var enteredString = inputElement.value;
+        enteredString = enteredString.trim();
+        if (isURL(enteredString)) {
+            enteredString = extractHostname(enteredString);
+        }
+        if (enteredString.substring(0, 4) != "www.") {
+            enteredString = "www." + enteredString;
+        }
+        var existingDomains = settings["block notifications on"];
+        if (existingDomains.indexOf(enteredString) > -1) {
+            alert("Notifications on this domain are already blocked.");
+        } else {
+            settings["block notifications on"].push(enteredString);
+            updateStorage("Settings", settings);
+            location.reload();
+        }
     }
 
 }
+
+function extractHostname(url) {
+    var hostname;
+    //find & remove protocol (http, ftp, etc.) and get hostname
+
+    if (url.indexOf("://") > -1) {
+        hostname = url.split('/')[2];
+    }
+    else {
+        hostname = url.split('/')[0];
+    }
+
+    //find & remove port number
+    hostname = hostname.split(':')[0];
+    //find & remove "?"
+    hostname = hostname.split('?')[0];
+
+    return hostname;
+}
+
+function isURL(str) {
+    var regex = /(http|https):\/\/(\w+:{0,1}\w*)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%!\-\/]))?/;
+    if (regex.test(str)) {
+        return true;
+    }
+}
+
 
 function showSuggestionThresholdOptions(settings, settingsOptions) {
     // Threshold for suggestions
