@@ -3,7 +3,7 @@ var DEFAULT_SETTINGS = {
     "notifications": "Enabled",
     "suggestions based on": "Open tabs",
     "suggestions threshold": "Medium",
-    "block notifications on": []
+    "block notifications on": ["www.google.com","www.google.co.in","www.facebook.com"]
 };
 
 var settings = DEFAULT_SETTINGS;
@@ -138,7 +138,8 @@ function showNoNotificationDomains(settings, settingsOptions) {
         closeButton.setAttribute("data-dismiss", "alert");
         closeButton.innerHTML = "<span style=\"color:black\">&nbsp;&times;</span>";
         closeButton.onclick = function (ev) {
-            settings["block notifications on"].splice(settings["block notifications on"].indexOf(this.parentNode.getElementsByTagName("span").innerText), 1);
+            var domainToBeRemoved = this.parentElement.getElementsByTagName("strong")[0].innerText;
+            settings["block notifications on"].splice(settings["block notifications on"].indexOf(domainToBeRemoved), 1);
             updateStorage("Settings", settings);
             location.reload();
         };
