@@ -38,6 +38,10 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 
     }
 
+    if(request.type == "add-to-task"){
+      addTabsToTask(request.taskId, request.tabs);
+    }
+
     if (request.type == "switch-task" && request.nextTaskId != "") {
         saveTaskInWindow(CTASKID);
         deactivateTaskInWindow(CTASKID);

@@ -41,8 +41,8 @@ function appendTask(task_id, Tasks, isTaskOpen){
     // openButton.type = "button";
     // openButton.id = Tasks[task_id].id;
     var renameButton = document.createElement("button");
-    renameButton.innerText = "Rename";
-    renameButton.className = "btn btn-outline-primary rename";
+    renameButton.innerText = "Add";
+    renameButton.className = "btn btn-outline-primary add";
     renameButton.type = "button";
     renameButton.id = Tasks[task_id].id;
     var cancelButton = document.createElement("button");

@@ -77,6 +77,33 @@ function createTask(taskName, tabs, createFromCurrentTabs, bookmarks) {
     }
 }
 
+function addTabsToTask(taskId, tabs){
+  TASKS[taskId].tabs = TASKS[taskId].tabs.concat(tabs);
+  updateStorage("TASKS", TASKS);
+  if(taskToWindow.hasOwnProperty(taskId)){
+    //If there is a task that is not open but is in Task urls then open that
+    chrome.windows.get(taskToWindow[taskId], {"populate":true}, function(window){
+      var tabs = window.tabs;
+      var openUrls = new Set();
+      for(var i = 0; i<tabs.length; i++){
+        openUrls.add(tabs[i].url);
+      }
+      var taskUrls = new Set();
+      for(var j = 0;j<TASKS[taskId].tabs.length; j++){
+        taskUrls.add(TASKS[taskId].tabs[j].url);
+      }
+      if(taskUrls.size > openUrls.size){
+        taskUrls.forEach(function(url){
+          if(!openUrls.has(url)){
+            chrome.tabs.create({"windowId": window.id, "url":url, "selected": false});
+          }
+        });
+      }
+    });
+  }
+
+}
+
 
 
 function activateTaskInWindow(task_id){
@@ -85,6 +112,8 @@ function activateTaskInWindow(task_id){
         //If the task is already open in some window, focus the window
         if(taskToWindow.hasOwnProperty(task_id)){
             chrome.windows.update(taskToWindow[task_id], {"focused": true});
+
+
         }
         //If not, then open all the urls from the task in a new window
         else{

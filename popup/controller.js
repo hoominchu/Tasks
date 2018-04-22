@@ -21,25 +21,33 @@ window.onload = function () {
                     );
                 }(task);
             });
-            document.getElementsByClassName("rename")[i].addEventListener("click", function (task) {
-                return function (task) {
-                    $("#tasks").replaceWith('<form id="renameForm"><div class="form-group"><label for="newTaskName">What would you like to name the task?</label><input type="text" class="form-control round-corner" id="renameInput" aria-describedby="newNameForTask" placeholder="New Name"></div><button type="submit" class="btn btn-primary round-corner">Rename Task</button> <button class="btn btn-secondary round-corner" id="cancelButton">Cancel</button></form>');
-                    $("#cancelButton").click(function (cancel) {
-                        location.reload();
-                    });
-                    $("#renameForm").submit(function () {
-                        if ($("#renameInput").val() != "") {
-                            chrome.runtime.sendMessage(
-                                {
-                                    "type": "rename-task",
-                                    "taskId": task.srcElement.id,
-                                    "newTaskName": $("#renameInput").val()
-                                }
-                            );
-                        }
-                    });
-                }(task);
+            // document.getElementsByClassName("rename")[i].addEventListener("click", function (task) {
+            //     return function (task) {
+            //         $("#tasks").replaceWith('<form id="renameForm"><div class="form-group"><label for="newTaskName">What would you like to name the task?</label><input type="text" class="form-control round-corner" id="renameInput" aria-describedby="newNameForTask" placeholder="New Name"></div><button type="submit" class="btn btn-primary round-corner">Rename Task</button> <button class="btn btn-secondary round-corner" id="cancelButton">Cancel</button></form>');
+            //         $("#cancelButton").click(function (cancel) {
+            //             location.reload();
+            //         });
+            //         $("#renameForm").submit(function () {
+            //             if ($("#renameInput").val() != "") {
+            //                 chrome.runtime.sendMessage(
+            //                     {
+            //                         "type": "rename-task",
+            //                         "taskId": task.srcElement.id,
+            //                         "newTaskName": $("#renameInput").val()
+            //                     }
+            //                 );
+            //             }
+            //         });
+            //     }(task);
+            // });
+
+            document.getElementsByClassName("add")[i].addEventListener("click", function (task) {
+              return function (task) {
+                addToTaskMessage(task.srcElement.id);
+              }(task);
             });
+
+
             document.getElementsByClassName("delete")[i].addEventListener("click", function (deleteButton) {
                 return function (deleteButton) {
                     document.getElementById(deleteButton.srcElement.parentElement.id).style.display = "None";
@@ -67,6 +75,35 @@ window.onload = function () {
             }
         });
 
+}
+
+function addToTaskMessage(taskId){
+  chrome.windows.getCurrent({"populate": true}, function (window) {
+      console.log(window.tabs);
+      var tabs = [];
+      for (var i = 0; i < window.tabs.length; i++) {
+          if (window.tabs[i].highlighted) {
+              tabs.push(window.tabs[i]);
+          }
+      }
+
+      //tabs array is now ready to use
+
+      //remove tabs that were highlighted
+      var tabIdsToClose = [];
+      for(var j = 0; j<tabs.length; j++){
+        tabIdsToClose.push(tabs[j].id)
+      }
+      chrome.tabs.remove(tabIdsToClose);
+
+      chrome.runtime.sendMessage(
+          {
+              "type": "add-to-task",
+              "taskId": taskId,
+              "tabs": tabs,
+          });
+      location.reload();
+  });
 }
 
 function sendCreateTaskMessage() {
