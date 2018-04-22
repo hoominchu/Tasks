@@ -71,12 +71,27 @@ window.onload = function () {
 
 function sendCreateTaskMessage() {
     chrome.windows.getCurrent({"populate": true}, function (window) {
+        console.log(window.tabs);
         var tabs = [];
         for (var i = 0; i < window.tabs.length; i++) {
             if (window.tabs[i].highlighted) {
                 tabs.push(window.tabs[i]);
             }
         }
+        //If the tabs contain only the active tab then just send an empty array
+        if(tabs.length < 2){
+          tabs = [];
+        }
+
+        //tabs array is now ready to use
+
+        //remove tabs that were highlighted
+        var tabIdsToClose = [];
+        for(var j = 0; j<tabs.length; j++){
+          tabIdsToClose.push(tabs[j].id)
+        }
+        chrome.tabs.remove(tabIdsToClose);
+
         chrome.runtime.sendMessage(
             {
                 "type": "create-task",
