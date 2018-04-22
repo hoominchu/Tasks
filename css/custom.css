@@ -6,6 +6,7 @@
     vertical-align: middle !important;
     background-color: white;
     color:black;
+    box-shadow: 4px 4px 15px 0.5px black;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;

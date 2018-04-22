@@ -12,7 +12,7 @@ chrome.storage.local.get("TASKS", function (taskObject) {
   });
 
   function loadLikeButton(){
-    var likeButton = $('<div class="float btn-sailboat round-corner" id="sailboat-like-btn">Like</div>');
+    var likeButton = $('<div class="float btn-sailboat round-corner" id="sailboat-like-btn">Archive</div>');
     $('body').append(likeButton);
       $("#sailboat-like-btn").draggable();
       $("#sailboat-like-btn").click(function(){
