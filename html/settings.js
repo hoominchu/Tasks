@@ -2,7 +2,8 @@
 var DEFAULT_SETTINGS = {
     "notifications": "Enabled",
     "suggestions based on": "Open tabs",
-    "suggestions threshold": "Medium"
+    "suggestions threshold": "Medium",
+    "block notifications on": []
 };
 
 var settings = DEFAULT_SETTINGS;
@@ -30,6 +31,8 @@ chrome.storage.local.get("Settings", function (settings) {
     showSuggestionsBasedOnOptions(settings, settingsOptions);
 
     showSuggestionThresholdOptions(settings, settingsOptions);
+
+    showNoNotificationDomains(settings, settingsOptions);
 });
 
 function showNotificationOptions(settings, settingsOptions) {
@@ -106,6 +109,59 @@ function showSuggestionsBasedOnOptions(settings, settingsOptions) {
 
         suggestions_based_on_options_element.appendChild(option);
     }
+}
+
+function showNoNotificationDomains(settings, settingsOptions) {
+
+// <div class="alert alert-dismissible alert-light">
+//         <button type="button" class="close" data-dismiss="alert">&times;</button>
+//     <strong>Heads up!</strong> This <a href="#" class="alert-link">alert needs your attention</a>, but it's not super important.
+//     </div>
+
+
+// <span class="badge badge-secondary">Secondary</span>
+
+// <button type="button" class="btn btn-outline-primary">Primary</button>
+
+    // Displaying options for suggestions
+    var block_notifications_on_element = document.getElementById("block_notifications_domains");
+    var block_notifications_on = settings["block notifications on"];
+
+    for (var i = 0; i < block_notifications_on.length; i++) {
+        var card = document.createElement("button");
+        card.setAttribute("type", "button");
+        card.className = "btn btn-outline-primary round-corner";
+        card.style.margin = "5px";
+
+        var closeButton = document.createElement("button");
+        closeButton.className = "close";
+        closeButton.setAttribute("data-dismiss", "alert");
+        closeButton.innerHTML = "<span style=\"color:black\">&nbsp;&times;</span>";
+        closeButton.onclick = function (ev) {
+            settings["block notifications on"].splice(settings["block notifications on"].indexOf(this.parentNode.getElementsByTagName("span").innerText), 1);
+            updateStorage("Settings", settings);
+            location.reload();
+        };
+
+        var domainName = document.createElement("strong");
+        domainName.innerText = block_notifications_on[i];
+        card.appendChild(closeButton);
+        card.appendChild(domainName);
+
+        block_notifications_on_element.appendChild(card);
+    }
+
+    var inputElement = document.getElementById("block_notifications_on_domains_input");
+    var addButton = document.getElementById("submit_block_notifications_on");
+
+    addButton.onclick = function (ev) {
+        var enteredDomain = inputElement.value;
+        enteredDomain = enteredDomain.trim();
+        settings["block notifications on"].push(enteredDomain);
+        updateStorage("Settings", settings);
+        location.reload();
+    }
+
 }
 
 function showSuggestionThresholdOptions(settings, settingsOptions) {

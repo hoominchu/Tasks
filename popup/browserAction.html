@@ -17,22 +17,16 @@
 
     <span style="text-align: center"><img src="../images/logo_white_sails_no_text.png"
                                           style="width: 4em; margin-left: 40%; margin-right: auto;"></span>
-
+    <hr>
     <ul class="nav nav-pills">
-        <li class="nav-item" id="index">
-            <a class="nav-link" href="#">Tasks</a>
-        </li>
+        <!--<li class="nav-item" id="index">-->
+            <!--<a class="nav-link" href="#">Tasks</a>-->
+        <!--</li>-->
         <li class="nav-item" id="search_archive">
-            <a class="nav-link" href="#">Search Archive</a>
+            <a class="nav-link" href="#">Search</a>
         </li>
         <li class="nav-item" id="history">
             <a class="nav-link" href="#">History</a>
-        </li>
-        <li class="nav-item" id="settings">
-            <a class="nav-link" href="#">Settings</a>
-        </li>
-        <li class="nav-item" id="pauseTasks">
-        <a class="nav-link" href="#">Pause</a>
         </li>
 
         <!--<li class="nav-item" id="login">-->
@@ -51,14 +45,23 @@
         <!--<a class="nav-link" href="#">Check</a>-->
         <!--</li>-->
 
+        <li class="nav-item" id="settings">
+            <a class="nav-link" href="#">Settings</a>
+        </li>
+        <li class="nav-item" id="pauseTasks">
+            <a class="nav-link" href="#">Pause</a>
+        </li>
     </ul>
     <hr>
+
     <h4>Tasks</h4>
     <ol id="tasks" style="list-style-type: none; padding: 0; margin: 0">
     </ol>
     <hr>
     <h4>Create Task</h4>
-    <p><small>Select multiple tabs using ctrl/command. Select a range of tabs by using shift.</small></p>
+    <p>
+        <small>Select multiple tabs using ctrl/command. Select a range of tabs by using shift.</small>
+    </p>
     <div class="form-group round-corner">
         <label for="taskName">Task Name:</label>
         <input type="text" class="form-control round-corner" id="taskName">

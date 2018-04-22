@@ -30,12 +30,15 @@ $(document).ready(function () {
                                 var resultElement = document.createElement("p");
                                 var urlString = "<p>" + results[i]["url"] + "</p>";
                                 var matchedTermsString = "<p><small>Matched terms : ";
+                                var contextStrings = "<p><small>";
                                 var matchedTerms = results[i]["matched terms"];
                                 for (var j = 0; j < matchedTerms.length; j++) {
                                     matchedTermsString = matchedTermsString + matchedTerms[j] + " | ";
+                                    contextStrings = contextStrings + results[i]["context"][j] + "<br>";
                                 }
                                 matchedTermsString = matchedTermsString + "</p></small>";
-                                resultElement.innerHTML = urlString + matchedTermsString + "<br>";
+                                contextStrings = contextStrings + "</p></small>";
+                                resultElement.innerHTML = urlString + matchedTermsString + contextStrings + "<br>";
                                 resultsElement.appendChild(resultElement);
                             }
                         }
@@ -96,6 +99,13 @@ function showSearchInOptions(advancedSearchSettings) {
     }
 }
 
+function getContextString(term, string, length) {
+    var indexOfTerm = string.toLowerCase().indexOf(term.toLowerCase());
+    var stringTokens = string.split(" ");
+    var contextTokens = stringTokens.splice(indexOfTerm - (length / 2), length);
+    return contextTokens.join(" ");
+}
+
 // Updates chrome.storage.local with key and object.
 function updateStorage(key, obj) {
     var tempObj = {};
@@ -142,12 +152,15 @@ function searchArchivedPages(query, task, pageContent, searchSettings) {
 
             var result = {
                 "url": url,
-                "matched terms": []
+                "matched terms": [],
+                "context": []
             };
 
             for (var j = 0; j < queryTerms.length; j++) {
                 if (content.indexOf(" " + queryTerms[j].toLowerCase() + " ") > -1 || content.indexOf(" " + queryTerms[j].toLowerCase() + ".") > -1) {
                     result["matched terms"].push(queryTerms[j]);
+                    var contextString = getContextString(queryTerms[j], content, 20);
+                    result["context"].push(contextString);
                 }
             }
             if (result["matched terms"].length > 0) {

@@ -53,8 +53,8 @@ chrome.storage.local.get("Settings", function (settings) {
 });
 
 
-function shouldDetectTaskForPage(url) {
-    var ignore_domains = ["www.google.com", "www.google.co.in", "www.facebook.com"];
+function shouldDetectTaskForPage(url, settings) {
+    var ignore_domains = settings["block notifications on"];
     var page_URL = url;
     var page_domain = getDomainFromURL(page_URL);
     if (ignore_domains.indexOf(page_domain) > 0) {
@@ -358,7 +358,7 @@ function newTaskDetectorContent(tasks, pageContent, settings) {
     var current_page_URL = location.href;
     var current_page_domain = getDomainFromURL(current_page_URL);
 
-    if (shouldDetectTaskForPage(current_page_URL)) {
+    if (shouldDetectTaskForPage(current_page_URL, settings)) {
         console.log("Executing detector based on tags and page content");
 
         var tagsOfCurrentPage = getNamedEntityTagsOnCurrentDocument();
@@ -498,6 +498,7 @@ function suggestProbableTask(taskWiseTotalScoresArray, matchedTags, currentTaskI
 }
 
 function shouldShowSuggestion(matchesWithMostProbableTask, matchesWithSecondMostProbableTask, matchedTags, settings) {
+
     var threshold = 0.0;
     if (settings["suggestions threshold"] == "Low") {
         threshold = 0.3;

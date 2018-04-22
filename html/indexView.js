@@ -31,9 +31,9 @@ function setUpUnarchivedTasks(Tasks, task_id){
     var card_body = $("<div>", {"class": "card-body text-dark"});
     var card_buttons = $("<div>", {"class": "btn-group"});
     var open_button = $("<button class='btn btn-outline-success btn-sm round-corner-left openTask' type='button' id='" + Tasks[task_id].id + "'>Open</button>");
-    var rename_button = $("<button class='btn btn-outline-dark btn-sm round-corner renameTask' type='button' id='" + Tasks[task_id].id + "'>Rename</button>");
+    var rename_button = $("<button class='btn btn-outline-dark btn-sm renameTask' type='button' id='" + Tasks[task_id].id + "'>Rename</button>");
     var delete_button = $("<button class='btn btn-outline-danger btn-sm round-corner-right deleteTask' type='button' id='" + Tasks[task_id].id + "'>Delete</button>");
-    var archive_button = $("<button class='btn btn-outline-dark btn-sm round-corner archiveTask' type='button' id='" + Tasks[task_id].id + "'>Archive</button>");
+    var archive_button = $("<button class='btn btn-outline-dark btn-sm archiveTask' type='button' id='" + Tasks[task_id].id + "'>Archive</button>");
 
     card_buttons.append(open_button);
     card_buttons.append(rename_button);
