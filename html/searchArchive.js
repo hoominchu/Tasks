@@ -33,7 +33,7 @@ $(document).ready(function () {
                                 var contextStrings = "<p><small>";
                                 var matchedTerms = results[i]["matched terms"];
                                 for (var j = 0; j < matchedTerms.length; j++) {
-                                    matchedTermsString = matchedTermsString + matchedTerms[j] + " | ";
+                                    matchedTermsString = matchedTermsString + "<strong>" + matchedTerms[j] + "</strong>" + " | ";
                                     contextStrings = contextStrings + results[i]["context"][j] + "<br>";
                                 }
                                 matchedTermsString = matchedTermsString + "</p></small>";
@@ -102,9 +102,22 @@ function showSearchInOptions(advancedSearchSettings) {
 function getContextString(term, string, length) {
     var wordsArray = string.split(/[.\-_\s,()@!&*+{}:;"'\\?]/);
     var indexOfTerm = wordsArray.indexOf(term.toLowerCase());
-    var stringTokens = string.split(/[\s]/);
-    var contextTokens = stringTokens.splice(indexOfTerm - (length / 2), length);
-    return contextTokens.join(" ");
+    var startPosition = 0;
+    if (indexOfTerm > length/2){
+        startPosition = indexOfTerm - (length / 2);
+    }
+    var contextTokens = wordsArray.splice(startPosition, length);
+    var retStr = "";
+    for (var i = 0; i < contextTokens.length; i++) {
+        if (contextTokens[i] == term) {
+            retStr = retStr + " <strong><abbr>" + term + "</abbr></strong> ";
+        }
+        else {
+            retStr = retStr + " " + contextTokens[i] + " ";
+        }
+    }
+
+    return retStr;
 }
 
 // Updates chrome.storage.local with key and object.
@@ -161,7 +174,7 @@ function searchArchivedPages(query, task, pageContent, searchSettings) {
             for (var j = 0; j < queryTerms.length; j++) {
                 if (wordsArray.indexOf(queryTerms[j]) > -1) {
                     result["matched terms"].push(queryTerms[j]);
-                    var contextString = getContextString(queryTerms[j], content, 20);
+                    var contextString = getContextString(queryTerms[j], content, 30);
                     result["context"].push(contextString);
                 }
             }
