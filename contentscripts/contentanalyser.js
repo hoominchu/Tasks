@@ -15,7 +15,7 @@ var SETTINGS = null;
 chrome.storage.local.get("Settings", function (settings) {
     SETTINGS = settings["Settings"];
 
-    console.log(SETTINGS);
+    // console.log(SETTINGS);
 
     $(document).ready(function () {
 
@@ -480,7 +480,7 @@ function suggestProbableTask(taskWiseTotalScoresArray, matchedTags, currentTaskI
 
         var mostProbableTaskName = tasks[mostProbableTaskID]["name"];
 
-        console.log("This page might belog to task " + mostProbableTaskName);
+        console.log("This page might belong to task " + mostProbableTaskName);
 
         var secondMostProbableTaskID = taskWiseTotalScoresArray[1][0];
 
@@ -489,7 +489,7 @@ function suggestProbableTask(taskWiseTotalScoresArray, matchedTags, currentTaskI
         if (shouldShowSuggestion(taskWiseTotalScoresArray[0][1], taskWiseTotalScoresArray[1][1], matchedTags, settings)) {
             if (currentTaskID !== mostProbableTaskID) {
                 var mostProbableTask = tasks[mostProbableTaskID];
-                console.log("This page looks like it belongs to task " + mostProbableTask["name"]);
+                // console.log("This page looks like it belongs to task " + mostProbableTask["name"]);
                 // alert("Change task!");
                 loadSuggestion(1, mostProbableTaskID, matchedTagsSorted, tasks)
             }
