@@ -127,7 +127,7 @@ function showTasksPanel(tasks, clickedTaskId, textLog, debugStopwords) {
 
             taskButton.onclick = function (ev) {
                 var targetTaskId = this.id;
-                showTasksPanel(tasks, targetTaskId, textLog);
+                showTasksPanel(tasks, targetTaskId, textLog, debugStopwords);
                 showTagsInTask(targetTaskId, tasks, textLog, debugStopwords, {});
             };
 
