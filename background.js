@@ -223,11 +223,15 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
         for (var i = 0; i < matchedTags.length; i++) {
             matchedTagsString = matchedTagsString + matchedTags[i][0]+", ";
         }
+        var fromPageURL = response["page url"];
+        var fromPageTitle = response["page title"];
+        var probableTask = response["probable task"];
+
         chrome.notifications.create({"type" : "basic",
             "iconUrl" : "images/logo_white_sails_no_text.png",
-            "title" : "Task Suggestion : " + response["probable task"],
+            "title" : "Task Suggestion : " + probableTask,
             "message" : matchedTagsString,
-            "buttons" : [{"title":"Add to task " + response["probable task"] + " and go to that task"},{"title":"Add to task " + response["probable task"] + " and stay on the current task"}],
+            "buttons" : [{"title":"See all matched tags"},{"title":"Add to task " + probableTask + " and stay on the current task"}],
             // "items":[{"title":"sdfs","message":"sdfawefar"},{"title":"erwq","message":"qweqwer"},{"title":"zxz","message":"vbcxvbx"}],
             "isClickable" : true,
             "requireInteraction" : false}, function (notificationID) {
@@ -237,16 +241,27 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
 
                     // This button adds the current webpage to the suggested task and takes the user to the suggested task.
                     if (btnIdx === 0) {
-                        // Logging that the suggestion is correct.
-                        chrome.storage.local.get("Suggestions Log", function (resp) {
-                            resp["Suggestions Log"]["Correct suggestions"]++;
-                            updateStorage("Suggestions Log", resp);
-                        });
+                        // // Logging that the suggestion is correct.
+                        // chrome.storage.local.get("Suggestions Log", function (resp) {
+                        //     resp["Suggestions Log"]["Correct suggestions"]++;
+                        //     updateStorage("Suggestions Log", resp);
+                        // });
 
                         // Call function to add to task and move to task.
 
+                        // Redirecting to matchedTags.html and displaying all matched tags.
+                        chrome.storage.local.set({
+                            "Matched Tags": {
+                                "type": "show matched tags",
+                                "matched tags": matchedTags,
+                                "from page URL": fromPageURL,
+                                "from page title": fromPageTitle,
+                                "probable task name": probableTask
+                            }
+                        }, function () {
+                            chrome.tabs.create({"url": "html/matchedTags.html"})
+                        });
                     }
-
                     // This button adds the current webpage to the suggested task and stays in the current task.
                     else if (btnIdx === 1){
                         // Logging that the suggestion is correct.

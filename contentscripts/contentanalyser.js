@@ -524,9 +524,13 @@ function shouldShowSuggestion(matchesWithMostProbableTask, matchesWithSecondMost
 // Shows chrome notification.
 function loadSuggestion(tab, mostProbableTaskID, matchedTags, tasks) {
 
+    var pageTitle = document.getElementsByTagName("title")[0].innerHTML;
+
     var mostProbableTaskName = tasks[mostProbableTaskID]["name"];
     chrome.runtime.sendMessage({
         "type": "task suggestion",
+        "page url": window.location.href,
+        "page title" : pageTitle,
         "probable task": mostProbableTaskName,
         "probable task id": mostProbableTaskID,
         "matched tags": matchedTags
