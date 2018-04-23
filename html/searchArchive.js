@@ -64,6 +64,7 @@ function showSearchInOptions(advancedSearchSettings) {
     // var defaultAdvSearchSettings = {
     //     "search in": "Open tabs"
     // };
+
     var search_in_options_set_to = advancedSearchSettings["search in"];
     var search_in_options = ["Open tabs", "Archived pages"];
 
@@ -101,7 +102,8 @@ function showSearchInOptions(advancedSearchSettings) {
 
 function getContextString(term, string, length) {
     var wordsArray = string.split(/[.\-_\s,()@!&*+{}:;"'\\?]/);
-    var indexOfTerm = wordsArray.indexOf(term.toLowerCase());
+    var wordsArrayLowercase = string.toLowerCase().split(/[.\-_\s,()@!&*+{}:;"'\\?]/);
+    var indexOfTerm = wordsArrayLowercase.indexOf(term.toLowerCase());
     var startPosition = 0;
     if (indexOfTerm > length/2){
         startPosition = indexOfTerm - (length / 2);
@@ -109,8 +111,8 @@ function getContextString(term, string, length) {
     var contextTokens = wordsArray.splice(startPosition, length);
     var retStr = "";
     for (var i = 0; i < contextTokens.length; i++) {
-        if (contextTokens[i] == term) {
-            retStr = retStr + " <strong><abbr>" + term + "</abbr></strong> ";
+        if (contextTokens[i].toLowerCase() == term.toLowerCase()) {
+            retStr = retStr + " <strong><abbr>" + contextTokens[i] + "</abbr></strong> ";
         }
         else {
             retStr = retStr + " " + contextTokens[i] + " ";
@@ -162,8 +164,14 @@ function searchArchivedPages(query, task, pageContent, searchSettings) {
         for (var i = 0; i < searchThroughPages.length; i++) {
 
             var url = searchThroughPages[i];
-            var content = pageContent[url].toLowerCase();
-            var wordsArray = content.split(/[.\-_\s,()@!&*+{}:;"'\\?]/);
+            var content = pageContent[url];
+
+            try {
+                var wordsArray = content.toLowerCase().split(/[.\-_\s,()@!&*+{}:;"'\\?]/);
+            } catch (e) {
+                alert("Please try reloading tabs.");
+            }
+
 
             var result = {
                 "url": url,
@@ -172,7 +180,7 @@ function searchArchivedPages(query, task, pageContent, searchSettings) {
             };
 
             for (var j = 0; j < queryTerms.length; j++) {
-                if (wordsArray.indexOf(queryTerms[j]) > -1) {
+                if (wordsArray.indexOf(queryTerms[j].toLowerCase()) > -1) {
                     result["matched terms"].push(queryTerms[j]);
                     var contextString = getContextString(queryTerms[j], content, 30);
                     result["context"].push(contextString);

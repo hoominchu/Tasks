@@ -605,7 +605,7 @@ function isValidTag(tag) {
         return false;
     }
 
-    if (!(tag.match(/^[A-Za-z]+$/gim))) {
+    if (!(tag.match(/^[A-Za-z\s]+$/gim))) {
         return false;
     }
 
