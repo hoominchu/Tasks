@@ -12,7 +12,7 @@ $(document).ready(function () {
                     clickOnCurrentTaskButton(ctaskid);
 
                     document.getElementById("showAddedStopwords").onclick = function (ev) {
-                        showStopwords();
+                        showStopwords(tasks, textlog);
                     }
 
                 });
@@ -29,9 +29,13 @@ function removeElementFromArray(array, element) {
     return array;
 }
 
-function showStopwords() {
+function showStopwords(tasks, textLog) {
     chrome.storage.local.get("Debug Stopwords", function (debugStopwords) {
         debugStopwords = debugStopwords["Debug Stopwords"];
+
+        document.getElementById("showAddedStopwords").className = "btn btn-danger round-corner";
+
+        showTasksPanel(tasks, -1, textLog, debugStopwords);
 
         var tagsArea = document.getElementById("tags_in_task");
         tagsArea.innerText = '';
@@ -94,6 +98,10 @@ function showTagsInTask(taskid, tasks, taglog, debugStopwords, settings) {
         for (var i = 0; i < task["likedPages"].length; i++) {
             pages.push(task["likedPages"][i]);
         }
+    }
+
+    if (pages.length < 1) {
+        alert("This task has no tabs open.");
     }
 
     for (var i = 0; i < pages.length; i++) {
@@ -179,6 +187,7 @@ function showTasksPanel(tasks, clickedTaskId, textLog, debugStopwords) {
 
             taskButton.onclick = function (ev) {
                 var targetTaskId = this.id;
+                document.getElementById("showAddedStopwords").className = "btn btn-secondary round-corner";
                 showTasksPanel(tasks, targetTaskId, textLog, debugStopwords);
                 showTagsInTask(targetTaskId, tasks, textLog, debugStopwords, {});
             };
