@@ -85,6 +85,14 @@ chrome.storage.local.get("Advanced Search Settings", function (e) {
     }
 });
 
+chrome.storage.local.get("Debug Stopwords", function (e) {
+    if (isEmpty(e)) {
+        chrome.storage.local.set({"Debug Stopwords": []}, function () {
+            console.log("Debug stopwords initialised.");
+        })
+    }
+});
+
 // chrome.storage.local.get("CTASKID", function (cTaskIdObject) {
 //     if (cTaskIdObject["CTASKID"]>0) {
 //         CTASKID = cTaskIdObject["CTASKID"];

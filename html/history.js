@@ -3,7 +3,7 @@ var idOfSelectedTask = 0;
 chrome.storage.local.get("TASKS", function (taskObject) {
     if (taskObject["TASKS"]) {
         var Tasks = taskObject["TASKS"];
-        console.log(Tasks)
+        // console.log(Tasks);
         for (var task_id in Tasks) {
             if (task_id != "lastAssignedId") {
                 $("#tasks-list").append('<button type="button" class="tasks btn btn-outline-primary" id="' + Tasks[task_id].id + '"> ' + Tasks[task_id].name + '</button>');
@@ -18,7 +18,6 @@ chrome.storage.local.get("TASKS", function (taskObject) {
             }
         });
     }
-    ;
 });
 
 function createRow(page) {

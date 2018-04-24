@@ -12,7 +12,8 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#" style="padding-left: 1.5em"><img src="../images/logo_white_sails_no_text.png" width="40em"></a>
+    <a class="navbar-brand" href="#" style="padding-left: 1.5em"><img src="../images/logo_white_sails_no_text.png"
+                                                                      width="40em"></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
             aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -41,7 +42,10 @@
             <!--<li class="nav-item">-->
             <!--<a class="nav-link active" href="profile.html">Profile</a>-->
             <!--</li>-->
-            <li class="nav-item active">
+            <li class="nav-item">
+                <a class="nav-link" href="debug.html">Debug</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link" href="about.html">About</a>
             </li>
             <li class="nav-item">
@@ -53,11 +57,19 @@
 
 <div class="container-fluid">
     <div class="row" style="height: 1em;"></div>
-    <h1>Settings</h1>
-    <hr>
     <div class="row">
+        <div class="col-lg-1"></div>
+        <h1 class="col-lg-10">Settings</h1>
+        <hr>
+        <div class="col-lg-1"></div>
+
+    </div>
+    <div class="row" style="height: 1em;"></div>
+    <div class="row">
+        <div class="col-lg-1"></div>
         <div class="col-lg-3" id="notification_settings">
             <h4>Notifications</h4>
+            <p><small>These are task suggestion notifications.</small></p>
             <div id="notification_options" class="btn-group" role="group"></div>
         </div>
         <div class="col-lg-4" id="suggestion_settings">
@@ -76,10 +88,12 @@
             </p>
             <div id="suggestion_threshold" class="btn-group" role="group"></div>
         </div>
+        <div class="col-lg-1"></div>
     </div>
     <div class="row" style="height: 3em;"></div>
     <div class="row">
-        <div class="col-lg-5">
+        <div class="col-lg-1"></div>
+        <div class="col-lg-7">
             <h4>Block notifications on</h4>
             <p>
                 <small>Add or remove domains where you would like to disable notifications.</small>
@@ -97,6 +111,7 @@
                 </div>
             </div>
         </div>
+        <div class="col-lg-1"></div>
     </div>
 
 </div>
