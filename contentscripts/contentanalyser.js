@@ -530,7 +530,7 @@ function loadSuggestion(tab, mostProbableTaskID, matchedTags, tasks) {
     chrome.runtime.sendMessage({
         "type": "task suggestion",
         "page url": window.location.href,
-        "page title" : pageTitle,
+        "page title": pageTitle,
         "probable task": mostProbableTaskName,
         "probable task id": mostProbableTaskID,
         "matched tags": matchedTags
