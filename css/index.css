@@ -2,4 +2,14 @@
   margin-top:2em;
 }
 
+.open-task{
+  font-weight:bold;
+}
 
+.active-task{
+  font-weight: bolder;
+}
+
+.modal-content{
+  border-radius: 10px;
+}

@@ -1,7 +1,12 @@
-function showTasks(Tasks) {
+function showTasks(Tasks, openTasks) {
+  $("#tasks-container").empty();
+  $("#archived-tasks").empty();
+  var createTaskDiv = $('<div class="col-lg-3"><div class="card text-white bg-dark mb-3 col-lg-3" style="max-width: 20rem; height:12em; border-radius:0.8em"><div class="card-header">Create Task</div><div class="card-body"><div class="form-group round-corner"><input type="text" class="form-control round-corner" id="taskName" placeholder="Task name" style="border-radius: 0.6em"></div><button id="createTask" class="btn btn-secondary round-corner btn-sm" style="border-radius:0.6em">CreateTask</button></div></div></div>');
+  $("#tasks-container").append(createTaskDiv);
+
     for (var task_id in Tasks) {
         if (task_id != "lastAssignedId" && Tasks[task_id].id != 0 && !(Tasks[task_id].archived)) {
-            setUpUnarchivedTasks(Tasks, task_id);
+            setUpUnarchivedTasks(Tasks, task_id, openTasks);
         }
         else if (task_id != "lastAssignedId" && Tasks[task_id].id != 0 && Tasks[task_id].archived) {
             setUpArchivedTasks(Tasks, task_id);
@@ -9,7 +14,7 @@ function showTasks(Tasks) {
     }
 }
 
-function setUpUnarchivedTasks(Tasks, task_id){
+function setUpUnarchivedTasks(Tasks, task_id, openTasks){
     var col = $("<div class='col-lg-3'></div>");
 
     if (Tasks[task_id].isActive) {
@@ -18,16 +23,28 @@ function setUpUnarchivedTasks(Tasks, task_id){
             "style": "max-width: 20rem; height:12em; border-radius:0.8em",
             "id": task_id
         });
+        var card_header = $("<div>", {"class": "card-header active-task", "text": Tasks[task_id].name});
     }
     else {
+      if(openTasks.indexOf(task_id)>-1){
         var card = $("<div>", {
             "class": "card border-secondary mb-3 task",
             "style": "max-width: 20rem; height:12em; border-radius:0.8em",
             "id": task_id
         });
+        var card_header = $("<div>", {"class": "card-header open-task", "text": Tasks[task_id].name});
+      }
+      else{
+        var card = $("<div>", {
+            "class": "card border-secondary mb-3 task",
+            "style": "max-width: 20rem; height:12em; border-radius:0.8em",
+            "id": task_id
+        });
+        var card_header = $("<div>", {"class": "card-header", "text": Tasks[task_id].name});
+      }
+
     }
 
-    var card_header = $("<div>", {"class": "card-header", "text": Tasks[task_id].name});
     var card_body = $("<div>", {"class": "card-body text-dark"});
     var card_buttons = $("<div>", {"class": "btn-group"});
     var open_button = $("<button class='btn btn-outline-success btn-sm round-corner-left openTask' type='button' id='" + Tasks[task_id].id + "'>Open</button>");
@@ -50,6 +67,7 @@ function setUpUnarchivedTasks(Tasks, task_id){
 }
 
 function setUpArchivedTasks(Tasks, task_id){
+
     var col = $("<div class='col-lg-3'></div>");
 
     if (Tasks[task_id].isActive) {

@@ -299,3 +299,39 @@ function setTaskBadge(windowId, task_id) {
     });
 }
 
+function removeFromPageContentAndTextLog(url){
+  chrome.tabs.query({}, function(tabs){
+    var isLiked = false;
+    var isOpen = false;
+    for(var i = 0; i<tabs.length; i++){
+      if(url == tabs[i].url){
+        isOpen = true;
+      }
+    }
+    if(TASKS){
+        for(var task in TASKS){
+          if(task != "lastAssignedId"){
+            if(TASKS[task]["likedPages"].indexOf(url)>-1){
+              isLiked = true;
+            }
+          }
+        }
+    }
+
+    if(!isLiked && !isOpen){
+      chrome.storage.local.get("Text Log", function(textlog){
+        var textlog = textlog["Text Log"];
+        delete textlog[url];
+        console.log("Deleted %s from Text Log", url);
+        updateStorage("Text Log", textlog);
+      });
+
+      chrome.storage.local.get("Page Content", function(pageContent){
+        var pageContent = pageContent["Page Content"];
+        delete pageContent[url];
+        console.log("Deleted %s from Page Content.", url);
+        updateStorage("Page Content", pageContent);
+      });
+    }
+  });
+}

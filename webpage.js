@@ -57,5 +57,6 @@ function likePage(url, method){
     });
   }
   updatePreferredDomain(url);
+  removeFromPageContentAndTextLog(url)
   updateStorage("TASKS",TASKS);
 }
