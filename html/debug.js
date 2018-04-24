@@ -11,11 +11,63 @@ $(document).ready(function () {
                     showTasksPanel(tasks, ctaskid, textlog, debugStopwords);
                     clickOnCurrentTaskButton(ctaskid);
 
+                    document.getElementById("showAddedStopwords").onclick = function (ev) {
+                        showStopwords();
+                    }
+
                 });
             });
         });
     });
 });
+
+function removeElementFromArray(array, element) {
+    var index = array.indexOf(element);
+    if (index > -1) {
+        array.splice(index, 1);
+    }
+    return array;
+}
+
+function showStopwords() {
+    chrome.storage.local.get("Debug Stopwords", function (debugStopwords) {
+        debugStopwords = debugStopwords["Debug Stopwords"];
+
+        var tagsArea = document.getElementById("tags_in_task");
+        tagsArea.innerText = '';
+
+        for (var i = 0; i < debugStopwords.length; i++) {
+            var stopword = debugStopwords[i];
+            var tagTextElement = "<strong>" + stopword + "</strong>";
+
+            var tagButtonGroupElement = document.createElement("div");
+            tagButtonGroupElement.className = "btn-group round-corner";
+            tagButtonGroupElement.setAttribute("role", "group");
+            tagButtonGroupElement.style.margin = "0.5em";
+
+            var tagTextButton = document.createElement("button");
+            tagTextButton.setAttribute("type", "button");
+            tagTextButton.className = "btn btn-danger disabled round-corner-left";
+            tagTextButton.innerHTML = tagTextElement;
+
+            var tagCloseButton = document.createElement("button");
+            tagCloseButton.setAttribute("type", "button");
+            tagCloseButton.className = "btn btn-outline-danger round-corner-right";
+            tagCloseButton.innerHTML = "&times;";
+            tagCloseButton.onclick = function (ev) {
+                var stopword = this.parentElement.getElementsByTagName("strong")[0].innerText;
+                debugStopwords = removeElementFromArray(debugStopwords, stopword);
+                $(this).parent().remove();
+                updateStorage("Debug Stopwords", debugStopwords);
+            };
+
+            tagButtonGroupElement.appendChild(tagTextButton);
+            tagButtonGroupElement.appendChild(tagCloseButton);
+
+            tagsArea.appendChild(tagButtonGroupElement);
+        }
+    });
+}
 
 function clickOnCurrentTaskButton(ctaskid) {
     document.getElementById(ctaskid).click();
