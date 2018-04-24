@@ -57,17 +57,6 @@
         <h3 class="text-center">Current Tasks</h3>
     </div>
     <div class="row" id="tasks-container" style="margin-top:30px">
-        <div class="col-lg-3">
-            <div class="card text-white bg-dark mb-3 col-lg-3" style="max-width: 20rem; height:12em; border-radius:0.8em">
-                <div class="card-header">Create Task</div>
-                <div class="card-body">
-                    <div class="form-group round-corner">
-                        <input type="text" class="form-control round-corner" id="taskName" placeholder="Task name" style="border-radius: 0.6em">
-                    </div>
-                    <button id="createTask" class="btn btn-secondary round-corner btn-sm" style="border-radius:0.6em">Create Task</button>
-                </div>
-                </div>
-            </div>
         </div>
     </div>
 <hr>
@@ -81,7 +70,7 @@
 
 <div class="modal" id="renameModal">
     <div class="modal-dialog" role="document">
-        <div class="modal-content">
+        <div class="modal-content round-corner">
             <div class="modal-header">
                 <h5 class="modal-title">Rename Task</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -91,12 +80,12 @@
             <div class="modal-body">
                 <div class="form-group">
                     <label class="col-form-label" for="newNameForTask"></label>
-                    <input type="text" class="form-control" placeholder="Add new name for Task." id="newNameForTask">
+                    <input type="text" class="form-control round-corner" placeholder="Add new name for Task." id="newNameForTask">
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="renameSubmit">Rename</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary round-corner" id="renameSubmit">Rename</button>
+                <button type="button" class="btn btn-secondary round-corner" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>

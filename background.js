@@ -170,6 +170,7 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
   if(removeInfo.isWindowClosing){
+    deactivateTaskInWindow(CTASKID);
     CTASKID = 0;
   }
   else {
