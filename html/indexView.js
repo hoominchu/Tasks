@@ -23,7 +23,9 @@ function setUpUnarchivedTasks(Tasks, task_id, openTasks){
             "style": "max-width: 20rem; height:12em; border-radius:0.8em",
             "id": task_id
         });
-        var card_header = $("<div>", {"class": "card-header active-task", "text": Tasks[task_id].name});
+        var card_header = $("<div>", {"class": "card-header", "text": Tasks[task_id].name + "       "});
+        var openPill = $('<span class="badge badge-pill badge-success">Active</span>')
+        card_header.append(openPill);
     }
     else {
       if(openTasks.indexOf(task_id)>-1){
@@ -32,7 +34,9 @@ function setUpUnarchivedTasks(Tasks, task_id, openTasks){
             "style": "max-width: 20rem; height:12em; border-radius:0.8em",
             "id": task_id
         });
-        var card_header = $("<div>", {"class": "card-header open-task", "text": Tasks[task_id].name});
+        var card_header = $("<div>", {"class": "card-header", "text": Tasks[task_id].name + "       "});
+        var openPill = $('<span class="badge badge-pill badge-primary">Open</span>')
+        card_header.append(openPill);
       }
       else{
         var card = $("<div>", {

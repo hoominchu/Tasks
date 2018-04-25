@@ -3,13 +3,9 @@
 }
 
 .open-task{
-  font-weight:bold;
+  background-color:#008cba;
 }
 
 .active-task{
-  font-weight: bolder;
-}
-
-.modal-content{
-  border-radius: 10px;
+  background-color: #43ac6a;
 }

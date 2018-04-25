@@ -14,23 +14,26 @@ function showTasks(Tasks, openTasks) {
 function appendTask(task_id, Tasks, isTaskOpen){
     var li = document.createElement("li");
     var taskName = document.createElement("button");
-    taskName.className = "btn btn-outline-primary round-corner-left task bold-text";
+    taskName.className = "btn round-corner-left task bold-text";
     if(isTaskOpen){
       if(Tasks[task_id].name.length<15){
         taskName.innerText = Tasks[task_id].name;
-        taskName.className = taskName.className + " openTask";
+        taskName.className = taskName.className + " btn-success";
       }
       else{
         taskName.innerText = Tasks[task_id].name.substr(0,12)+"..";
-        taskName.className = taskName.className + " openTask";
+        taskName.className = taskName.className + " btn-success";
       }
     }
     else{
       if(Tasks[task_id].name.length<15){
         taskName.innerText = Tasks[task_id].name;
+        taskName.className = taskName.className + " btn-outline-primary";
+
       }
       else{
         taskName.innerText = Tasks[task_id].name.substr(0,12)+"..";
+        taskName.className = taskName.className + " btn-outline-primary";
       }
     }
     taskName.id = Tasks[task_id].id;
