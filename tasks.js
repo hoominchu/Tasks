@@ -247,3 +247,7 @@ function openLikedPages(task_id){
   }
   openTabs(likedPagesUrls);
 }
+
+function closeTask(taskId){
+    chrome.windows.remove(taskToWindow["taskId"])
+}

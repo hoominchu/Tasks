@@ -46,8 +46,8 @@ function appendTask(task_id, Tasks, isTaskOpen){
     renameButton.type = "button";
     renameButton.id = Tasks[task_id].id;
     var cancelButton = document.createElement("button");
-    cancelButton.innerText = "Delete";
-    cancelButton.className = "btn btn-outline-danger delete round-corner-right";
+    cancelButton.innerText = "Close";
+    cancelButton.className = "btn btn-outline-danger closeTask round-corner-right";
     cancelButton.type = "button";
     // li.innerText = Tasks[task_id].name + "  ";
     li.id = Tasks[task_id].id;

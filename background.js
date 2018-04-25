@@ -48,6 +48,10 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
         activateTaskInWindow(request.nextTaskId);
     }
 
+    if(request.type == "close-task"){
+        closeTask(request.taskId);
+    }
+
     if (request.type == "rename-task") {
         renameTask(request.taskId, request.newTaskName);
     }
