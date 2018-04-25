@@ -21,31 +21,40 @@ chrome.storage.local.get("Settings", function (settings) {
 
         chrome.storage.local.get("TASKS", function (tasksDict) {
             var tasksObject = tasksDict["TASKS"];
-            chrome.storage.local.get("Page Content", function (pageContent) {
-                chrome.storage.local.get("Text Log", function (textLog) {
+            chrome.storage.local.get("CTASKID", function (ctaskid) {
+                if (ctaskid != null) {
+                    ctaskid = ctaskid["CTASKID"];
+                } else {
+                    ctaskid = -1;
+                }
 
 
-                    if (isEmpty(pageContent)) {
-                        chrome.storage.local.set({"Page Content": {}}, function () {
+                chrome.storage.local.get("Page Content", function (pageContent) {
+                    chrome.storage.local.get("Text Log", function (textLog) {
+
+
+                        // if (isEmpty(pageContent)) {
+                        //     chrome.storage.local.set({"Page Content": {}}, function () {
+                        //         storePageContent(window.location.href, document.documentElement.innerText);
+                        //     });
+                        // }
+                        //
+                        // if (isEmpty(textLog)) {
+                        //     chrome.storage.local.set({"Text Log": {}}, function () {
+                        //         newLogTags(window.location.href);
+                        //     });
+                        // }
+
+                        if (!isEmpty(pageContent) && !isEmpty(textLog)) {
+                            pageContent = pageContent["Page Content"];
+                            // textLog = textLog["Text Log"];
+                            newTaskDetectorContent(tasksObject, pageContent, SETTINGS);
                             storePageContent(window.location.href, document.documentElement.innerText);
-                        });
-                    }
-
-                    if (isEmpty(textLog)) {
-                        chrome.storage.local.set({"Text Log": {}}, function () {
-                            newLogTags(window.location.href);
-                        });
-                    }
-
-                    else if (!isEmpty(pageContent) && !isEmpty(textLog)) {
-                        pageContent = pageContent["Page Content"];
-                        // textLog = textLog["Text Log"];
-                        newTaskDetectorContent(tasksObject, pageContent, SETTINGS);
-                        storePageContent(window.location.href, document.documentElement.innerText);
-                        console.log("Page content stored.");
-                        newLogTags(window.location.href);
-                        console.log("Tags of current page logged");
-                    }
+                            console.log("Page content stored.");
+                            newLogTags(window.location.href, ctaskid);
+                            console.log("Tags of current page logged");
+                        }
+                    });
                 });
             });
         });
@@ -450,14 +459,22 @@ function newTaskDetector(tasks, textLog) {
     }
 }
 
-function newLogTags(url) {
+function newLogTags(url, ctaskid) {
     chrome.storage.local.get("Text Log", function (textLog) {
         textLog = textLog["Text Log"];
         if (DOMAINS_TO_BE_IGNORED.indexOf(getDomainFromURL(url)) < 0) {
-            textLog[url] = getNamedEntityTagsOnCurrentDocument();
+            var tags = getNamedEntityTagsOnCurrentDocument();
+            textLog[url] = tags;
             updateStorage("Text Log", textLog);
+            if (Object.keys(tags).length > 0) {
+                updateTagIndex(tags,ctaskid);
+            }
         }
     });
+}
+
+function updateTagIndex(tags, ctaskid) {
+
 }
 
 function sortTagsByFrequency(tags) {
