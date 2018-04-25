@@ -84,6 +84,7 @@ function showTagsInTask(taskid, tasks, taglog, debugStopwords, settings) {
 //         <button type="button" class="btn btn-secondary">Right</button>
 //         </div>
 
+    var allTags = {};
 
     var tagsInTaskElement = document.getElementById("tags_in_task");
     tagsInTaskElement.innerText = '';
@@ -106,7 +107,7 @@ function showTagsInTask(taskid, tasks, taglog, debugStopwords, settings) {
 
     for (var i = 0; i < pages.length; i++) {
 
-        var allTags = {};
+        var allPageTags = {};
 
         var url = pages[i];
         var tagsInURL = taglog[url];
@@ -128,12 +129,18 @@ function showTagsInTask(taskid, tasks, taglog, debugStopwords, settings) {
 
                 if (debugStopwords.indexOf(tagText.toLowerCase()) < 0) {
 
-                    allTags[tagText.toLowerCase()] = tag;
+                    allPageTags[tagText.toLowerCase()] = tag;
+
+                    if (allTags.hasOwnProperty(tagText.toLowerCase())){
+                        allTags[tagText.toLowerCase()]["frequency"] = allTags[tagText.toLowerCase()]["frequency"] + tag["frequency"];
+                    } else {
+                        allTags[tagText.toLowerCase()] = tag;
+                    }
 
                 }
             }
 
-            var sortedTags = sortTagsByFrequency(allTags);
+            var sortedTags = sortTagsByFrequency(allPageTags);
 
             for (var j = 0; j < sortedTags.length; j++) {
 
@@ -177,9 +184,44 @@ function showTagsInTask(taskid, tasks, taglog, debugStopwords, settings) {
             noTagsFoundElement.innerHTML = "<strong>No tags found on this page</strong>";
             urlTagsElement.appendChild(noTagsFoundElement);
         }
-
-
     }
+
+    var allTagsSorted = sortTagsByFrequency(allTags);
+
+    var allTagsInTaskElement = document.getElementById("all_tags_in_task");
+
+    for (var k = 0; k < allTagsSorted.length; k++) {
+        var tag = allTagsSorted[k][1];
+
+        var tagTextElement = "<strong>" + tag["text"] + "</strong>" + " | " + tag["frequency"];
+
+        var tagButtonGroupElement = document.createElement("div");
+        tagButtonGroupElement.className = "btn-group round-corner";
+        tagButtonGroupElement.setAttribute("role", "group");
+        tagButtonGroupElement.style.margin = "0.5em";
+
+        var tagTextButton = document.createElement("button");
+        tagTextButton.setAttribute("type", "button");
+        tagTextButton.className = "btn btn-secondary disabled round-corner-left";
+        tagTextButton.innerHTML = tagTextElement;
+
+        var tagCloseButton = document.createElement("button");
+        tagCloseButton.setAttribute("type", "button");
+        tagCloseButton.className = "btn btn-secondary round-corner-right";
+        tagCloseButton.innerHTML = "&times;";
+        tagCloseButton.onclick = function (ev) {
+            var stopword = this.parentElement.getElementsByTagName("strong")[0].innerText;
+            debugStopwords.push(stopword.toLowerCase());
+            $(this).parent().remove();
+            updateStorage("Debug Stopwords", debugStopwords);
+        };
+
+        tagButtonGroupElement.appendChild(tagTextButton);
+        tagButtonGroupElement.appendChild(tagCloseButton);
+
+        allTagsInTaskElement.appendChild(tagButtonGroupElement);
+    }
+
 }
 
 function sortTagsByFrequency(tags) {
