@@ -105,7 +105,7 @@ function getContextString(term, string, length) {
     var wordsArrayLowercase = string.toLowerCase().split(/[.\-_\s,()@!&*+{}:;"'\\?]/);
     var indexOfTerm = wordsArrayLowercase.indexOf(term.toLowerCase());
     var startPosition = 0;
-    if (indexOfTerm > length/2){
+    if (indexOfTerm > length / 2) {
         startPosition = indexOfTerm - (length / 2);
     }
     var contextTokens = wordsArray.splice(startPosition, length);
@@ -169,7 +169,7 @@ function searchArchivedPages(query, task, pageContent, searchSettings) {
             try {
                 var wordsArray = content.toLowerCase().split(/[.\-_\s,()@!&*+{}:;"'\\?]/);
             } catch (e) {
-                alert("Please try reloading tabs.");
+                alert("Please try reloading tab : " + url + ".");
             }
 
 

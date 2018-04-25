@@ -105,8 +105,12 @@ function showTagsInTask(taskid, tasks, taglog, debugStopwords, settings) {
     }
 
     for (var i = 0; i < pages.length; i++) {
+
+        var allTags = {};
+
         var url = pages[i];
         var tagsInURL = taglog[url];
+
         var urlTagsElement = document.createElement("div");
         urlTagsElement.style.marginBottom = "1.5em";
 
@@ -123,45 +127,73 @@ function showTagsInTask(taskid, tasks, taglog, debugStopwords, settings) {
                 var tagText = tag["text"];
 
                 if (debugStopwords.indexOf(tagText.toLowerCase()) < 0) {
-                    var tagTextElement = "<strong>" + tag["text"] + "</strong>" + " | " + tag["frequency"];
 
-                    var tagButtonGroupElement = document.createElement("div");
-                    tagButtonGroupElement.className = "btn-group round-corner";
-                    tagButtonGroupElement.setAttribute("role", "group");
-                    tagButtonGroupElement.style.margin = "0.5em";
+                    allTags[tagText.toLowerCase()] = tag;
 
-                    var tagTextButton = document.createElement("button");
-                    tagTextButton.setAttribute("type", "button");
-                    tagTextButton.className = "btn btn-secondary disabled round-corner-left";
-                    tagTextButton.innerHTML = tagTextElement;
-
-                    var tagCloseButton = document.createElement("button");
-                    tagCloseButton.setAttribute("type", "button");
-                    tagCloseButton.className = "btn btn-secondary round-corner-right";
-                    tagCloseButton.innerHTML = "&times;";
-                    tagCloseButton.onclick = function (ev) {
-                        var stopword = this.parentElement.getElementsByTagName("strong")[0].innerText;
-                        debugStopwords.push(stopword.toLowerCase());
-                        $(this).parent().remove();
-                        updateStorage("Debug Stopwords", debugStopwords);
-                    };
-
-                    tagButtonGroupElement.appendChild(tagTextButton);
-                    tagButtonGroupElement.appendChild(tagCloseButton);
-
-                    urlTagsElement.appendChild(tagButtonGroupElement);
                 }
             }
+
+            var sortedTags = sortTagsByFrequency(allTags);
+
+            for (var j = 0; j < sortedTags.length; j++) {
+
+                tag = sortedTags[j][1];
+
+                var tagTextElement = "<strong>" + tag["text"] + "</strong>" + " | " + tag["frequency"];
+
+                var tagButtonGroupElement = document.createElement("div");
+                tagButtonGroupElement.className = "btn-group round-corner";
+                tagButtonGroupElement.setAttribute("role", "group");
+                tagButtonGroupElement.style.margin = "0.5em";
+
+                var tagTextButton = document.createElement("button");
+                tagTextButton.setAttribute("type", "button");
+                tagTextButton.className = "btn btn-secondary disabled round-corner-left";
+                tagTextButton.innerHTML = tagTextElement;
+
+                var tagCloseButton = document.createElement("button");
+                tagCloseButton.setAttribute("type", "button");
+                tagCloseButton.className = "btn btn-secondary round-corner-right";
+                tagCloseButton.innerHTML = "&times;";
+                tagCloseButton.onclick = function (ev) {
+                    var stopword = this.parentElement.getElementsByTagName("strong")[0].innerText;
+                    debugStopwords.push(stopword.toLowerCase());
+                    $(this).parent().remove();
+                    updateStorage("Debug Stopwords", debugStopwords);
+                };
+
+                tagButtonGroupElement.appendChild(tagTextButton);
+                tagButtonGroupElement.appendChild(tagCloseButton);
+
+                urlTagsElement.appendChild(tagButtonGroupElement);
+            }
+
+            urlTagsElement.appendChild(hrElement);
+
+            tagsInTaskElement.appendChild(urlTagsElement);
+
         } else {
             var noTagsFoundElement = document.createElement("p");
             noTagsFoundElement.innerHTML = "<strong>No tags found on this page</strong>";
             urlTagsElement.appendChild(noTagsFoundElement);
         }
 
-        urlTagsElement.appendChild(hrElement);
 
-        tagsInTaskElement.appendChild(urlTagsElement);
     }
+}
+
+function sortTagsByFrequency(tags) {
+    // Create items array
+    var items = Object.keys(tags).map(function (key) {
+        return [key, tags[key]];
+    });
+
+// Sort the array based on the second element
+    items.sort(function (first, second) {
+        return second[1]["frequency"] - first[1]["frequency"];
+    });
+
+    return items;
 }
 
 function showTasksPanel(tasks, clickedTaskId, textLog, debugStopwords) {

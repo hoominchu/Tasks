@@ -48,6 +48,10 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
         activateTaskInWindow(request.nextTaskId);
     }
 
+    if(request.type == "close-task"){
+        closeTask(request.taskId);
+    }
+
     if (request.type == "rename-task") {
         renameTask(request.taskId, request.newTaskName);
     }
@@ -239,7 +243,7 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
             "iconUrl" : "images/logo_white_sails_no_text.png",
             "title" : "Task Suggestion : " + probableTask,
             "message" : matchedTagsString,
-            "buttons" : [{"title":"See all matched tags"},{"title":"Add to task " + probableTask + " and stay on the current task"}],
+            "buttons" : [{"title":"See all matched tags"}], //,{"title":"Add to task " + probableTask + " and stay on the current task"}
             // "items":[{"title":"sdfs","message":"sdfawefar"},{"title":"erwq","message":"qweqwer"},{"title":"zxz","message":"vbcxvbx"}],
             "isClickable" : true,
             "requireInteraction" : false}, function (notificationID) {
@@ -270,16 +274,16 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
                             chrome.tabs.create({"url": "html/matchedTags.html"})
                         });
                     }
-                    // This button adds the current webpage to the suggested task and stays in the current task.
-                    else if (btnIdx === 1){
-                        // Logging that the suggestion is correct.
-                        chrome.storage.local.get("Suggestions Log", function (resp) {
-                            resp["Suggestions Log"]["Correct suggestions"]++;
-                            updateStorage("Suggestions Log", resp);
-                        });
-
-                        // Call function to add to task but not move to task.
-                    }
+                    // // This button adds the current webpage to the suggested task and stays in the current task.
+                    // else if (btnIdx === 1){
+                    //     // Logging that the suggestion is correct.
+                    //     chrome.storage.local.get("Suggestions Log", function (resp) {
+                    //         resp["Suggestions Log"]["Correct suggestions"]++;
+                    //         updateStorage("Suggestions Log", resp);
+                    //     });
+                    //
+                    //     // Call function to add to task but not move to task.
+                    // }
                 }
             });
 

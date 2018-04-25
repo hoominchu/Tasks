@@ -48,13 +48,13 @@ window.onload = function () {
             });
 
 
-            document.getElementsByClassName("delete")[i].addEventListener("click", function (deleteButton) {
+            document.getElementsByClassName("closeTask")[i].addEventListener("click", function (deleteButton) {
                 return function (deleteButton) {
-                    document.getElementById(deleteButton.srcElement.parentElement.id).style.display = "None";
+                    // document.getElementById(deleteButton.srcElement.parentElement.id).style.display = "None";
                     chrome.runtime.sendMessage(
                         {
-                            "type": "delete-task",
-                            "taskToRemove": deleteButton.srcElement.parentElement.id
+                            "type": "close-task",
+                            "taskId": deleteButton.srcElement.parentElement.id
                         }
                     );
                 }(deleteButton);
