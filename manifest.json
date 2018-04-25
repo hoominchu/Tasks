@@ -58,7 +58,7 @@
     "chrome_ex_oauth.html",
     "chrome_ex_oauth.js",
     "chrome_ex_oauthsimple.html",
-    "images/fish_hook.png"
+    "images/archive.png"
   ],
   "content_security_policy": "script-src 'self' 'unsafe-inline' 'unsafe eval' object-src 'self'",
   "permissions": [
