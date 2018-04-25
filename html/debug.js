@@ -30,6 +30,7 @@ function removeElementFromArray(array, element) {
 }
 
 function showStopwords(tasks, textLog) {
+    document.getElementById("all_tags_in_task").innerText = '';
     chrome.storage.local.get("Debug Stopwords", function (debugStopwords) {
         debugStopwords = debugStopwords["Debug Stopwords"];
 
@@ -86,6 +87,7 @@ function showTagsInTask(taskid, tasks, taglog, debugStopwords, settings) {
 
     var allTags = {};
 
+    document.getElementById("all_tags_in_task").innerText = '';
     var tagsInTaskElement = document.getElementById("tags_in_task");
     tagsInTaskElement.innerText = '';
     var task = tasks[taskid];
@@ -239,6 +241,7 @@ function sortTagsByFrequency(tags) {
 }
 
 function showTasksPanel(tasks, clickedTaskId, textLog, debugStopwords) {
+
     var tasksPanelElement = document.getElementById("tasks-list");
     tasksPanelElement.innerText = '';
     for (var task_id in tasks) {
