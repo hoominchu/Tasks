@@ -138,12 +138,27 @@ function getNamedEntityTagsOnCurrentDocument() {
         var topic = topics[i]["text"];
         topic = cleanTag(topic);
         if (isValidTag(topic)) {
-            if (tags.hasOwnProperty(topic.toLowerCase())) {
-                tags[topic.toLowerCase()].increaseFrequency();
+            var tokens = topic.split(" ");
+            for (var j = 0; j < tokens.length; j++){
+                var token = tokens[j];
+                if (isValidTag(token)) {
+                    if (tags.hasOwnProperty(token.toLowerCase())) {
+                        tags[token.toLowerCase()].increaseFrequency();
+                    }
+                    else {
+                        var tag = new Tag(token);
+                        tags[token.toLowerCase()] = tag;
+                    }
+                }
             }
-            else {
-                var tag = new Tag(topic);
-                tags[topic.toLowerCase()] = tag;
+
+            if (topic.split(" ").length > 1) {
+                if ((tags.hasOwnProperty(topic.toLowerCase()))) {
+                    tags[topic.toLowerCase()].increaseFrequency();
+                } else {
+                    var tag = new Tag(topic);
+                    tags[topic.toLowerCase()] = tag;
+                }
             }
         }
     }
