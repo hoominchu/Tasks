@@ -249,5 +249,5 @@ function openLikedPages(task_id){
 }
 
 function closeTask(taskId){
-    chrome.windows.remove(taskToWindow["taskId"])
+    chrome.windows.remove(taskToWindow[taskId]);
 }
