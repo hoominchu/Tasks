@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Sail Boat",
+  "name": "Sail Boat Test",
   "description": "Browser as it should be.",
   "version": "0.1",
   "browser_action": {

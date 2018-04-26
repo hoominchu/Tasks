@@ -126,8 +126,8 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 chrome.windows.onRemoved.addListener(function(windowId){
     if(windowId != backgroundPageId){
         //deactivateTaskInWindow(getKeyByValue(taskToWindow, windowId));
-        console.log("Window Removed" + TASKS);
-        console.log(TASKS);
+        //console.log("Window Removed" + TASKS);
+        //console.log(TASKS);
         delete taskToWindow[getKeyByValue(taskToWindow, windowId)];
         // getIdsOfCurrentlyOpenTabs(windowId, function(ids){console.log(ids)});
     }
@@ -213,7 +213,7 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
         removeFromPageContentAndTextLog(url);
       }
     }
-  })
+  });
 
 });
 
