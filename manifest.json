@@ -24,7 +24,10 @@
       "author.js",
       "search.js",
       "background.js",
-      "tag.js"
+      "tag.js",
+      "suggestion.js",
+      "suggestion-utils.js",
+      "benchmarkScript.js"
     ]
   },
   "content_scripts": [
