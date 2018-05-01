@@ -48,16 +48,18 @@ window.onload = function () {
             });
 
 
-            document.getElementsByClassName("closeTask")[i].addEventListener("click", function (deleteButton) {
-                return function (deleteButton) {
+            document.getElementsByClassName("closeTask")[i].addEventListener("click", function (closeButton) {
+                return function (closeButton) {
                     // document.getElementById(deleteButton.srcElement.parentElement.id).style.display = "None";
                     chrome.runtime.sendMessage(
                         {
                             "type": "close-task",
-                            "taskId": deleteButton.srcElement.parentElement.id
+                            "taskId": closeButton.srcElement.parentElement.id
                         }
                     );
-                }(deleteButton);
+                    location.reload();
+
+                }(closeButton);
             });
         }
 

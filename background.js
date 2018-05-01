@@ -126,8 +126,8 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 chrome.windows.onRemoved.addListener(function(windowId){
     if(windowId != backgroundPageId){
         //deactivateTaskInWindow(getKeyByValue(taskToWindow, windowId));
-        console.log("Window Removed" + TASKS);
-        console.log(TASKS);
+        //console.log("Window Removed" + TASKS);
+        //console.log(TASKS);
         delete taskToWindow[getKeyByValue(taskToWindow, windowId)];
         // getIdsOfCurrentlyOpenTabs(windowId, function(ids){console.log(ids)});
     }
@@ -176,6 +176,14 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
   if(removeInfo.isWindowClosing){
     deactivateTaskInWindow(CTASKID);
     CTASKID = 0;
+    chrome.windows.getCurrent(function(window){
+      if(getKeyByValue(taskToWindow, window.id)){
+        activateTaskInWindow(getKeyByValue(taskToWindow, window.id));
+      }
+      else{
+        CTASKID = 0;
+      }
+    });
   }
   else {
         saveTaskInWindow(CTASKID);
@@ -207,6 +215,7 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
         chrome.browserAction.setBadgeText({"text": ""});
       }
   }
+<<<<<<< Updated upstream
   chrome.storage.local.get("Text Log", function(textLog){
     if(textLog["Text Log"]){
       for(var url in textLog["Text Log"]){
@@ -214,6 +223,23 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
       }
     }
   })
+||||||| merged common ancestors
+  // chrome.storage.local.get("Text Log", function(textLog){
+  //   if(textLog["Text Log"]){
+  //     for(var url in textLog["Text Log"]){
+  //       // removeFromPageContentAndTextLog(url);
+  //     }
+  //   }
+  // })
+=======
+  // chrome.storage.local.get("Text Log", function(textLog){
+  //   if(textLog["Text Log"]){
+  //     for(var url in textLog["Text Log"]){
+  //       // removeFromPageContentAndTextLog(url);
+  //     }
+  //   }
+  // });
+>>>>>>> Stashed changes
 
 });
 

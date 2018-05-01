@@ -38,8 +38,6 @@ chrome.storage.local.get("Suggestions Log", function (e) {
 });
 
 
-console.log(CTASKID);
-
 chrome.storage.local.get("TASKS", function (taskObject) {
     if (taskObject["TASKS"]) {
         TASKS = taskObject["TASKS"];//On retreiving TASKS from chrome storage, one gets an object {TASKS: balhah}, to retreive the actual array call taskObject["TASKS"]
@@ -126,4 +124,3 @@ chrome.storage.local.get(preferredDomainsFieldName, function (prefDomainsObj) {
         });
     }
 });
-

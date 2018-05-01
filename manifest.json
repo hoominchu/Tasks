@@ -23,8 +23,17 @@
       "domain.js",
       "author.js",
       "search.js",
+<<<<<<< Updated upstream
       "background.js",
       "tag.js"
+||||||| merged common ancestors
+      "background.js"
+=======
+      "background.js",
+      "suggestion.js",
+      "suggestion-utils.js",
+      "benchmarkScript.js"
+>>>>>>> Stashed changes
     ]
   },
   "content_scripts": [
@@ -63,6 +72,7 @@
   "content_security_policy": "script-src 'self' 'unsafe-inline' 'unsafe eval' object-src 'self'",
   "permissions": [
     "tabs",
+    "background",
     "identity",
     "identity.email",
     "storage",
