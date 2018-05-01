@@ -19,15 +19,16 @@
       "init.js",
       "tasks.js",
       "webpage.js",
+      "tag.js",
       "contextmenu.js",
       "domain.js",
       "author.js",
       "search.js",
       "background.js",
-      "tag.js",
       "suggestion.js",
       "suggestion-utils.js",
-      "benchmarkScript.js"
+      "benchmarkScript.js",
+      "benchmarkScriptNew.js"
     ]
   },
   "content_scripts": [

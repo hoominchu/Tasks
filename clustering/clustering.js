@@ -173,8 +173,6 @@ function tagsFetcher(urls, options, callback){
         for(var url in documents){
             tags[url] = getTagsOnDocument(documents[url]);
         }
-        // console.log(documents);
-        // console.log(tags);
         updateStorage("tags", tags);
         callback(options, tags);
 
