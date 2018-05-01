@@ -204,6 +204,40 @@ function getNamedEntityTagsOnCurrentDocument(ctaskid) {
 //     return tags;
 // }
 
+}
+
+//function getTagsOnDocument(htmlDocument) {
+//
+//    var tags = {};
+//
+//    for (var i = 0; i < HTML_TAGS_TO_LOG.length; i++) {
+//        var htmlTag = HTML_TAGS_TO_LOG[i];
+//        var elements = htmlDocument.getElementsByTagName(htmlTag);
+//
+//        for (var j = 0; j < elements.length; j++) {
+//            var elem = elements[j];
+//            var text = elem.innerText;
+//            text = cleanTag(text);
+//            if (isValidTag(text)) {
+//                var textLowerCase = text.toLowerCase();
+//                if (tags[textLowerCase]) {
+//                    var tag = tags[textLowerCase];
+//                    tag.increaseFrequency(htmlTag); // Functions to calculate weight are in the constructor.
+//                    tag.addPosition(elem);
+//                    tags[textLowerCase] = tag;
+//                } else {
+//                    var tag = new Tag(text);
+//                    tag.increaseFrequency(htmlTag);
+//                    tag.addPosition(elem);
+//                    tags[textLowerCase] = tag;
+//                }
+//            }
+//        }
+//    }
+//
+//    return tags;
+//}
+
 function getTaskTags(task, tagLog) {
     var allTags = [];
     var taskURLs = [];
@@ -319,23 +353,19 @@ function getTaskwiseTotalScores(tags, tagLog) {
                 for (var taskid in tag["taskScores"]) {
 
                     if (matchedTags.hasOwnProperty(taskid)) {
-                        if (tag["taskScores"][taskid] > 2) {
+                        if (tag["taskScores"][taskid] > 0) {
                             matchedTags[taskid].push(tag);
                         }
                     } else {
-                        if (tag["taskScores"][taskid] > 2) {
+                        if (tag["taskScores"][taskid] > 0) {
                             matchedTags[taskid] = [tag];
                         }
                     }
 
                     if (taskwiseTotalScores.hasOwnProperty(taskid)) {
-                        if (tag["taskScores"][taskid] > 2) {
-                            taskwiseTotalScores[taskid] += tag["taskScores"][taskid];
-                        }
+                        taskwiseTotalScores[taskid] += tag["taskScores"][taskid];
                     } else {
-                        if (tag["taskScores"][taskid] > 2) {
-                            taskwiseTotalScores[taskid] = tag["taskScores"][taskid];
-                        }
+                        taskwiseTotalScores[taskid] = tag["taskScores"][taskid];
                     }
                 }
             }
