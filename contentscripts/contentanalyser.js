@@ -153,54 +153,65 @@ function getNamedEntityTagsOnCurrentDocument(ctaskid) {
                         tags[token.toLowerCase()] = tag;
                     }
                 }
-            }
 
-            if (topic.split(" ").length > 1) {
-                if ((tags.hasOwnProperty(topic.toLowerCase()))) {
-                    tags[topic.toLowerCase()].increaseFrequency(url);
-                } else {
-                    var tag = new Tag(topic);
-                    tag.increaseFrequency(url);
-                    tags[topic.toLowerCase()] = tag;
+                if (topic.split(" ").length > 1) {
+                    if ((tags.hasOwnProperty(topic.toLowerCase()))) {
+                        tags[topic.toLowerCase()].increaseFrequency(url);
+                    } else {
+                        var tag = new Tag(topic);
+                        tag.increaseFrequency(url);
+                        tags[topic.toLowerCase()] = tag;
+                    }
+                }
+
+
+                if (topic.split(" ").length > 1) {
+                    if ((tags.hasOwnProperty(topic.toLowerCase()))) {
+                        tags[topic.toLowerCase()].increaseFrequency(url);
+                    } else {
+                        var tag = new Tag(topic);
+                        tag.increaseFrequency(url);
+                        tags[topic.toLowerCase()] = tag;
+                    }
                 }
             }
         }
+        return tags;
     }
 
-    return tags;
 }
 
-// function getTagsOnDocument(htmlDocument) {
+//function getTagsOnDocument(htmlDocument) {
 //
-//     var tags = {};
+//    var tags = {};
 //
-//     for (var i = 0; i < HTML_TAGS_TO_LOG.length; i++) {
-//         var htmlTag = HTML_TAGS_TO_LOG[i];
-//         var elements = htmlDocument.getElementsByTagName(htmlTag);
+//    for (var i = 0; i < HTML_TAGS_TO_LOG.length; i++) {
+//        var htmlTag = HTML_TAGS_TO_LOG[i];
+//        var elements = htmlDocument.getElementsByTagName(htmlTag);
 //
-//         for (var j = 0; j < elements.length; j++) {
-//             var elem = elements[j];
-//             var text = elem.innerText;
-//             text = cleanTag(text);
-//             if (isValidTag(text)) {
-//                 var textLowerCase = text.toLowerCase();
-//                 if (tags[textLowerCase]) {
-//                     var tag = tags[textLowerCase];
-//                     tag.increaseFrequency(htmlTag); // Functions to calculate weight are in the constructor.
-//                     tag.addPosition(elem);
-//                     tags[textLowerCase] = tag;
-//                 } else {
-//                     var tag = new Tag(text);
-//                     tag.increaseFrequency(htmlTag);
-//                     tag.addPosition(elem);
-//                     tags[textLowerCase] = tag;
-//                 }
-//             }
-//         }
-//     }
+//        for (var j = 0; j < elements.length; j++) {
+//            var elem = elements[j];
+//            var text = elem.innerText;
+//            text = cleanTag(text);
+//            if (isValidTag(text)) {
+//                var textLowerCase = text.toLowerCase();
+//                if (tags[textLowerCase]) {
+//                    var tag = tags[textLowerCase];
+//                    tag.increaseFrequency(htmlTag); // Functions to calculate weight are in the constructor.
+//                    tag.addPosition(elem);
+//                    tags[textLowerCase] = tag;
+//                } else {
+//                    var tag = new Tag(text);
+//                    tag.increaseFrequency(htmlTag);
+//                    tag.addPosition(elem);
+//                    tags[textLowerCase] = tag;
+//                }
+//            }
+//        }
+//    }
 //
-//     return tags;
-// }
+//    return tags;
+//}
 
 function getTaskTags(task, tagLog) {
     var allTags = [];
@@ -554,7 +565,7 @@ function sortTagsByFrequency(tags) {
 
 // Sort the array based on the second element
     items.sort(function (first, second) {
-        return second[1]["positiveWeight"] - first[1]["positiveWeight"];
+        return second[1]["frequency"] - first[1]["frequency"];
     });
 
     return items;
