@@ -215,7 +215,7 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
         chrome.browserAction.setBadgeText({"text": ""});
       }
   }
-<<<<<<< Updated upstream
+
   chrome.storage.local.get("Text Log", function(textLog){
     if(textLog["Text Log"]){
       for(var url in textLog["Text Log"]){
@@ -223,24 +223,6 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
       }
     }
   })
-||||||| merged common ancestors
-  // chrome.storage.local.get("Text Log", function(textLog){
-  //   if(textLog["Text Log"]){
-  //     for(var url in textLog["Text Log"]){
-  //       // removeFromPageContentAndTextLog(url);
-  //     }
-  //   }
-  // })
-=======
-  // chrome.storage.local.get("Text Log", function(textLog){
-  //   if(textLog["Text Log"]){
-  //     for(var url in textLog["Text Log"]){
-  //       // removeFromPageContentAndTextLog(url);
-  //     }
-  //   }
-  // });
->>>>>>> Stashed changes
-
 });
 
 //If a window is created outside Task context then remove task Badge
