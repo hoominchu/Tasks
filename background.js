@@ -207,13 +207,13 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
         chrome.browserAction.setBadgeText({"text": ""});
       }
   }
-  chrome.storage.local.get("Text Log", function(textLog){
-    if(textLog["Text Log"]){
-      for(var url in textLog["Text Log"]){
-        removeFromPageContentAndTextLog(url);
-      }
-    }
-  })
+  // chrome.storage.local.get("Text Log", function(textLog){
+  //   if(textLog["Text Log"]){
+  //     for(var url in textLog["Text Log"]){
+  //       // removeFromPageContentAndTextLog(url);
+  //     }
+  //   }
+  // })
 
 });
 

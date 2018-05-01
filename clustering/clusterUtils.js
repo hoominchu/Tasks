@@ -2,67 +2,67 @@ var HTML_TAGS_TO_LOG = ["a", "h1", "h2", "th", "td", "p"];
 var TAGS_TO_BE_IGNORED = ["home","like", "privacy policy", "help", "share", "search", "log in", "facebook", "Facebook", "twitter", "Twitter", "youtube", "Youtube", "contact us", "india"];
 var tagsToRemove = ["nav"];
 
-function getTagsOnDocument(htmlDocument) {
-
-    var tags = {};
-    var htmlDocument = htmlDocument;
-
-    for (var i = 0; i < HTML_TAGS_TO_LOG.length; i++) {
-        var htmlTag = HTML_TAGS_TO_LOG[i];
-        for(var t = 0; t<tagsToRemove.length; t++){
-            var nodes = htmlDocument.getElementsByTagName(tagsToRemove[t]);
-            for(var k = 0; k < nodes.length; k++){
-                nodes[k].parentNode.removeChild(nodes[k]);
-            }
-        }
-        var elements = htmlDocument.getElementsByTagName(htmlTag);
-
-        for (var j = 0; j < elements.length; j++) {
-            var elem = elements[j];
-            var text = elem.innerText;
-            text = cleanTag(text);
-            // if (isValidTag(text)) {
-            //     var textLowerCase = text.toLowerCase();
-            //     if (tags[textLowerCase]) {
-            //         var tag = tags[textLowerCase];
-            //         tag.increaseFrequency(htmlTag); // Functions to calculate weight are in the constructor.
-            //         tag.addPosition(elem);
-            //         tags[textLowerCase] = tag;
-            //     }
-            //     else {
-            //         var doc = nlp(text)
-            //         var topics = doc.topics().data();
-            //         for(var k = 0; k<topics.length; k++){
-            //             var tag = new Tag(topics[k]["text"]);
-            //             tag.increaseFrequency(htmlTag);
-            //             tags[textLowerCase] = tag;
-            //         }
-            //         var tag = new Tag(text);
-            //         tag.increaseFrequency(htmlTag);
-            //         tag.addPosition(elem);
-            //         tags[textLowerCase] = tag;
-            //     }
-            // }
-
-            if (isValidTag(text)) {
-                var doc = nlp(text)
-                var topics = doc.topics().data();
-                for(var k = 0; k<topics.length; k++){
-                    var tag = new Tag(cleanTag(topics[k]["text"]));
-                    var textLowerCase = cleanTag(topics[k]["text"].toLowerCase());
-                    tag.increaseFrequency(htmlTag);
-                    tags[textLowerCase] = tag;
-                }
-                // var tag = new Tag(text);
-                // tag.increaseFrequency(htmlTag);
-                // tag.addPosition(elem);
-                // tags[textLowerCase] = tag;
-            }
-        }
-    }
-
-    return tags;
-}
+// function getTagsOnDocument(htmlDocument) {
+//
+//     var tags = {};
+//     var htmlDocument = htmlDocument;
+//
+//     for (var i = 0; i < HTML_TAGS_TO_LOG.length; i++) {
+//         var htmlTag = HTML_TAGS_TO_LOG[i];
+//         for(var t = 0; t<tagsToRemove.length; t++){
+//             var nodes = htmlDocument.getElementsByTagName(tagsToRemove[t]);
+//             for(var k = 0; k < nodes.length; k++){
+//                 nodes[k].parentNode.removeChild(nodes[k]);
+//             }
+//         }
+//         var elements = htmlDocument.getElementsByTagName(htmlTag);
+//
+//         for (var j = 0; j < elements.length; j++) {
+//             var elem = elements[j];
+//             var text = elem.innerText;
+//             text = cleanTag(text);
+//             // if (isValidTag(text)) {
+//             //     var textLowerCase = text.toLowerCase();
+//             //     if (tags[textLowerCase]) {
+//             //         var tag = tags[textLowerCase];
+//             //         tag.increaseFrequency(htmlTag); // Functions to calculate weight are in the constructor.
+//             //         tag.addPosition(elem);
+//             //         tags[textLowerCase] = tag;
+//             //     }
+//             //     else {
+//             //         var doc = nlp(text)
+//             //         var topics = doc.topics().data();
+//             //         for(var k = 0; k<topics.length; k++){
+//             //             var tag = new Tag(topics[k]["text"]);
+//             //             tag.increaseFrequency(htmlTag);
+//             //             tags[textLowerCase] = tag;
+//             //         }
+//             //         var tag = new Tag(text);
+//             //         tag.increaseFrequency(htmlTag);
+//             //         tag.addPosition(elem);
+//             //         tags[textLowerCase] = tag;
+//             //     }
+//             // }
+//
+//             if (isValidTag(text)) {
+//                 var doc = nlp(text)
+//                 var topics = doc.topics().data();
+//                 for(var k = 0; k<topics.length; k++){
+//                     var tag = new Tag(cleanTag(topics[k]["text"]));
+//                     var textLowerCase = cleanTag(topics[k]["text"].toLowerCase());
+//                     tag.increaseFrequency(htmlTag);
+//                     tags[textLowerCase] = tag;
+//                 }
+//                 // var tag = new Tag(text);
+//                 // tag.increaseFrequency(htmlTag);
+//                 // tag.addPosition(elem);
+//                 // tags[textLowerCase] = tag;
+//             }
+//         }
+//     }
+//
+//     return tags;
+// }
 
 
 

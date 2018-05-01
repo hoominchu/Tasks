@@ -23,8 +23,7 @@
       "domain.js",
       "author.js",
       "search.js",
-      "background.js",
-      "tag.js"
+      "background.js"
     ]
   },
   "content_scripts": [
@@ -44,7 +43,6 @@
         "lib/lodash.js",
         "utils/util.js",
         "utils/web-util.js",
-        "contentscripts/tag.js",
         "contentscripts/tag.js",
         "contentscripts/like.js",
         "contentscripts/time.js",

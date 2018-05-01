@@ -18,7 +18,7 @@ $(document).ready(function () {
                 var tagText = tag["text"];
 
                 if (debugStopwords.indexOf(tagText.toLowerCase()) < 0) {
-                    var tagTextElement = "<strong>" + tag["text"] + "</strong>" + " | " + tag["frequency"];
+                    var tagTextElement = "<strong>" + tag["text"] + "</strong>" + " | " + tag["positiveWeight"];
 
                     var tagButtonGroupElement = document.createElement("div");
                     tagButtonGroupElement.className = "btn-group round-corner";

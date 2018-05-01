@@ -134,7 +134,7 @@ function showTagsInTask(taskid, tasks, taglog, debugStopwords, settings) {
                     allPageTags[tagText.toLowerCase()] = tag;
 
                     if (allTags.hasOwnProperty(tagText.toLowerCase())){
-                        allTags[tagText.toLowerCase()]["frequency"] = allTags[tagText.toLowerCase()]["frequency"] + tag["frequency"];
+                        allTags[tagText.toLowerCase()]["positiveWeight"] = allTags[tagText.toLowerCase()]["positiveWeight"] + tag["positiveWeight"];
                     } else {
                         allTags[tagText.toLowerCase()] = tag;
                     }
@@ -148,7 +148,7 @@ function showTagsInTask(taskid, tasks, taglog, debugStopwords, settings) {
 
                 tag = sortedTags[j][1];
 
-                var tagTextElement = "<strong>" + tag["text"] + "</strong>" + " | " + tag["frequency"];
+                var tagTextElement = "<strong>" + tag["text"] + "</strong>" + " | " + tag["positiveWeight"];
 
                 var tagButtonGroupElement = document.createElement("div");
                 tagButtonGroupElement.className = "btn-group round-corner";
@@ -195,7 +195,7 @@ function showTagsInTask(taskid, tasks, taglog, debugStopwords, settings) {
     for (var k = 0; k < allTagsSorted.length; k++) {
         var tag = allTagsSorted[k][1];
 
-        var tagTextElement = "<strong>" + tag["text"] + "</strong>" + " | " + tag["frequency"];
+        var tagTextElement = "<strong>" + tag["text"] + "</strong>" + " | " + tag["positiveWeight"];
 
         var tagButtonGroupElement = document.createElement("div");
         tagButtonGroupElement.className = "btn-group round-corner";
@@ -234,7 +234,7 @@ function sortTagsByFrequency(tags) {
 
 // Sort the array based on the second element
     items.sort(function (first, second) {
-        return second[1]["frequency"] - first[1]["frequency"];
+        return second[1]["positiveWeight"] - first[1]["positiveWeight"];
     });
 
     return items;
