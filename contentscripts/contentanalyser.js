@@ -350,38 +350,38 @@ function getTaskwiseTotalScores(tags, tagLog) {
     // return taskwiseTotalScores;
 }
 
-function getMatchedTagsForTask(tags, task, pageContent) {
-
-    var SUGGESTIONS_BASED_ON = SETTINGS["suggestions based on"];
-    var matchedTags = {};
-    var taskURLs = [];
-
-    // Use for suggestions based on open tabs.
-    if (SUGGESTIONS_BASED_ON == "Open tabs") {
-        for (var tab in task["tabs"]) {
-            taskURLs.push(task["tabs"][tab]["url"]);
-        }
-    } else if (SUGGESTIONS_BASED_ON == "Liked pages") {
-        taskURLs = task["likedPages"];
-    }
-
-    for (var i = 0; i < taskURLs.length; i++) {
-        var url = taskURLs[i];
-        if (pageContent.hasOwnProperty(url)) {
-            var contentString = pageContent[url];
-
-            for (var text in tags) {
-                var tag = tags[text]; // Can use tag.text if case should be considered
-
-                if (contentString.toLowerCase().indexOf(text) > 0) { // text is lower case already
-                    matchedTags[text] = tag;
-                }
-            }
-        }
-    }
-
-    return matchedTags;
-}
+// function getMatchedTagsForTask(tags, task, pageContent) {
+//
+//     var SUGGESTIONS_BASED_ON = SETTINGS["suggestions based on"];
+//     var matchedTags = {};
+//     var taskURLs = [];
+//
+//     // Use for suggestions based on open tabs.
+//     if (SUGGESTIONS_BASED_ON == "Open tabs") {
+//         for (var tab in task["tabs"]) {
+//             taskURLs.push(task["tabs"][tab]["url"]);
+//         }
+//     } else if (SUGGESTIONS_BASED_ON == "Liked pages") {
+//         taskURLs = task["likedPages"];
+//     }
+//
+//     for (var i = 0; i < taskURLs.length; i++) {
+//         var url = taskURLs[i];
+//         if (pageContent.hasOwnProperty(url)) {
+//             var contentString = pageContent[url];
+//
+//             for (var text in tags) {
+//                 var tag = tags[text]; // Can use tag.text if case should be considered
+//
+//                 if (contentString.toLowerCase().indexOf(text) > 0) { // text is lower case already
+//                     matchedTags[text] = tag;
+//                 }
+//             }
+//         }
+//     }
+//
+//     return matchedTags;
+// }
 
 function getTaskWiseContentTagMatches(tags, tasks, pageContent, settings) {
     var taskWiseTagsMatched = {};
