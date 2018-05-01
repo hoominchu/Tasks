@@ -131,79 +131,42 @@ function shouldDetectTaskForPage(url, settings) {
 
 function getNamedEntityTagsOnCurrentDocument(ctaskid) {
     var url = window.location.href;
-    if (DOMAINS_TO_BE_IGNORED.indexOf(getDomainFromURL(url)) < 0) {
-        var tags = {};
-        var contentString = document.documentElement.innerText;
-        contentString = cleanTag(contentString);
-        var doc = window.nlp(contentString);
-        var topics = doc.nouns().data();
-        for (var i = 0; i < topics.length; i++) {
-            var topic = topics[i]["text"];
-            topic = cleanTag(topic);
-            if (isValidTag(topic)) {
-                var tokens = topic.split(" ");
-                for (var j = 0; j < tokens.length; j++) {
-                    var token = tokens[j];
-                    if (isValidTag(token)) {
-                        if (tags.hasOwnProperty(token.toLowerCase())) {
-                            tags[token.toLowerCase()].increaseFrequency(url);
-                        }
-                        else {
-                            var tag = new Tag(token);
-                            tag.increaseFrequency(url);
-                            tags[token.toLowerCase()] = tag;
-                        }
+    var tags = {};
+    var contentString = document.documentElement.innerText;
+    contentString = cleanTag(contentString);
+    var doc = window.nlp(contentString);
+    var topics = doc.nouns().data();
+    for (var i = 0; i < topics.length; i++) {
+        var topic = topics[i]["text"];
+        topic = cleanTag(topic);
+        if (isValidTag(topic)) {
+            var tokens = topic.split(" ");
+            for (var j = 0; j < tokens.length; j++) {
+                var token = tokens[j];
+                if (isValidTag(token)) {
+                    if (tags.hasOwnProperty(token.toLowerCase())) {
+                        tags[token.toLowerCase()].increaseFrequency(url);
                     }
-                }
-
-                if (topic.split(" ").length > 1) {
-                    if ((tags.hasOwnProperty(topic.toLowerCase()))) {
-                        tags[topic.toLowerCase()].increaseFrequency(url);
-                    } else {
-                        var tag = new Tag(topic);
+                    else {
+                        var tag = new Tag(token);
                         tag.increaseFrequency(url);
-                        tags[topic.toLowerCase()] = tag;
+                        tags[token.toLowerCase()] = tag;
                     }
                 }
             }
+
+            if (topic.split(" ").length > 1) {
+                if ((tags.hasOwnProperty(topic.toLowerCase()))) {
+                    tags[topic.toLowerCase()].increaseFrequency(url);
+                } else {
+                    var tag = new Tag(topic);
+                    tag.increaseFrequency(url);
+                    tags[topic.toLowerCase()] = tag;
+                }
+            }
         }
-
-        return tags;
     }
-}
-
-// function getTagsOnDocument(htmlDocument) {
-//
-//     var tags = {};
-//
-//     for (var i = 0; i < HTML_TAGS_TO_LOG.length; i++) {
-//         var htmlTag = HTML_TAGS_TO_LOG[i];
-//         var elements = htmlDocument.getElementsByTagName(htmlTag);
-//
-//         for (var j = 0; j < elements.length; j++) {
-//             var elem = elements[j];
-//             var text = elem.innerText;
-//             text = cleanTag(text);
-//             if (isValidTag(text)) {
-//                 var textLowerCase = text.toLowerCase();
-//                 if (tags[textLowerCase]) {
-//                     var tag = tags[textLowerCase];
-//                     tag.increaseFrequency(htmlTag); // Functions to calculate weight are in the constructor.
-//                     tag.addPosition(elem);
-//                     tags[textLowerCase] = tag;
-//                 } else {
-//                     var tag = new Tag(text);
-//                     tag.increaseFrequency(htmlTag);
-//                     tag.addPosition(elem);
-//                     tags[textLowerCase] = tag;
-//                 }
-//             }
-//         }
-//     }
-//
-//     return tags;
-// }
-
+    return tags;
 }
 
 //function getTagsOnDocument(htmlDocument) {
@@ -269,31 +232,31 @@ function storePageContent(url, content) {
     }
 }
 
-function getCommonTagsInNTasks(n, tasks, tagLog) {
-    var tagCount = {};
-    var filteredTags = [];
-
-    for (var taskID in tasks) {
-        if (taskID != "lastAssignedId" && taskID > 0 && tasks[taskID]["archived"] == false) {
-            var taskTags = getTaskTags(tasks[taskID], tagLog);
-            for (var i = 0; i < taskTags.length; i++) {
-                var tag = taskTags[i];
-                if (tagCount.hasOwnProperty(tag)) {
-                    tagCount[tag]++;
-                } else {
-                    tagCount[tag] = 1;
-                }
-            }
-        }
-    }
-    for (var tag in tagCount) {
-        if (tagCount[tag] > n) {
-            filteredTags.push(tag);
-        }
-    }
-
-    return filteredTags;
-}
+// function getCommonTagsInNTasks(n, tasks, tagLog) {
+//     var tagCount = {};
+//     var filteredTags = [];
+//
+//     for (var taskID in tasks) {
+//         if (taskID != "lastAssignedId" && taskID > 0 && tasks[taskID]["archived"] == false) {
+//             var taskTags = getTaskTags(tasks[taskID], tagLog);
+//             for (var i = 0; i < taskTags.length; i++) {
+//                 var tag = taskTags[i];
+//                 if (tagCount.hasOwnProperty(tag)) {
+//                     tagCount[tag]++;
+//                 } else {
+//                     tagCount[tag] = 1;
+//                 }
+//             }
+//         }
+//     }
+//     for (var tag in tagCount) {
+//         if (tagCount[tag] > n) {
+//             filteredTags.push(tag);
+//         }
+//     }
+//
+//     return filteredTags;
+// }
 
 function getCommonTagScores(tags, task, tagLog, settings) {
     var commonTagScores = {};
