@@ -42,7 +42,7 @@ function storeTags(url, tags) {
     chrome.storage.local.get("Tags", function (tagsStored) {
         tagsStored = tagsStored["Tags"];
         tagsStored[url] = tags;
-        updateStorage(tagsStored);
+        updateStorage("Tags", tagsStored);
     })
 }
 
