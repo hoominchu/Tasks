@@ -26,7 +26,7 @@ chrome.storage.local.get("Settings", function (settings) {
                     } catch (e) {
                         console.log(e);
                     }
-
+                    storeTags(window.location.href, tags);
                     storePageContent(window.location.href, document.documentElement.innerText);
                     console.log("Page content stored.");
                     // var taskURLs = getTaskURLs(tasksObject);
@@ -37,6 +37,14 @@ chrome.storage.local.get("Settings", function (settings) {
         });
     });
 });
+
+function storeTags(url, tags) {
+    chrome.storage.local.get("Tags", function (tagsStored) {
+        tagsStored = tagsStored["Tags"];
+        tagsStored[url] = tags;
+        updateStorage(tagsStored);
+    })
+}
 
 function getTaskURLs(tasks) {
     var taskURLs = {};
@@ -202,23 +210,23 @@ function newTaskDetector(ctaskid, tasks, textLog, tagsOfCurrentPage, settings) {
 
 function newLogTags(url, ctaskid, tags) {
     // if (DOMAINS_TO_BE_IGNORED.indexOf(getDomainFromURL(url)) < 0) {
-        chrome.storage.local.get("Text Log", function (textLog) {
-                textLog = textLog["Text Log"];
-                for (var key in tags) {
-                    if (stopwords.indexOf(key.toLowerCase()) < 0) {
-                        if (textLog.hasOwnProperty(key)) {
-                            var oldTag = textLog[key];
-                            var tempTag = new Tag(oldTag["text"], oldTag["tasks"]);
-                            tempTag = mergeTags(tags[key], tempTag);
-                            textLog[key] = tempTag;
-                        } else {
-                            textLog[key] = tags[key];
-                        }
+    chrome.storage.local.get("Text Log", function (textLog) {
+            textLog = textLog["Text Log"];
+            for (var key in tags) {
+                if (stopwords.indexOf(key.toLowerCase()) < 0) {
+                    if (textLog.hasOwnProperty(key)) {
+                        var oldTag = textLog[key];
+                        var tempTag = new Tag(oldTag["text"], oldTag["tasks"]);
+                        tempTag = mergeTags(tags[key], tempTag);
+                        textLog[key] = tempTag;
+                    } else {
+                        textLog[key] = tags[key];
                     }
                 }
-                updateStorage("Text Log", textLog);
             }
-        );
+            updateStorage("Text Log", textLog);
+        }
+    );
     // }
 }
 
@@ -347,6 +355,8 @@ function cleanTag(str) {
     str = str.replace(/'s+$/g, '');
 
     str = str.trim();
+
+    // Convert everything to singular and other standardised forms.
 
     return str;
 }

@@ -26,6 +26,34 @@ function Tag(str, tasksList) {
         }
     };
 
+    this.getTaskWeightsNew = function (taskURLs) {
+        var taskScores = {};
+        var taskFrequencies = {};
+        var maxTaskFrequency = 0;
+
+        for (var taskid in this.tasks) {
+            var urls = taskURLs[taskid];
+            var totalTagFrequencyInTask = 0;
+            for (var i = 0; i < urls.length; i++) {
+                if (urls[i].indexOf("chrome-extension://") < 0 && urls[i].indexOf("chrome://") < 0) {
+                    if (typeof (this.tasks[taskid][urls[i]]) == typeof (3)) {
+                        totalTagFrequencyInTask = totalTagFrequencyInTask + this.tasks[taskid][urls[i]];
+                    }
+                }
+            }
+            taskFrequencies[taskid] = totalTagFrequencyInTask;
+            if (totalTagFrequencyInTask > maxTaskFrequency) {
+                maxTaskFrequency = totalTagFrequencyInTask;
+            }
+        }
+
+        for (var taskid in taskFrequencies) {
+            taskScores[taskid] = (taskFrequencies[taskid] - maxTaskFrequency) / maxTaskFrequency;
+        }
+
+        return taskScores;
+    };
+
     this.getTaskWeights = function (taskURLs) {
         var taskScores = {};
 
