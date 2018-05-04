@@ -51,4 +51,3 @@ function Tag(str, tasksList) {
 function getMatchScore(tag1, tag2) {
     return tag1.positiveWeight + tag2.positiveWeight;
 }
-
