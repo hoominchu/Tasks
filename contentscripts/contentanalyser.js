@@ -18,20 +18,23 @@ chrome.storage.local.get("Settings", function (settings) {
                 chrome.storage.local.get("Text Log", function (textLog) {
                     textLog = textLog["Text Log"];
                     // textLog = textLog["Text Log"];
+                    chrome.storage.local.get("Page Content", function (pageContent) {
+                        pageContent = pageContent["Page Content"];
 
-                    var tags = getNamedEntityTagsOnCurrentDocument(ctaskid);
+                        var tags = getNamedEntityTagsOnCurrentDocument(ctaskid, document.documentElement.innerText);
 
-                    try {
-                        newTaskDetector(ctaskid, tasksObject, textLog, tags, SETTINGS);
-                    } catch (e) {
-                        console.log(e);
-                    }
-                    storeTags(window.location.href, tags);
-                    storePageContent(window.location.href, document.documentElement.innerText);
-                    console.log("Page content stored.");
-                    // var taskURLs = getTaskURLs(tasksObject);
-                    newLogTags(window.location.href, ctaskid, tags);
-                    console.log("Tags of current page logged");
+                        try {
+                            newTaskDetector(ctaskid, tasksObject, textLog, tags, SETTINGS, pageContent, true);
+                        } catch (e) {
+                            console.log(e);
+                        }
+                        storeTags(window.location.href, tags);
+                        storePageContent(window.location.href, document.documentElement.innerText);
+                        console.log("Page content stored.");
+                        // var taskURLs = getTaskURLs(tasksObject);
+                        newLogTags(window.location.href, ctaskid, tags);
+                        console.log("Tags of current page logged");
+                    });
                 });
             });
         });
@@ -56,6 +59,9 @@ function getTaskURLs(tasks) {
             for (var i = 0; i < tabs.length; i++) {
                 urls.push(tabs[i]["url"]);
             }
+            var archivedPages = task["likedPages"];
+            urls = new Set(urls.concat(archivedPages));
+            urls = Array.from(urls);
             taskURLs[taskID] = urls;
         }
     }
@@ -77,10 +83,15 @@ function shouldDetectTaskForPage(url, settings) {
     return true;
 }
 
-function getNamedEntityTagsOnCurrentDocument(ctaskid) {
+function getParentTabURL(tabid, pageContentDict) {
+    // function here
+}
+
+
+function getNamedEntityTagsOnCurrentDocument(ctaskid, contentString) {
     var url = window.location.href;
     var tags = {};
-    var contentString = document.documentElement.innerText;
+    // var contentString = document.documentElement.innerText;
     contentString = cleanTag(contentString);
     var doc = window.nlp(contentString);
     var topics = doc.nouns().data();
@@ -161,7 +172,7 @@ function getTaskwiseTotalScores(tags, tagLog, taskURLs) {
     return [taskwiseTotalScores, matchedTags];
 }
 
-function newTaskDetector(ctaskid, tasks, textLog, tagsOfCurrentPage, settings) {
+function newTaskDetector(ctaskid, tasks, textLog, tagsInput, settings, pageContent, callagain) {
     var IS_SHOW_NOTIFICATIONS = true;
     if (settings["notifications"] == "Disabled") {
         IS_SHOW_NOTIFICATIONS = false;
@@ -177,10 +188,11 @@ function newTaskDetector(ctaskid, tasks, textLog, tagsOfCurrentPage, settings) {
 
         var taskURLs = getTaskURLs(tasks);
 
-        var results = getTaskwiseTotalScores(tagsOfCurrentPage, textLog, taskURLs);
+        var results = getTaskwiseTotalScores(tagsInput, textLog, taskURLs);
 
         var taskWiseTotalScores = results[0];
         var allMatchedTags = results[1];
+
 
         // Create probableTasks array
         var taskWiseTotalScoresArray = Object.keys(taskWiseTotalScores).map(function (key) {
@@ -191,6 +203,29 @@ function newTaskDetector(ctaskid, tasks, textLog, tagsOfCurrentPage, settings) {
         taskWiseTotalScoresArray.sort(function (o1, o2) {
             return o2[1] - o1[1];
         });
+
+
+        var matchesWithTask1 = taskWiseTotalScoresArray[0][1];
+        var matchesWithTask2 = taskWiseTotalScoresArray[1][1];
+        var confidence = (matchesWithTask1 - matchesWithTask2) / matchesWithTask1;
+
+        var threshold = 0.0;
+        if (settings["suggestions threshold"] == "Low") {
+            threshold = 0.3;
+        } else if (settings["suggestions threshold"] == "Medium") {
+            threshold = 0.5;
+        } else if (settings["suggestions threshold"] == "High") {
+            threshold = 0.7;
+        }
+
+        // if (confidence < threshold && callagain == true) {
+        //     // call newtaskdetector with tags from parent url and callagain false
+        //     var referrerURL = document.referrer;
+        //     var referrerContent = pageContent[referrerURL];
+        //     tagsInput = getNamedEntityTagsOnCurrentDocument(ctaskid, referrerContent);
+        //     newTaskDetector(ctaskid, tasks, textLog, tagsInput, settings, pageContent, false);
+        //     console.log("Detecting task based on referrer.")
+        // }
 
         console.log("Common tags in tasks in descending order");
         console.log(taskWiseTotalScoresArray);
