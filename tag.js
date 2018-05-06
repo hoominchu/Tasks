@@ -30,17 +30,24 @@ function Tag(str, tasksList) {
         var taskScores = {};
 
         for (var taskid in this.tasks) {
-            var urls = taskURLs[taskid];
-            var totalTagFrequencyInTask = 0;
-            for (var i = 0; i < urls.length; i++) {
-                if (urls[i].indexOf("chrome-extension://") < 0 && urls[i].indexOf("chrome://") < 0) {
-                    if (typeof (this.tasks[taskid][urls[i]]) == typeof (3)) {
-                        totalTagFrequencyInTask = totalTagFrequencyInTask + this.tasks[taskid][urls[i]];
+            if(taskURLs.hasOwnProperty(taskid)){
+                var urls = taskURLs[taskid];
+                var totalTagFrequencyInTask = 0;
+                for (var i = 0; i < urls.length; i++) {
+                    if (urls[i].indexOf("chrome-extension://") < 0 && urls[i].indexOf("chrome://") < 0 && urls[i].indexOf("about:blank")) {
+                        if (this.tasks.hasOwnProperty(taskid)) {
+                            if (this.tasks[taskid].hasOwnProperty([urls[i]])) {
+                                if (typeof (this.tasks[taskid][urls[i]]) == typeof (3)) {
+                                    totalTagFrequencyInTask = totalTagFrequencyInTask + this.tasks[taskid][urls[i]];
+                                }
+                            }
+                        }
                     }
                 }
+                var taskWeight = totalTagFrequencyInTask / Object.keys(this.tasks).length;
+                taskScores[taskid] = taskWeight;
             }
-            var taskWeight = totalTagFrequencyInTask / Object.keys(this.tasks).length;
-            taskScores[taskid] = taskWeight;
+
         }
 
         return taskScores;
