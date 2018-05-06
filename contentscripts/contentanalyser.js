@@ -21,6 +21,8 @@ chrome.storage.local.get("Settings", function (settings) {
 
                     var tags = getNamedEntityTagsOnCurrentDocument(ctaskid);
 
+                    console.log(tags);
+
                     try {
                         newTaskDetector(ctaskid, tasksObject, textLog, tags, SETTINGS);
                     } catch (e) {
@@ -83,7 +85,7 @@ function getNamedEntityTagsOnCurrentDocument(ctaskid) {
     var contentString = document.documentElement.innerText;
     contentString = cleanTag(contentString);
     var doc = window.nlp(contentString);
-    var topics = doc.nouns().data();
+    var topics = doc.nouns().toSingular().data();
     for (var i = 0; i < topics.length; i++) {
         var topic = topics[i]["text"];
         topic = cleanTag(topic);
@@ -353,6 +355,10 @@ function cleanTag(str) {
 
     // Replaces 's at the end
     str = str.replace(/'s+$/g, '');
+
+    // str = str.trim();
+    //
+    // str = window.nlp(str).nouns().toSingular().out();
 
     str = str.trim();
 
