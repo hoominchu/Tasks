@@ -13,12 +13,12 @@ $(document).ready(function () {
             debugStopwords = debugStopwords["Debug Stopwords"];
             var matchedTagsElement = document.getElementById("matched_tags");
             for (var i = 0; i < matchedTags.length; i++) {
-                var tag = matchedTags[i][1];
+                var tag = matchedTags[i];
 
-                var tagText = tag["text"];
+                var tagText = tag[0];
 
                 if (debugStopwords.indexOf(tagText.toLowerCase()) < 0) {
-                    var tagTextElement = "<strong>" + tag["text"] + "</strong>" + " | " + tag["positiveWeight"];
+                    var tagTextElement = "<strong>" + tagText + "</strong>" + " | " + tag[1];
 
                     var tagButtonGroupElement = document.createElement("div");
                     tagButtonGroupElement.className = "btn-group round-corner";

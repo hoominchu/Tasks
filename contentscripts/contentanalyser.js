@@ -19,7 +19,7 @@ chrome.storage.local.get("Settings", function (settings) {
                     textLog = textLog["Text Log"];
                     // textLog = textLog["Text Log"];
 
-                        var tags = getNamedEntityTagsOnCurrentDocument(ctaskid, document.documentElement.innerText);
+                    var tags = getNamedEntityTagsOnCurrentDocument(ctaskid, document.documentElement.innerText);
 
                     try {
                         newTaskDetector(ctaskid, tasksObject, textLog, tags, SETTINGS);
@@ -284,7 +284,23 @@ function suggestProbableTask(taskWiseTotalScoresArray, matchedTags, currentTaskI
 
         console.log("This page might belong to task " + mostProbableTaskName);
 
-        var matchedTagsSorted = sortTagsByFrequency(matchedTags);
+        var taskURLs = getTaskURLs(tasks);
+
+        var tagWeights = {};
+
+        for (var key in matchedTags) {
+            tagWeights[matchedTags[key]["text"]] = matchedTags[key].getTaskWeight(mostProbableTaskID, taskURLs);
+        }
+
+        // Create items array
+        var matchedTagsSorted = Object.keys(tagWeights).map(function(key) {
+            return [key, tagWeights[key]];
+        });
+
+        // Sort the array based on the second element
+        matchedTagsSorted.sort(function(first, second) {
+            return second[1] - first[1];
+        });
 
         if (shouldShowSuggestion(taskWiseTotalScoresArray[0][1], taskWiseTotalScoresArray[1][1], matchedTags, settings)) {
             if (currentTaskID !== mostProbableTaskID) {
