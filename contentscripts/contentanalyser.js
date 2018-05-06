@@ -18,8 +18,6 @@ chrome.storage.local.get("Settings", function (settings) {
                 chrome.storage.local.get("Text Log", function (textLog) {
                     textLog = textLog["Text Log"];
                     // textLog = textLog["Text Log"];
-                    chrome.storage.local.get("Page Content", function (pageContent) {
-                        pageContent = pageContent["Page Content"];
 
                         var tags = getNamedEntityTagsOnCurrentDocument(ctaskid, document.documentElement.innerText);
 

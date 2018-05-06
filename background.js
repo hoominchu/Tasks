@@ -231,7 +231,7 @@ chrome.windows.onCreated.addListener(function(window){
   if(!getKeyByValue(taskToWindow, window.id)){
     chrome.browserAction.setBadgeText({"text": ""});
   }
-})
+});
 
 
 // Creates notification for suggested task.
