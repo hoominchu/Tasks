@@ -21,6 +21,95 @@ $(document).ready(function () {
     });
 });
 
+function Tag(str, tasksList) {
+
+    this.text = str;
+    this.textLowerCase = str.toLowerCase();
+
+    this.tasks = tasksList || {};
+
+    this.frequency = 0;
+
+    // Use this if separate frequency of html tags is not needed. Using this for now as we are extracting "nes" from a page.
+    this.increaseFrequency = function (documentID, taskid) {
+
+        this.frequency++;
+
+        if (taskid != 0) {
+            if (!this.tasks[taskid]) {
+                this.tasks[taskid] = {};
+            }
+            if (!this.tasks[taskid][url]) {
+                this.tasks[taskid][url] = 1;
+            } else {
+                this.tasks[taskid][url]++;
+            }
+        }
+    };
+
+    this.getTaskWeight = function (taskid, taskURLs) {
+        if (this.tasks.hasOwnProperty(taskid)) {
+            var urls = taskURLs[taskid];
+            var totalTagFrequencyInTask = 0;
+            for (var i = 0; i < urls.length; i++) {
+                if (urls[i].indexOf("chrome-extension://") < 0 && urls[i].indexOf("chrome://") < 0) {
+                    if (typeof (this.tasks[taskid][urls[i]]) == typeof (3)) {
+                        totalTagFrequencyInTask = totalTagFrequencyInTask + this.tasks[taskid][urls[i]];
+                    }
+                }
+            }
+            return totalTagFrequencyInTask / Object.keys(this.tasks).length;
+        }
+    };
+
+    this.getTaskWeights = function (taskURLs) {
+        var taskScores = {};
+
+        for (var taskid in this.tasks) {
+            var urls = taskURLs[taskid];
+            var totalTagFrequencyInTask = 0;
+            for (var i = 0; i < urls.length; i++) {
+                if (urls[i].indexOf("chrome-extension://") < 0 && urls[i].indexOf("chrome://") < 0) {
+                    if (typeof (this.tasks[taskid][urls[i]]) == typeof (3)) {
+                        totalTagFrequencyInTask = totalTagFrequencyInTask + this.tasks[taskid][urls[i]];
+                    }
+                }
+            }
+            var taskWeight = totalTagFrequencyInTask / Object.keys(this.tasks).length;
+            taskScores[taskid] = taskWeight;
+        }
+
+        return taskScores;
+    };
+
+}
+
+function getTaskTags(taskid, textLog, taskURLs) {
+    var taskTags = {};
+
+    for (var key in textLog) {
+        var tag = new Tag(key, textLog[key]["tasks"]);
+        var taskWeight = tag.getTaskWeight(taskid, taskURLs);
+
+        if (taskWeight > 0) {
+            taskTags[tag["text"]] = taskWeight;
+        }
+    }
+
+    // Create items array
+    var items = Object.keys(taskTags).map(function(key) {
+        return [key, taskTags[key]];
+    });
+
+// Sort the array based on the second element
+    items.sort(function(first, second) {
+        return second[1] - first[1];
+    });
+
+    return items;
+
+}
+
 function removeElementFromArray(array, element) {
     var index = array.indexOf(element);
     if (index > -1) {
@@ -76,6 +165,22 @@ function showStopwords(tasks, textLog) {
 
 function clickOnCurrentTaskButton(ctaskid) {
     document.getElementById(ctaskid).click();
+}
+
+function getTaskURLs(tasks) {
+    var taskURLs = {};
+    for (var taskID in tasks) {
+        if (taskID != "lastAssignedId" && taskID > 0 && tasks[taskID]["archived"] == false) {
+            var task = tasks[taskID];
+            var tabs = task["tabs"];
+            var urls = [];
+            for (var i = 0; i < tabs.length; i++) {
+                urls.push(tabs[i]["url"]);
+            }
+            taskURLs[taskID] = urls;
+        }
+    }
+    return taskURLs;
 }
 
 function showTagsInTask(taskid, tasks, taglog, debugStopwords, settings) {
@@ -188,14 +293,17 @@ function showTagsInTask(taskid, tasks, taglog, debugStopwords, settings) {
         }
     }
 
-    var allTagsSorted = sortTagsByFrequency(allTags);
+    var taskURLs = getTaskURLs(tasks);
+
+    var allTagsSorted = getTaskTags(taskid, taglog, taskURLs);
 
     var allTagsInTaskElement = document.getElementById("all_tags_in_task");
 
     for (var k = 0; k < allTagsSorted.length; k++) {
-        var tag = allTagsSorted[k][1];
+        var tagText = allTagsSorted[k][0];
+        var tagWeight = allTagsSorted[k][1];
 
-        var tagTextElement = "<strong>" + tag["text"] + "</strong>" + " | " + tag["positiveWeight"];
+        var tagTextElement = "<strong>" + tagText + "</strong>" + " | " + tagWeight;
 
         var tagButtonGroupElement = document.createElement("div");
         tagButtonGroupElement.className = "btn-group round-corner";

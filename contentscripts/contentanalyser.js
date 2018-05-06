@@ -23,18 +23,17 @@ chrome.storage.local.get("Settings", function (settings) {
 
                         var tags = getNamedEntityTagsOnCurrentDocument(ctaskid, document.documentElement.innerText);
 
-                        try {
-                            newTaskDetector(ctaskid, tasksObject, textLog, tags, SETTINGS, pageContent, true);
-                        } catch (e) {
-                            console.log(e);
-                        }
-                        storeTags(window.location.href, tags);
-                        storePageContent(window.location.href, document.documentElement.innerText);
-                        console.log("Page content stored.");
-                        // var taskURLs = getTaskURLs(tasksObject);
-                        newLogTags(window.location.href, ctaskid, tags);
-                        console.log("Tags of current page logged");
-                    });
+                    try {
+                        newTaskDetector(ctaskid, tasksObject, textLog, tags, SETTINGS);
+                    } catch (e) {
+                        console.log(e);
+                    }
+                    storeTags(window.location.href, tags);
+                    storePageContent(window.location.href, document.documentElement.innerText);
+                    console.log("Page content stored.");
+                    // var taskURLs = getTaskURLs(tasksObject);
+                    newLogTags(window.location.href, ctaskid, tags);
+                    console.log("Tags of current page logged");
                 });
             });
         });
@@ -94,7 +93,7 @@ function getNamedEntityTagsOnCurrentDocument(ctaskid, contentString) {
     // var contentString = document.documentElement.innerText;
     contentString = cleanTag(contentString);
     var doc = window.nlp(contentString);
-    var topics = doc.nouns().data();
+    var topics = doc.nouns().toSingular().data();
     for (var i = 0; i < topics.length; i++) {
         var topic = topics[i]["text"];
         topic = cleanTag(topic);
@@ -388,6 +387,10 @@ function cleanTag(str) {
 
     // Replaces 's at the end
     str = str.replace(/'s+$/g, '');
+
+    // str = str.trim();
+    //
+    // str = window.nlp(str).nouns().toSingular().out();
 
     str = str.trim();
 
