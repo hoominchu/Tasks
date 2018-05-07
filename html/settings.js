@@ -33,6 +33,10 @@ chrome.storage.local.get("Settings", function (settings) {
     showSuggestionThresholdOptions(settings, settingsOptions);
 
     showNoNotificationDomains(settings, settingsOptions);
+
+    document.getElementById("reset_index").addEventListener("click", function (ev) {
+        resetIndex();
+    });
 });
 
 function showNotificationOptions(settings, settingsOptions) {
@@ -237,6 +241,11 @@ function showSuggestionThresholdOptions(settings, settingsOptions) {
 
         suggestions_threshold_element.appendChild(option);
     }
+}
+
+function resetIndex(){
+    chrome.storage.local.set({"Text Log":{}});
+    chrome.storage.local.set({"Tags":{}});
 }
 
 function updateStorage(key, obj) {
