@@ -70,6 +70,10 @@ function Tag(str, tasksList) {
     this.getTaskWeights = function (taskURLs) {
         var taskScores = {};
 
+        for (var tid in taskURLs) {
+            taskScores[tid] = 0;
+        }
+
         for (var taskid in this.tasks) {
             var urls = taskURLs[taskid];
             var totalTagFrequencyInTask = 0;
