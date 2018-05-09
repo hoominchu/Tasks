@@ -42,6 +42,10 @@ function Tag(str, tasksList) {
     this.getTaskWeights = function (taskURLs) {
         var taskScores = {};
 
+        for (var tid in taskURLs) {
+            taskScores[tid] = 0;
+        }
+
         for (var taskid in this.tasks) {
             if(taskURLs.hasOwnProperty(taskid)){
                 var urls = taskURLs[taskid];
