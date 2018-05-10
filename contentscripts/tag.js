@@ -1,6 +1,6 @@
 // var HTML_TAG_WEIGHTS = {};
 
-function Tag(str, tasksList) {
+function Tag(str, tasksList, correctOccurences, incorrectOccurences) {
 
     this.text = str;
     this.textLowerCase = str.toLowerCase();
@@ -8,6 +8,12 @@ function Tag(str, tasksList) {
     this.tasks = tasksList || {};
 
     this.frequency = 0;
+
+    this.correctOccurences = correctOccurences || 0;
+    this.incorrectOccurences = incorrectOccurences ||0;
+
+    this.positiveFactor = 0.5;
+    this.negativeFactor = -0.5;
 
     // Use this if separate frequency of html tags is not needed. Using this for now as we are extracting "nes" from a page.
     this.increaseFrequency = function (url, taskid) {
@@ -55,19 +61,34 @@ function Tag(str, tasksList) {
     };
 
     this.getTaskWeight = function (taskid, taskURLs) {
-        var urls = taskURLs[taskid];
-        var totalTagFrequencyInTask = 0;
-        for (var i = 0; i < urls.length; i++) {
-            if (urls[i].indexOf("chrome-extension://") < 0 && urls[i].indexOf("chrome://") < 0) {
-                if (typeof (this.tasks[taskid][urls[i]]) == typeof (3)) {
-                    totalTagFrequencyInTask = totalTagFrequencyInTask + this.tasks[taskid][urls[i]];
+        if (this.tasks.hasOwnProperty(taskid)) {
+            var urls = taskURLs[taskid];
+            var totalTagFrequencyInTask = 0;
+            for (var i = 0; i < urls.length; i++) {
+                if (urls[i].indexOf("chrome-extension://") < 0 && urls[i].indexOf("chrome://") < 0) {
+                    if (typeof (this.tasks[taskid][urls[i]]) == typeof (3)) {
+                        totalTagFrequencyInTask = totalTagFrequencyInTask + this.tasks[taskid][urls[i]];
+                    }
                 }
             }
+
+            var weight = totalTagFrequencyInTask / Object.keys(this.tasks).length;
+
+            if (this.correctOccurences != null) {
+                weight = weight + (this.correctOccurences * this.positiveFactor);
+            }
+            if (this.incorrectOccurences != null) {
+                weight = weight + (this.incorrectOccurences * this.negativeFactor); // negative factor is negative so the weight will get decreased.
+            }
+
+            return weight;
         }
-        return totalTagFrequencyInTask / Object.keys(this.tasks).length;
+
+        return 0;
     };
 
     this.getTaskWeights = function (taskURLs) {
+
         var taskScores = {};
 
         for (var tid in taskURLs) {
@@ -84,8 +105,16 @@ function Tag(str, tasksList) {
                     }
                 }
             }
-            var taskWeight = totalTagFrequencyInTask / Object.keys(this.tasks).length;
-            taskScores[taskid] = taskWeight;
+            var weight = totalTagFrequencyInTask / Object.keys(this.tasks).length;
+
+            if (this.correctOccurences != null) {
+                weight = weight + (this.correctOccurences * this.positiveFactor);
+            }
+            if (this.incorrectOccurences != null) {
+                weight = weight + (this.incorrectOccurences * this.negativeFactor); // negative factor is negative so the weight will get decreased.
+            }
+
+            taskScores[taskid] = weight;
         }
 
         return taskScores;
