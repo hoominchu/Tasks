@@ -86,9 +86,11 @@ function Tag(str, tasksList, correctOccurences, incorrectOccurences) {
             var urls = taskURLs[taskid];
             var totalTagFrequencyInTask = 0;
             for (var i = 0; i < urls.length; i++) {
-                if (urls[i].indexOf("chrome-extension://") < 0 && urls[i].indexOf("chrome://") < 0) {
-                    if (typeof (this.tasks[taskid][urls[i]]) == typeof (3)) {
-                        totalTagFrequencyInTask = totalTagFrequencyInTask + this.tasks[taskid][urls[i]];
+                if (urls[i] != null) {
+                    if (urls[i].indexOf("chrome-extension://") < 0 && urls[i].indexOf("chrome://") < 0) {
+                        if (typeof (this.tasks[taskid][urls[i]]) == typeof (3)) {
+                            totalTagFrequencyInTask = totalTagFrequencyInTask + this.tasks[taskid][urls[i]];
+                        }
                     }
                 }
             }
@@ -120,9 +122,11 @@ function Tag(str, tasksList, correctOccurences, incorrectOccurences) {
             var urls = taskURLs[taskid];
             var totalTagFrequencyInTask = 0;
             for (var i = 0; i < urls.length; i++) {
-                if (urls[i].indexOf("chrome-extension://") < 0 && urls[i].indexOf("chrome://") < 0) {
-                    if (typeof (this.tasks[taskid][urls[i]]) == typeof (3)) {
-                        totalTagFrequencyInTask = totalTagFrequencyInTask + this.tasks[taskid][urls[i]];
+                if (urls[i] != null) {
+                    if (urls[i].indexOf("chrome-extension://") < 0 && urls[i].indexOf("chrome://") < 0) {
+                        if (typeof (this.tasks[taskid][urls[i]]) == typeof (3)) {
+                            totalTagFrequencyInTask = totalTagFrequencyInTask + this.tasks[taskid][urls[i]];
+                        }
                     }
                 }
             }
