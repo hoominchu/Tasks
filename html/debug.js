@@ -21,7 +21,7 @@ $(document).ready(function () {
     });
 });
 
-function Tag(str, tasksList) {
+function Tag(str, tasksList, correctOccurences, incorrectOccurences) {
 
     this.text = str;
     this.textLowerCase = str.toLowerCase();
@@ -30,8 +30,14 @@ function Tag(str, tasksList) {
 
     this.frequency = 0;
 
+    this.correctOccurences = correctOccurences || 0;
+    this.incorrectOccurences = incorrectOccurences ||0;
+
+    this.positiveFactor = 0.5;
+    this.negativeFactor = -0.5;
+
     // Use this if separate frequency of html tags is not needed. Using this for now as we are extracting "nes" from a page.
-    this.increaseFrequency = function (documentID, taskid) {
+    this.increaseFrequency = function (url, taskid) {
 
         this.frequency++;
 
@@ -47,23 +53,10 @@ function Tag(str, tasksList) {
         }
     };
 
-    this.getTaskWeight = function (taskid, taskURLs) {
-        if (this.tasks.hasOwnProperty(taskid)) {
-            var urls = taskURLs[taskid];
-            var totalTagFrequencyInTask = 0;
-            for (var i = 0; i < urls.length; i++) {
-                if (urls[i].indexOf("chrome-extension://") < 0 && urls[i].indexOf("chrome://") < 0) {
-                    if (typeof (this.tasks[taskid][urls[i]]) == typeof (3)) {
-                        totalTagFrequencyInTask = totalTagFrequencyInTask + this.tasks[taskid][urls[i]];
-                    }
-                }
-            }
-            return totalTagFrequencyInTask / Object.keys(this.tasks).length;
-        }
-    };
-
-    this.getTaskWeights = function (taskURLs) {
+    this.getTaskWeightsNew = function (taskURLs) {
         var taskScores = {};
+        var taskFrequencies = {};
+        var maxTaskFrequency = 0;
 
         for (var taskid in this.tasks) {
             var urls = taskURLs[taskid];
@@ -75,8 +68,74 @@ function Tag(str, tasksList) {
                     }
                 }
             }
-            var taskWeight = totalTagFrequencyInTask / Object.keys(this.tasks).length;
-            taskScores[taskid] = taskWeight;
+            taskFrequencies[taskid] = totalTagFrequencyInTask;
+            if (totalTagFrequencyInTask > maxTaskFrequency) {
+                maxTaskFrequency = totalTagFrequencyInTask;
+            }
+        }
+
+        for (var taskid in taskFrequencies) {
+            taskScores[taskid] = (taskFrequencies[taskid] - maxTaskFrequency) / maxTaskFrequency;
+        }
+
+        return taskScores;
+    };
+
+    this.getTaskWeight = function (taskid, taskURLs) {
+        if (this.tasks.hasOwnProperty(taskid)) {
+            var urls = taskURLs[taskid];
+            var totalTagFrequencyInTask = 0;
+            for (var i = 0; i < urls.length; i++) {
+                if (urls[i].indexOf("chrome-extension://") < 0 && urls[i].indexOf("chrome://") < 0) {
+                    if (typeof (this.tasks[taskid][urls[i]]) == typeof (3)) {
+                        totalTagFrequencyInTask = totalTagFrequencyInTask + this.tasks[taskid][urls[i]];
+                    }
+                }
+            }
+
+            var weight = totalTagFrequencyInTask / Object.keys(this.tasks).length;
+
+            if (this.correctOccurences != null) {
+                weight = weight + (this.correctOccurences * this.positiveFactor);
+            }
+            if (this.incorrectOccurences != null) {
+                weight = weight + (this.incorrectOccurences * this.negativeFactor); // negative factor is negative so the weight will get decreased.
+            }
+
+            return weight;
+        }
+
+        return 0;
+    };
+
+    this.getTaskWeights = function (taskURLs) {
+
+        var taskScores = {};
+
+        for (var tid in taskURLs) {
+            taskScores[tid] = 0;
+        }
+
+        for (var taskid in this.tasks) {
+            var urls = taskURLs[taskid];
+            var totalTagFrequencyInTask = 0;
+            for (var i = 0; i < urls.length; i++) {
+                if (urls[i].indexOf("chrome-extension://") < 0 && urls[i].indexOf("chrome://") < 0) {
+                    if (typeof (this.tasks[taskid][urls[i]]) == typeof (3)) {
+                        totalTagFrequencyInTask = totalTagFrequencyInTask + this.tasks[taskid][urls[i]];
+                    }
+                }
+            }
+            var weight = totalTagFrequencyInTask / Object.keys(this.tasks).length;
+
+            if (this.correctOccurences != null) {
+                weight = weight + (this.correctOccurences * this.positiveFactor);
+            }
+            if (this.incorrectOccurences != null) {
+                weight = weight + (this.incorrectOccurences * this.negativeFactor); // negative factor is negative so the weight will get decreased.
+            }
+
+            taskScores[taskid] = weight;
         }
 
         return taskScores;
@@ -173,7 +232,7 @@ function getTaskURLs(tasks) {
         if (taskID != "lastAssignedId" && taskID > 0 && tasks[taskID]["archived"] == false) {
             var task = tasks[taskID];
             var tabs = task["tabs"];
-            var urls = [];
+            var urls = task["likedPages"];
             for (var i = 0; i < tabs.length; i++) {
                 urls.push(tabs[i]["url"]);
             }
