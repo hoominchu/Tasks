@@ -91,7 +91,7 @@ function getNamedEntityTagsOnCurrentDocument(ctaskid, contentString) {
     // var contentString = document.documentElement.innerText;
     contentString = cleanTag(contentString);
     var doc = window.nlp(contentString);
-    var topics = doc.nouns().toSingular().data();
+    var topics = doc.nouns().data();
     for (var i = 0; i < topics.length; i++) {
         var topic = topics[i]["text"];
         topic = cleanTag(topic);
@@ -143,7 +143,7 @@ function getTaskwiseTotalScores(tags, tagLog, taskURLs) {
     for (var key in tags) {
         if (stopwords.indexOf(key.toLowerCase()) < 0) {
             if (tagLog.hasOwnProperty(key)) {
-                var tag = new Tag(tagLog[key]["text"], tagLog[key]["tasks"]);
+                var tag = new Tag(tagLog[key]["text"], tagLog[key]["tasks"], tagLog[key]["correctOccurences"], tagLog[key]["incorrectOccurences"]);
                 var taskScores = tag.getTaskWeights(taskURLs);
                 for (var taskid in taskScores) {
                     if (matchedTags.hasOwnProperty(taskid)) {

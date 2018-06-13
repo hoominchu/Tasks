@@ -258,7 +258,7 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
             "iconUrl" : "images/logo_white_sails_no_text.png",
             "title" : "Task Suggestion : " + probableTask,
             "message" : matchedTagsString,
-            "buttons" : [{"title":"See all matched tags"}], //,{"title":"Add to task " + probableTask + " and stay on the current task"}
+            "buttons" : [{"title":"See all matched tags"}, {"title":"Add to task " + probableTask}],
             // "items":[{"title":"sdfs","message":"sdfawefar"},{"title":"erwq","message":"qweqwer"},{"title":"zxz","message":"vbcxvbx"}],
             "isClickable" : true,
             "requireInteraction" : false}, function (notificationID) {
@@ -290,7 +290,7 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
                         });
                     }
                     // // This button adds the current webpage to the suggested task and stays in the current task.
-                    // else if (btnIdx === 1){
+                    else if (btnIdx === 1){
                     //     // Logging that the suggestion is correct.
                     //     chrome.storage.local.get("Suggestions Log", function (resp) {
                     //         resp["Suggestions Log"]["Correct suggestions"]++;
@@ -298,16 +298,44 @@ chrome.runtime.onMessage.addListener(function (response, sender) {
                     //     });
                     //
                     //     // Call function to add to task but not move to task.
-                    // }
+
+                        chrome.storage.local.get("Text Log", function (textLog) {
+                            textLog = textLog["Text Log"];
+
+                            for (var i = 0; i < matchedTags.length; i++) {
+                                var key = matchedTags[i][0].toLowerCase();
+                                if (textLog.hasOwnProperty(key)) {
+                                    textLog[key]["correctOccurences"]++;
+                                }
+                            }
+
+                            updateStorage("Text Log", textLog);
+
+                        });
+                    }
                 }
             });
 
             // When the user clicks on close the current page is added to the current task.
             chrome.notifications.onClosed.addListener(function() {
                 // Logging that the suggestion is incorrect.
-                chrome.storage.local.get("Suggestions Log", function (resp) {
-                    resp["Suggestions Log"]["Incorrect suggestions"]++;
-                    updateStorage("Suggestions Log", resp);
+                // chrome.storage.local.get("Suggestions Log", function (resp) {
+                //     resp["Suggestions Log"]["Incorrect suggestions"]++;
+                //     updateStorage("Suggestions Log", resp);
+                // });
+                chrome.storage.local.get("Text Log", function (textLog) {
+                    textLog = textLog["Text Log"];
+
+                    for (var i = 0; i < matchedTags.length; i++) {
+                        var key = matchedTags[i][0].toLowerCase();
+                        if (textLog.hasOwnProperty(key)) {
+                            var tag = textLog[key];
+                            textLog[key]["incorrectOccurences"]++;
+                        }
+                    }
+
+                    updateStorage("Text Log", textLog);
+
                 });
             });
         });
