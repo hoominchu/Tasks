@@ -28,7 +28,8 @@
       "suggestion.js",
       "suggestion-utils.js",
       "benchmarkScript.js",
-      "benchmarkScriptNew.js"
+      "benchmarkScriptNew.js",
+      "clusteringByParent.js"
     ]
   },
   "content_scripts": [
@@ -65,6 +66,7 @@
   ],
   "content_security_policy": "script-src 'self' 'unsafe-inline' 'unsafe eval' object-src 'self'",
   "permissions": [
+    "downloads",
     "tabs",
     "identity",
     "identity.email",

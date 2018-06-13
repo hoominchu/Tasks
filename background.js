@@ -8,6 +8,12 @@ chrome.commands.onCommand.addListener(function(command){
   }
 });
 
+// chrome.downloads.download({"url": "https://ia802508.us.archive.org/5/items/testmp3testfile/mpthreetest.mp3", "filename":"testing/test.mp3"})
+
+chrome.downloads.onDeterminingFilename.addListener(function(item, suggest) {
+  var currentTaskName = TASKS[CTASKID].name;
+suggest({filename: currentTaskName + "/"+ item.filename});
+});
 
 chrome.runtime.onMessage.addListener(function (request, sender) {
 
