@@ -28,8 +28,7 @@
       "suggestion.js",
       "suggestion-utils.js",
       "benchmarkScript.js",
-      "benchmarkScriptNew.js",
-      "clusteringByParent.js"
+      "benchmarkScriptNew.js"
     ]
   },
   "content_scripts": [
