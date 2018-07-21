@@ -27,6 +27,7 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
                 createTask(request.taskName, request.tabs, bookmarks);
                 if (request.activated) {
                     saveTaskInWindow(CTASKID);
+                    console.log("task created");
                     deactivateTaskInWindow(CTASKID)
                     activateTaskInWindow(TASKS["lastAssignedId"]);
                 }
@@ -36,6 +37,7 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
             createTask(request.taskName, request.tabs, {});
             if (request.activated) {
                 saveTaskInWindow(CTASKID);
+                console.log("task created with tabs");
                 deactivateTaskInWindow(CTASKID);
                 activateTaskInWindow(TASKS["lastAssignedId"]);
             }
@@ -50,6 +52,7 @@ chrome.runtime.onMessage.addListener(function (request, sender) {
 
     if (request.type == "switch-task" && request.nextTaskId != "") {
         saveTaskInWindow(CTASKID);
+        console.log("switch")
         deactivateTaskInWindow(CTASKID);
         activateTaskInWindow(request.nextTaskId);
     }
@@ -180,16 +183,17 @@ chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
 chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
   if(removeInfo.isWindowClosing){
-    deactivateTaskInWindow(CTASKID);
+    console.log("window closing");
+    deactivateTaskInWindow(CTASKID)
     CTASKID = 0;
-    chrome.windows.getCurrent(function(window){
-      if(getKeyByValue(taskToWindow, window.id)){
-        activateTaskInWindow(getKeyByValue(taskToWindow, window.id));
-      }
-      else{
-        CTASKID = 0;
-      }
-    });
+    // chrome.windows.getCurrent(function(window){
+    //   if(getKeyByValue(taskToWindow, window.id)){
+    //     activateTaskInWindow(getKeyByValue(taskToWindow, window.id));
+    //   }
+    //   else{
+    //     CTASKID = 0;
+    //   }
+    // });
   }
   else {
         saveTaskInWindow(CTASKID);
@@ -202,6 +206,7 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
         if(window.type == "normal"){
             if(getKeyByValue(taskToWindow, newWindowId)){
                 //saveTaskInWindow(CTASKID);
+                console.log("focus changed and window not default");
                 deactivateTaskInWindow(CTASKID);
                 activateTaskInWindow(getKeyByValue(taskToWindow, newWindowId));
             }
@@ -213,6 +218,7 @@ chrome.windows.onFocusChanged.addListener(function (newWindowId){
   }
   else{
       if(getKeyByValue(taskToWindow, newWindowId)){
+          console.log("focus changed and window default");
           deactivateTaskInWindow(getKeyByValue(taskToWindow, newWindowId));
           CTASKID = 0;
           chrome.storage.local.set({"CTASKID": 0});

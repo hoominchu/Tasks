@@ -104,53 +104,58 @@ function addTabsToTask(taskId, tabs){
 
 }
 
+function focusTask(task_id){
+  //This method brings the window into focus, updates the taskToWindow dictionary, and sets the BadgeText
+
+  //If the task is already open in some window, focus the window
+  if(taskToWindow.hasOwnProperty(task_id)){
+      chrome.windows.update(taskToWindow[task_id], {"focused": true});
+
+  }
+  //If not, then open all the urls from the task in a new window
+  else{
+      //If task has any urls, then open them in a new window and assign the new window to the task.
+      if (TASKS[task_id].tabs.length > 0) {
+          var urls = [];
+          for (var i = 0; i < TASKS[task_id].tabs.length; i++) {
+              urls.push(TASKS[task_id].tabs[i].url);
+          }
+          chrome.windows.create({"url": urls}, function(window){
+              var taskId = task_id;
+              taskToWindow[taskId] = window.id;
+          });
+      }
+      //If not, then just open a new page.
+      else {
+          chrome.windows.create({"url": "about:blank"}, function (window) {
+              var taskId = task_id;
+              taskToWindow[taskId] = window.id;
+          });
+      }
+
+  }
+  // createBookmarks(TASKS[task_id].bookmarks);
+
+  //Set the badge text as new task name.
+  chrome.browserAction.setBadgeText({"text": TASKS[task_id].name.slice(0, 4)});
+}
 
 
 function activateTaskInWindow(task_id){
     try {
+        if(TASKS[task_id].isActive != true){
+          focusTask(task_id)
+          //Mark task as active.
+          var now = new Date();
+          TASKS[task_id].activationTime.push(now.toString());
+          TASKS[task_id].isActive = true;
+          console.log(TASKS[task_id].name + " activated.");
 
-        //If the task is already open in some window, focus the window
-        if(taskToWindow.hasOwnProperty(task_id)){
-            chrome.windows.update(taskToWindow[task_id], {"focused": true});
-
-
+          //Set the CTASKID as the id of the task and update Storage.
+          CTASKID = task_id;
+          updateStorage("TASKS",TASKS);
+          chrome.storage.local.set({"CTASKID": task_id});
         }
-        //If not, then open all the urls from the task in a new window
-        else{
-            //If task has any urls, then open them in a new window and assign the new window to the task.
-            if (TASKS[task_id].tabs.length > 0) {
-                var urls = [];
-                for (var i = 0; i < TASKS[task_id].tabs.length; i++) {
-                    urls.push(TASKS[task_id].tabs[i].url);
-                }
-                chrome.windows.create({"url": urls}, function(window){
-                    var taskId = task_id;
-                    taskToWindow[taskId] = window.id;
-                });
-            }
-            //If not, then just open a new page.
-            else {
-                chrome.windows.create({"url": "about:blank"}, function (window) {
-                    var taskId = task_id;
-                    taskToWindow[taskId] = window.id;
-                });
-            }
-
-        }
-        // createBookmarks(TASKS[task_id].bookmarks);
-
-        //Set the badge text as new task name.
-        chrome.browserAction.setBadgeText({"text": TASKS[task_id].name.slice(0, 4)});
-
-        //Mark task as active.
-        var now = new Date();
-        TASKS[task_id].activationTime.push(now.toString());
-        TASKS[task_id].isActive = true;
-
-        //Set the CTASKID as the id of the task and update Storage.
-        CTASKID = task_id;
-        updateStorage("TASKS",TASKS);
-        chrome.storage.local.set({"CTASKID": task_id});
 
     }
     catch (err) {
@@ -176,7 +181,7 @@ function saveTaskInWindow(task_id){
 
 //Run this when a task is closed
 function deactivateTaskInWindow(task_id){
-    if(taskToWindow.hasOwnProperty(task_id)){
+    if(taskToWindow.hasOwnProperty(task_id) && TASKS[task_id].isActive != false){
         // saveTaskInWindow(task_id);
         // closeAllTabs(false, taskToWindow[task_id]);
         // removeBookmarks();
@@ -184,6 +189,7 @@ function deactivateTaskInWindow(task_id){
         TASKS[task_id].deactivationTime.push(now.toString());
         TASKS[task_id].isActive = false;
         updateStorage("TASKS",TASKS);
+        console.log(TASKS[task_id].name + " deactivated.");
     }
     //Set the badge text to nothing
     chrome.browserAction.setBadgeText({"text": ""});

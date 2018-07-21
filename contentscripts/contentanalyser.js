@@ -449,7 +449,3 @@ function updateStorage(key, obj) {
     tempObj[key] = obj;
     chrome.storage.local.set(tempObj);
 }
-
-
-
-
